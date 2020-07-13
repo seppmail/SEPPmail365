@@ -1,0 +1,12 @@
+{
+        "Name"                     : "[SEPPmail] ExchangeOnline -> Appliance",
+        "Comment"                  : "Based on rules, E-Mails that have not been processed by SEPPmail appliance are routed there.",
+        "Enabled"                  : true,
+        "ConnectorSource"          : "Default",
+        "ConnectorType"            : "Partner",
+        "IsTransportRuleScoped"    : true,
+        "SmartHosts"               : "--SET-BY-PARAMETER--",
+        "TlsDomain"                : "--SET-BY-PARAMETER--",
+        "TlsSettings"              : "DomainValidation",
+        "UseMXRecord"              : false
+}

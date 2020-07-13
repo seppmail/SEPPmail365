@@ -1,0 +1,17 @@
+{
+    "Name"                                : "[SEPPmail] - Route outgoing/internal Mails to SEPPmail",
+    "Comments"                            : "Mails sent from inside the organization are sent to SEPPmail appliance if they have not been there already for sig/enc processing.",
+    "FromScope"                           : "InOrganization",
+    "SentToScope"                         : "NotInOrganization",
+    "RouteMessageOutboundConnector"       : "outboundConnName",
+    "ExceptIfHeaderMatchesMessageHeader"  : "X-SM-internal",
+    "ExceptIfHeaderMatchesPatterns"       : "yes",
+    "ExceptIfHeaderContainsMessageHeader" : "X-SM-outgoing",
+    "ExceptIfHeaderContainsWords"         : "yes",
+    "ExceptIfMessageTypeMatches"          : "OOF",
+    "Priority"                            : 0,
+    "SetAuditSeverity"                    : "DoNotAudit",
+    "Mode"                                : "Enforce",
+    "SenderAddressLocation"               : "Header",
+    "Enabled"                             : true
+}

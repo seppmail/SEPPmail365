@@ -1,0 +1,15 @@
+{
+        "Name"                         : "[SEPPmail] Appliance -> ExchangeOnline",
+        "SenderDomains"                : "*",
+        "Comment"                      : "Accept E-Mails from SEPPmail Appliance",
+        "ConnectorSource"              : "Default",
+        "ConnectorType"                : "Partner",
+        "EFSkipIPs"                    : null,
+        "EFSkipLastIP"                 : true,
+        "EFUsers"                      : null,
+        "Enabled"                      : true,
+        "RequireTls"                   : true,
+        "RestrictDomainsToCertificate" : true,
+        "RestrictDomainsToIPAddresses" : false,
+        "TlsSenderCertificateName"     : "--SET-BY-PARAMETER--"
+}
