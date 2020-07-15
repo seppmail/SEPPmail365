@@ -1,12 +1,12 @@
-# SEPPmail Exchange Online Module
+# SEPPmail Microsoft 365 and Exchange Online Module
 
 ## General
 
-This module helps customer and partners to smootly integrate the SEPPmail-Appliance (SMA) with Exchange Online (ExO).
+This module helps customer and partners to smoothly integrate the SEPPmail-Appliance (SMA) with Exchange Online (ExO).
 
 ## Prerequisites
 
-The module only works on Windows PowerShell 5.1 (64Bit).
+The module only works on Windows PowerShell 5.1 (64Bit), because it depends on the ExchangeOnlineManagement Module which currently works also only on Windows PowerShell 5.1.
 
 ## Functionality
 
@@ -24,10 +24,14 @@ And with MFA:
 Connect-ExchangeOnline -UserPrincipalName frank@contoso.com -ShowProgress $true
 ```
 
+Fact is, without an established implicit remoting session to Exchange Online, the module will not work.
+
 ## ExO Infos
 
 Before the change in the ruleset is implemented the module shall provide information about the current Exo environment. Things like
-Tenant-ID, Mail-domains, Existing rules ... shall be listed for decision making on how to implement the SEPPmail ruleset.
+Tenant-ID, Mail-domains, existing rules ... shall be listed for decision making on how to implement the SEPPmail ruleset.
+
+New-Sm365ExOReport will generate a report of the existing ExO environment.
 
 ## Ruleset update option
 

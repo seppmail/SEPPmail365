@@ -1,4 +1,4 @@
-function Read-SETransportRuleFiles {
+function Get-SM365TransportRuleDefaults {
     #[CmdLetBinding(SupportsShouldProcess)]
     Write-Verbose "Load default transport rules from module folder and transform into hashtables"
     $script:outgoingHeaderCleaningParam = [ordered]@{}
@@ -14,9 +14,9 @@ function Read-SETransportRuleFiles {
     $script:InboundParam = [ordered]@{}
     (ConvertFrom-Json (Get-Content -Path $ModulePath\ExOConfig\Rules\inbound.json -Raw)).psobject.properties | ForEach-Object {$InboundParam[$_.Name] = $_.Value}
 }
-function Remove-SETransportRules {
+function Remove-SM365TransportRules {
     #[CmdLetBinding(SupportsShouldProcess)]
-    Read-SETransportRuleFiles
+    Get-SM365TransportRuleDefaults
     Remove-TransportRule -Identity $($outgoingHeaderCleaningParam.Name)
     Remove-TransportRule -Identity $($decryptedHeaderCleaningParam.Name)
     Remove-TransportRule -Identity $($encryptedHeaderCleaningParam.Name)
@@ -24,7 +24,7 @@ function Remove-SETransportRules {
     Remove-TransportRule -Identity $($OutboundParam.Name)
     Remove-TransportRule -Identity $($InboundParam.Name)
 }
-function New-SETransportRules {
+function New-SM365TransportRules {
     Write-Verbose "Read Outbound Connector Information"
     $outboundConn = Get-OutboundConnector |Where-Object Name -match '^\[SEPPmail\].*$'
     if (!($outboundconn)) {
@@ -32,7 +32,7 @@ function New-SETransportRules {
     } 
     else 
         {
-        Read-SETransportRuleFiles
+        Get-SM365TransportRuleDefaults
         Write-Verbose "Adapt Transport rules with outbound connector information"
         $InternalParam.RouteMessageOutboundConnector = $OutboundConn.Name
         $OutboundParam.RouteMessageOutboundConnector = $OutboundConn.Name
