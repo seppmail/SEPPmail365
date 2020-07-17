@@ -55,6 +55,7 @@ RequiredModules = @(
     @{
         ModuleName = 'ExchangeOnlineManagement'
         ModuleVersion = '2.0.3'
+        GUID = 'b5eced50-afa4-455b-847a-d8fb64140a22'
     }
 )
 
@@ -127,7 +128,7 @@ PrivateData = @{
 '@
 
         # Prerelease string of this module
-        Prerelease = 'alpha-2'
+        Prerelease = 'beta1'
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         # RequireLicenseAcceptance = $false
