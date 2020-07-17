@@ -55,7 +55,7 @@ RequiredModules = @(
     @{
         ModuleName = 'ExchangeOnlineManagement'
         ModuleVersion = '2.0.3'
-        GUID = 'b5eced50-afa4-455b-847a-d8fb64140a22'
+        GUID = 'B5ECED50-AFA4-455B-847A-D8FB64140A22'
     }
 )
 
