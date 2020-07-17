@@ -2,13 +2,15 @@
 
 ## General
 
-This module helps customer and partners to smoothly integrate the SEPPmail-Appliance (SMA) with Exchange Online (ExO).
+This module helps customer and partners to smoothly integrate a SEPPmail-Appliance (SMA) with Exchange Online (ExO).
 
 ## Prerequisites
 
 The module only works on Windows PowerShell 5.1 (64Bit), because it depends on the ExchangeOnlineManagement Module which currently works also only on Windows PowerShell 5.1.
 
 ## Functionality
+
+The module has a basic overview report of the existing Exchange Online environment, as well as 2 commands to create Connectors and rules to make Exchange online work seamlessly with SEPPmail.
 
 ## Authentication
 
@@ -33,29 +35,28 @@ Tenant-ID, Mail-domains, existing rules ... shall be listed for decision making 
 
 New-Sm365ExOReport will generate a report of the existing ExO environment.
 
-## Ruleset update option
-
-As SEPPmail continues to adapt and refine the rulset, based on customer feedback, the Module shall offer an option to update
-the current ruleset to a defined of the latest version. If a ruleset applies to a specific SMA-Version, the user shall have the option to deploy the ruleset for that specific SMA version.
-
-Example:
-```powershell
-Update-SMExORulset -SMVersion '11.1.8'
-```
-
 ## Ruleset order
 
-Customers may have existing rules in ExO already, the Module shall give the option to set the priority of the rulset - and therefor the position of the rulset in the mailflow. Same applies for connectors
+Customers may have existing rules in ExO already, the module checks existing rules and lets you set the priority of the SEPPmail rulset and therefor the position with the existing rules
 
 Example:
 ```powershell
-New-SMExORuleset -SMVersion latest -Position first
+New-SM365Rules
 ```
 
 ## Whatif option
 
 Before the actual changes happen, all CmdLets, which to configuration changes, must have a `-Whatif` Option to simulate the change in advance.
 
-## Ruleset and Connector Backup
+## Ruleset update option (in the pipeline)
+
+As SEPPmail continues to adapt and refine the rulset, based on customer feedback, the Module shall offer an option to update the current ruleset to a defined of the latest version. If a ruleset applies to a specific SMA-Version, the user shall have the option to deploy the ruleset for that specific SMA version.
+
+Example:
+```powershell
+Update-SM365Rulse
+```
+
+## Ruleset and Connector Backup (pipeline)
 
 Before any change happens in ExO, users should have the option to backup the connector settings and rulsesets to a local file and restore this configuration in case of mistake.

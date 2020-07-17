@@ -15,16 +15,25 @@ function Get-SM365TransportRuleDefaults {
     (ConvertFrom-Json (Get-Content -Path $ModulePath\ExOConfig\Rules\inbound.json -Raw)).psobject.properties | ForEach-Object {$InboundParam[$_.Name] = $_.Value}
 }
 function Remove-SM365TransportRules {
-    #[CmdLetBinding(SupportsShouldProcess)]
+
+    [CmdletBinding(SupportsShouldProcess = $true,
+                           ConfirmImpact = 'Medium'
+                    )]
+    param()
     Get-SM365TransportRuleDefaults
-    Remove-TransportRule -Identity $($outgoingHeaderCleaningParam.Name)
-    Remove-TransportRule -Identity $($decryptedHeaderCleaningParam.Name)
-    Remove-TransportRule -Identity $($encryptedHeaderCleaningParam.Name)
-    Remove-TransportRule -Identity $($InternalParam.Name)
-    Remove-TransportRule -Identity $($OutboundParam.Name)
-    Remove-TransportRule -Identity $($InboundParam.Name)
+    Remove-TransportRule -Identity $($outgoingHeaderCleaningParam.Name) -Whatif:$Whatif
+    Remove-TransportRule -Identity $($decryptedHeaderCleaningParam.Name) -Whatif:$Whatif
+    Remove-TransportRule -Identity $($encryptedHeaderCleaningParam.Name) -Whatif:$Whatif
+    Remove-TransportRule -Identity $($InternalParam.Name) -Whatif:$Whatif
+    Remove-TransportRule -Identity $($OutboundParam.Name) -Whatif:$Whatif
+    Remove-TransportRule -Identity $($InboundParam.Name) -Whatif:$Whatif
 }
 function New-SM365TransportRules {
+    [CmdletBinding(SupportsShouldProcess = $true,
+                           ConfirmImpact = 'Medium'
+                )]
+    param()
+
     Write-Verbose "Read Outbound Connector Information"
     $outboundConn = Get-OutboundConnector |Where-Object Name -match '^\[SEPPmail\].*$'
     if (!($outboundconn)) {
@@ -47,11 +56,11 @@ function New-SM365TransportRules {
         $InboundParam.Priority = $placementPrio
 
         Write-Verbose "Create Transport Rules"
-        New-TransportRule @outgoingHeaderCleaningParam -whatif:$whatif -ErrorAction Stop |Out-Null
-        New-TransportRule @decryptedHeaderCleaningParam -Whatif:$Whatif -ErrorAction Stop |Out-Null
-        New-TransportRule @encryptedHeaderCleaningParam -Whatif:$Whatif -ErrorAction Stop |Out-Null
-        New-TransportRule @InternalParam -Whatif:$Whatif -ErrorAction Stop |Out-Null
-        New-TransportRule @OutboundParam -Whatif:$Whatif -ErrorAction Stop |Out-Null
-        New-TransportRule @InboundParam -Whatif:$Whatif -ErrorAction Stop |Out-Null
+        New-TransportRule @outgoingHeaderCleaningParam -whatif:$whatif # -ErrorAction Stop |Out-Null
+        New-TransportRule @decryptedHeaderCleaningParam -Whatif:$Whatif # -ErrorAction Stop |Out-Null
+        New-TransportRule @encryptedHeaderCleaningParam -Whatif:$Whatif # -ErrorAction Stop |Out-Null
+        New-TransportRule @InternalParam -Whatif:$Whatif # -ErrorAction Stop |Out-Null
+        New-TransportRule @OutboundParam -Whatif:$Whatif # -ErrorAction Stop |Out-Null
+        New-TransportRule @InboundParam -Whatif:$Whatif # -ErrorAction Stop |Out-Null
     }
 }

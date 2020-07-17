@@ -1,5 +1,5 @@
 {
-    "Name"              : "[SEPPmail] - Clean outbound SEPPmail header outgoing",
+    "Name"                  : "[SEPPmail] - Clean outbound SEPPmail header outgoing",
     "Comments"              : "Removes outgoing SEPPmail x-headers from E-Mail.",
     "FromScope"             : "InOrganization",
     "SentToScope"           : "NotInOrganization",

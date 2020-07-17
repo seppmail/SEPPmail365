@@ -3,7 +3,7 @@
         "Comment"                  : "Based on rules, E-Mails that have not been processed by SEPPmail appliance are routed there.",
         "Enabled"                  : true,
         "ConnectorSource"          : "Default",
-        "ConnectorType"            : "Partner",
+        "ConnectorType"            : "OnPremises",
         "IsTransportRuleScoped"    : true,
         "SmartHosts"               : "--SET-BY-PARAMETER--",
         "TlsDomain"                : "--SET-BY-PARAMETER--",

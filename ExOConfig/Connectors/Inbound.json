@@ -3,7 +3,7 @@
         "SenderDomains"                : "*",
         "Comment"                      : "Accept E-Mails from SEPPmail Appliance",
         "ConnectorSource"              : "Default",
-        "ConnectorType"                : "Partner",
+        "ConnectorType"                : "OnPremises",
         "EFSkipIPs"                    : null,
         "EFSkipLastIP"                 : true,
         "EFUsers"                      : null,
@@ -11,5 +11,6 @@
         "RequireTls"                   : true,
         "RestrictDomainsToCertificate" : true,
         "RestrictDomainsToIPAddresses" : false,
+        "TreatMessagesAsInternal"      : true,
         "TlsSenderCertificateName"     : "--SET-BY-PARAMETER--"
 }

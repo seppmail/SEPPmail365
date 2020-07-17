@@ -12,7 +12,7 @@
 RootModule = 'SEPPMail365.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.2.0'
+ModuleVersion = '0.3.0'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Desktop')
@@ -104,25 +104,30 @@ PrivateData = @{
     PSData = @{
 
         # Tags applied to this module. These help with module discovery in online galleries.
-        Tags = @('SEPPmail', 'ExchangeOnline', 'Microsoft 365')
+        Tags = @(
+                'SEPPmail',
+                'Exchange Online',
+                'Microsoft 365',
+                'PSEdition_Desktop',
+                'Windows')
 
         # A URL to the license for this module.
-        # LicenseUri = ''
+        LicenseUri = 'https://github.com/seppmail/SEPPmail365/blob/master/LICENSE'
 
         # A URL to the main website for this project.
-        # ProjectUri = ''
+        ProjectUri = 'https://github.com/seppmail/SEPPmail365'
 
         # A URL to an icon representing this module.
-        # IconUri = ''
+        IconUri = 'https://seppmail.de/wp-content/uploads/logo_seppmail_V1_Screen_S2.png'
 
         # ReleaseNotes of this module
         ReleaseNotes = 
 @'
-        0.2.0 Same functionality as the existing SEPPmail O365 deployment script
+17.07.20    0.2.0 Build same functionality as the existing SEPPmail O365 deployment script
 '@
 
         # Prerelease string of this module
-        Prerelease = 'alpha 1'
+        Prerelease = 'alpha-2'
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         # RequireLicenseAcceptance = $false

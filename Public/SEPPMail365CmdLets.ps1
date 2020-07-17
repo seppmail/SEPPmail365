@@ -1,18 +1,20 @@
-<#
+﻿<#
 .SYNOPSIS
-    Adds SEPPmail Exchange Online connectors 
+    Adds SEPPmail Exchange Online connectors
 .DESCRIPTION
-    SEPPmail uses 2 Connectors to transfer messages between SEPPmail and Exchange Online 
+    SEPPmail uses 2 Connectors to transfer messages between SEPPmail and Exchange Online
     This commandlet will create the connectors for you.
+
+    The -SEPPmailFQDN must point to a SEPPmail Appliance with a valid certificat to establish the TLS conenction.
 
 .EXAMPLE
     New-SM365Connectors -SEPPmailFQDN 'securemail.consoso.com'
-.EXAMPLE
-    New-SM365Connectors -SEPPmailFQDN 'securemail.consoso.com' -maildomain 'contoso.com'
 #>
 function New-SM365Connectors
 {
-    [CmdletBinding(SupportsShouldProcess)]
+    [CmdletBinding(SupportsShouldProcess = $true,
+                           ConfirmImpact = 'Medium'
+                    )]
     param(
         [Parameter(
             Mandatory = $true,
@@ -21,17 +23,9 @@ function New-SM365Connectors
         [ValidatePattern("^(?!:\/\/)(?=.{1,255}$)((.{1,63}\.){1,127}(?![0-9]*$)[a-z0-9-]+\.?)$")]
         [Alias("FQDN")]
         [String]$SEPPmailFQDN
-<#
-        [Parameter(
-            Mandatory = $false,
-            HelpMessage = 'Mail Domain of Exchange Online'
-        )]
-        [ValidatePattern("^(?!:\/\/)(?=.{1,255}$)((.{1,63}\.){1,127}(?![0-9]*$)[a-z0-9-]+\.?)$")]
-        [Alias("domain")]
-        [String[]]$mailDomain
-#>
+
     )
-    
+
     begin
     {
         if (!(Get-AcceptedDomain))
@@ -43,9 +37,34 @@ function New-SM365Connectors
         {
             $defdomain = (Get-AcceptedDomain | Where-Object Default -Like 'True').DomainName
             Write-Information "Connected to Exchange Organization `"$defdomain`"" -InformationAction Continue
+
+            Write-Verbose "Testing for hybrid Setup"
+            $HybridInboundConn = Get-InboundConnector |Where-Object {(($_.Name -clike 'Inbound from *') -or ($_.ConnectorSource -clike 'HybridWizard'))} 
+            $HybridOutBoundConn = Get-OutBoundConnector |Where-Object {(($_.Name -clike 'Outbound to *') -or ($_.ConnectorSource -clike 'HybridWizard'))} 
+
+            if ($HybridInboundConn -or $HybridOutBoundConn) {
+                Write-Warning "!!! - Hybrid Configuration detected - we assume you know what you are doing. Be sure to backup your connector settings before making any change."
+                Write-Verbose "ASk user to continue if Hybrid is found."
+                Do
+                {
+                    try
+                    {
+                        [ValidateSet('y', 'Y', 'n', 'N')]$hybridContinue = Read-Host -Prompt "Create SEPPmail connectors in hybrid environment ? (Y/N)"
+                    }
+                    catch {}
+                }
+                until ($?)
+                if (($hybridContinue -eq 'n') -or ($hybridContinue -eq 'N')) {
+                    Write-Verbose "Exiting due to user decision."
+                    break
+                }
+    
+            } else {
+                Write-Information "No Hybrid Connectors detected, seems to be a clean cloud-only environment" -InformationAction Continue
+            }
         }
     }
-    
+
     process
     {
         Write-Verbose "Load default connector settings from PSModule folder and transform into hashtables"
@@ -58,7 +77,7 @@ function New-SM365Connectors
         $OutboundConnParam.SmartHosts = $SEPPmailFQDN
         $OutboundConnParam.TlsDomain = $SEPPmailFQDN
         $InboundConnParam.TlsSenderCertificateName = $SEPPmailFQDN
-        
+
         Write-Verbose "Read existing SEPPmail Inbound Connector"
         $existingSMInboundConn = Get-InboundConnector | Where-Object Name -Match '^\[SEPPmail\].*$'
         if ($existingSMInboundConn)
@@ -73,7 +92,7 @@ function New-SM365Connectors
                 catch {}
             }
             until ($?)
-            
+
             if ($recreateSMInboundConn -like 'y')
             {
                 $existingSMInboundConn | Remove-InboundConnector -Whatif:$Whatif
@@ -103,7 +122,7 @@ function New-SM365Connectors
                 catch {}
             }
             until ($?)
-            
+
             if ($recreateSMOutboundConn -like 'y')
             {
                 $existingSMOutboundConn | Remove-OutboundConnector -Whatif:$Whatif
@@ -119,7 +138,7 @@ function New-SM365Connectors
             $OutboundConn = New-OutboundConnector @OutboundConnParam -Whatif:$Whatif #|Out-Null
         }
     }
-    
+
     end
     {
         if ($outboundConn) { return $OutboundConn }
@@ -144,11 +163,13 @@ function New-SM365Connectors
 #>
 function New-SM365Rules
 {
-    [CmdletBinding(SupportsShouldProcess)]
+    [CmdletBinding(SupportsShouldProcess = $true,
+                           ConfirmImpact = 'Medium'
+                    )]
     param(
 
     )
-    
+
     begin
     {
         if (!(Get-AcceptedDomain))
@@ -162,7 +183,7 @@ function New-SM365Rules
             Write-Information "Connected to Exchange Organization `"$defdomain`"" -InformationAction Continue
         }
     }
-    
+
     process
     {
         Write-Verbose "Read existing custom transport rules"
@@ -227,24 +248,24 @@ function New-SM365Rules
         }
         else
         {
-            New-SM365TransportRules
+            New-SM365TransportRules -Whatif:$whatif
         }
     }
 
     end
     {
-        
+
     }
 }
 
 
 <#
 .SYNOPSIS
-    Short description
+    Produce a status Report for M 365
 .DESCRIPTION
-    Long description
+    Before any change to the message flow is done, this report retreives the most needed information to decide how to integrate SEPPmail into Exchange Online
 .EXAMPLE
-    Example of how to use this cmdlet
+    New-SM365ExOReport
 .EXAMPLE
     Another example of how to use this cmdlet
 .INPUTS
@@ -264,47 +285,60 @@ function New-SM365ExOReport {
     [CmdletBinding(SupportsShouldProcess=$true,
                    ConfirmImpact='Medium')]
     Param (
-        # Param1 help description
-        [Parameter(Mandatory=$true,
-                   Position=0,
-                   ValueFromPipeline=$true,
-                   ValueFromPipelineByPropertyName=$true,
-                   ValueFromRemainingArguments=$false, 
-                   ParameterSetName='Parameter Set 1')]
-        [ValidateNotNull()]
-        [ValidateNotNullOrEmpty()]
-        [ValidateCount(0,5)]
-        [ValidateSet("sun", "moon", "earth")]
-        [Alias("p1")] 
-        $Param1,
-        
-        # Param2 help description
-        [Parameter(ParameterSetName='Parameter Set 1')]
-        [AllowNull()]
-        [AllowEmptyCollection()]
-        [AllowEmptyString()]
-        [ValidateScript({$true})]
-        [ValidateRange(0,5)]
-        [int]
-        $Param2,
-        
-        # Param3 help description
-        [Parameter(ParameterSetName='Another Parameter Set')]
-        [ValidatePattern("[a-z]*")]
-        [ValidateLength(0,15)]
-        [String]
-        $Param3
+        # Define output Format
+        [Parameter(Mandatory=$false)]
+        [ValidateSet("Console", "HTML")]
+        $Output = 'Console'
     )
-    
+
     begin {
     }
-    
+
     process {
         if ($pscmdlet.ShouldProcess("Target", "Operation")) {
-            
+            #"Whatis is $Whatif and `$pscmdlet.ShouldProcess is $($pscmdlet.ShouldProcess) "
+            #For later Use
         }
+
+        "*** Exchange Online Overview"
+        Get-AcceptedDomain
+        "***"
+        "** Audit Log and Dkim Settings"
+        Get-AdminAuditLogConfig |Select-Object Name,AdminAuditLogEnabled,LogLevel,AdminAuditLogAgeLimit|Format-Table
+        Get-DkimSigningConfig|Select-Object Domain,Status|Format-Table
+        "***"
+        
+        "** Phishing and Malware Policies"
+        Get-AntiPhishPolicy|Select-Object Identity,isDefault,IsValid|Format-Table
+        Get-MalwareFilterPolicy|Select-Object Identity,Action,IsDefault|Format-Table
+        "***"
+        
+        "** ATP Information"
+        Get-ATPTotalTrafficReport|Select-Object Organization,Eventtype,Messagecount|Format-Table
+        "**"
+        
+        "** Reading Hybrid Information"
+        "* Get-HybridMailflow"
+        Get-HybridMailflow|Format-Table
+        "* Get-HybridMailflowDatacenterIPs"
+        Get-HybridMailflowDatacenterIPs|Select-Object -ExpandProperty DatacenterIPs|Format-Table
+        Get-IntraOrganizationConfiguration|Select-Object OnlineTargetAddress,OnPremiseTargetAddresses,IsValid|Format-Table
+        "*Get-IntraorgConnector"
+        Get-IntraOrganizationConnector|Select-Object Identity,TargetAddressDomains,DiscoveryEndpoint,IsValid|Format-Table
+        "*Get-MigrationConfig"
+        Get-MigrationConfig|Select-Object Identity,Features,IsValid|Format-Table
+        "*Get-MigrationStatistics"
+        Get-MigrationStatistics|Select-Object Identity,Totalcount,FinalizedCount,MigrationType,IsValid|Format-Table
+        "**"
+        
+        "** InboundConnectors"
+        Get-InboundConnector |Select-Object Identity,ConnectorType,ConnectorSource,EFSkipLastIP,EFUsers,IsValid|Format-Table
+        "** OutboundConnectors"
+        Get-OutboundConnector|Select-Object Identity,ConnectorType,ConnectorSource,EFSkipLastIP,EFUsers,IsValid|Format-Table
+        "** TransportRules"
+        Get-TransportRule|Format-Table
+        "*** END of Report ***"
     }
-    
     end {
     }
 }

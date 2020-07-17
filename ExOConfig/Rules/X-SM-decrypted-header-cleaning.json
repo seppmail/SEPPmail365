@@ -1,5 +1,5 @@
 {
-    "Name"              : "[SEPPmail] - Clean outbound SEPPmail header decrypted",
+    "Name"                  : "[SEPPmail] - Clean outbound SEPPmail header decrypted",
     "Comments"              : "Removes decrypted SEPPmail x-headers from E-Mail.",
     "FromScope"             : "InOrganization",
     "SentToScope"           : "NotInOrganization",
