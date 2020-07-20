@@ -12,7 +12,7 @@
 RootModule = 'SEPPMail365.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.3.0'
+ModuleVersion = '0.5.0'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Desktop')
@@ -107,8 +107,8 @@ PrivateData = @{
         # Tags applied to this module. These help with module discovery in online galleries.
         Tags = @(
                 'SEPPmail',
-                'Exchange Online',
-                'Microsoft 365',
+                'ExchangeOnline',
+                'Microsoft365',
                 'PSEdition_Desktop',
                 'Windows')
 
@@ -125,10 +125,12 @@ PrivateData = @{
         ReleaseNotes = 
 @'
 17.07.20    0.2.0 Build same functionality as the existing SEPPmail O365 deployment script
+
+21.07.20    0.5.0 Add Whatif/Confim, some bugfixes, beta2
 '@
 
         # Prerelease string of this module
-        Prerelease = 'beta1'
+        Prerelease = 'beta2'
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         # RequireLicenseAcceptance = $false

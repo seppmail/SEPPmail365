@@ -16,15 +16,21 @@ function New-SM365Connectors
                            ConfirmImpact = 'Medium'
                     )]
     param(
-        [Parameter(
-            Mandatory = $true,
-            HelpMessage = 'FQDN of the SEPPmail Appliance'
-        )]
-        [ValidatePattern("^(?!:\/\/)(?=.{1,255}$)((.{1,63}\.){1,127}(?![0-9]*$)[a-z0-9-]+\.?)$")]
-        [Alias("FQDN")]
-        [String]$SEPPmailFQDN
+            [Parameter(
+                Mandatory = $true,
+                HelpMessage = 'FQDN of the SEPPmail Appliance'
+            )]
+            [ValidatePattern("^(?!:\/\/)(?=.{1,255}$)((.{1,63}\.){1,127}(?![0-9]*$)[a-z0-9-]+\.?)$")]
+            [Alias("FQDN")]
+            [String]$SEPPmailFQDN,
 
-    )
+            [Parameter(
+                Mandatory = $true,
+                HelpMessage = 'Associated Accepted Domains, the connector will take e-Mails from'
+            )]
+            [Alias("ibad")]
+            [String[]]$InboundAcceptedDomains
+        )
 
     begin
     {
@@ -44,7 +50,7 @@ function New-SM365Connectors
 
             if ($HybridInboundConn -or $HybridOutBoundConn) {
                 Write-Warning "!!! - Hybrid Configuration detected - we assume you know what you are doing. Be sure to backup your connector settings before making any change."
-                Write-Verbose "ASk user to continue if Hybrid is found."
+                Write-Verbose "Ask user to continue if Hybrid is found."
                 Do
                 {
                     try
@@ -62,11 +68,25 @@ function New-SM365Connectors
             } else {
                 Write-Information "No Hybrid Connectors detected, seems to be a clean cloud-only environment" -InformationAction Continue
             }
+
+            function New-SM365InboundConnector {
+                Write-Verbose "Creating SEPPmail Inbound Connector !"
+                if ($PSCmdLet.ShouldProcess($($InboundConnParam.Name),'Creating Inbound Connector')) {
+                    $InboundConn = New-InboundConnector @InboundConnParam 
+                }
+            }
+            function New-SM365OutboundConnector {
+                Write-Verbose "Creating SEPPmail Outbound Connector $($outboundConnParam.Name)!"
+                if ($PSCmdLet.ShouldProcess($($outboundConnParam.Name),'Creating Outbound Connector')) {
+                    $OutboundConn = New-OutboundConnector @OutboundConnParam
+                }
+            }
         }
     }
 
     process
     {
+        #region
         Write-Verbose "Load default connector settings from PSModule folder and transform into hashtables"
         $InboundConnParam = [ordered]@{}
         (ConvertFrom-Json (Get-Content -Path $ModulePath\ExOConfig\Connectors\Inbound.json -Raw)).psobject.properties | ForEach-Object { $InboundConnParam[$_.Name] = $_.Value }
@@ -77,6 +97,15 @@ function New-SM365Connectors
         $OutboundConnParam.SmartHosts = $SEPPmailFQDN
         $OutboundConnParam.TlsDomain = $SEPPmailFQDN
         $InboundConnParam.TlsSenderCertificateName = $SEPPmailFQDN
+        Write-Verbose "Set AssociatedAcceptedDomains to $null for all or specific domains"
+        if ($InboundAcceptedDomains -eq '*') {
+            Write-Verbose "Removing Key AssociatedAcceptedDomains from parameter-hashtable"
+            $InboundConnParam.Remove('AssociatedAcceptedDomains')
+        }
+        else {
+            $InboundConnParam.AssociatedAcceptedDomains = $InboundAcceptedDomains
+        }
+        #endregion
 
         Write-Verbose "Read existing SEPPmail Inbound Connector"
         $existingSMInboundConn = Get-InboundConnector | Where-Object Name -Match '^\[SEPPmail\].*$'
@@ -95,9 +124,12 @@ function New-SM365Connectors
 
             if ($recreateSMInboundConn -like 'y')
             {
-                $existingSMInboundConn | Remove-InboundConnector -Whatif:$Whatif
-                $InboundConn = New-InboundConnector @InboundConnParam -Whatif:$Whatif #|Out-Null
+                Write-Verbose "Removing existing SEPPmail Inbound Connector !"
+                $existingSMInboundConn | Remove-InboundConnector 
+                
+                New-SM365InboundConnector
             }
+            
             else
             {
                 Write-Warning "Leaving existing SEPPmail Inbound Connector `"$($existingSMInboundConn.Name)`" untouched."
@@ -105,7 +137,7 @@ function New-SM365Connectors
         }
         else
         {
-            $InboundConn = New-InboundConnector @InboundConnParam -Whatif:$Whatif #|Out-Null
+            New-SM365InboundConnector
         }
 
         Write-Verbose "Read existing SEPPmail outbound connector"
@@ -125,8 +157,10 @@ function New-SM365Connectors
 
             if ($recreateSMOutboundConn -like 'y')
             {
-                $existingSMOutboundConn | Remove-OutboundConnector -Whatif:$Whatif
-                $OutboundConn = New-OutboundConnector @OutboundConnParam -Whatif:$Whatif #|Out-Null
+                Write-Verbose "Removing existing Outbound Connector $($existingSMOutboundConn.Name) !"
+                $existingSMOutboundConn | Remove-OutboundConnector
+
+                New-SM365OutboundConnector
             }
             else
             {
@@ -135,7 +169,7 @@ function New-SM365Connectors
         }
         else
         {
-            $OutboundConn = New-OutboundConnector @OutboundConnParam -Whatif:$Whatif #|Out-Null
+            New-SM365OutboundConnector
         }
     }
 
@@ -152,8 +186,8 @@ function New-SM365Connectors
 .DESCRIPTION
     Long description
 .EXAMPLE
-    PS C:\> <example usage>
-    Explanation of what the example does
+    PS C:\> New-SM365Rules
+    Creates the needed ruleset to integrate SEPPmail with Exchange online
 .INPUTS
     Inputs (if any)
 .OUTPUTS
@@ -172,15 +206,20 @@ function New-SM365Rules
 
     begin
     {
-        if (!(Get-AcceptedDomain))
-        {
-            Write-Error "Cannot retrieve Exchange Domain Information, please reconnect with 'Connect-ExchangeOnline'"
-            break
-        }
-        else
-        {
-            $defdomain = (Get-AcceptedDomain | Where-Object Default -Like 'True').DomainName
-            Write-Information "Connected to Exchange Organization `"$defdomain`"" -InformationAction Continue
+        try {
+            if (!(Get-AcceptedDomain))
+            {
+                Write-Error "Cannot retrieve Exchange Domain Information, please reconnect with 'Connect-ExchangeOnline'"
+                break
+            }
+            else
+            {
+                $defdomain = (Get-AcceptedDomain | Where-Object Default -Like 'True').DomainName
+                Write-Information "Connected to Exchange Organization `"$defdomain`"" -InformationAction Continue
+            }
+        } catch {
+            Write-Error "Could not retrieve Exchange Online information - are you connected to your subscription as admin ?"
+            Write-Error "Category Info: $Error[0].CategoryInfo"
         }
     }
 
@@ -201,9 +240,9 @@ function New-SM365Rules
             {
                 try
                 {
-                    [ValidateSet('Top', 'Bottom', 'Cancel')]$existingRulesAction = Read-Host -Prompt "Where shall we place the SEPPmail rules ? (Top/Bottom/Cancel)"
+                    [ValidateSet('Top', 'Bottom', 'Cancel','t','T','b','B','c','C',$null)]$existingRulesAction = Read-Host -Prompt "Where shall we place the SEPPmail rules ? (Top(Default)/Bottom/Cancel)"
                 }
-                catch {                }
+                catch {}
             }
             until ($?)
 
@@ -212,13 +251,14 @@ function New-SM365Rules
                 'Top' { $placementPrio = '0' }
                 'Bottom' { $placementPrio = ($existingTransportRules).count }
                 'Cancel' { exit }
+                default { $placementPrio = '0' }
             }
         }
         else
         {
             Write-Verbose 'No existing custom rules found'
         }
-        Write-Verbose "Placement Prio is $placementPrio"
+        Write-Verbose "Placement priority is $placementPrio"
 
         Write-Verbose "Read existing SEPPmail transport rules"
         $existingSMTransportRules = Get-TransportRule | Where-Object Name -Match '^\[SEPPmail\].*$'
@@ -248,7 +288,7 @@ function New-SM365Rules
         }
         else
         {
-            New-SM365TransportRules -Whatif:$whatif
+            New-SM365TransportRules
         }
     }
 

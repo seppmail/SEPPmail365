@@ -1,5 +1,6 @@
 {
         "Name"                         : "[SEPPmail] Appliance -> ExchangeOnline",
+        "AssociatedAcceptedDomains"    : "--SET-BY-PARAMETER--",
         "SenderDomains"                : "*",
         "Comment"                      : "Accept E-Mails from SEPPmail Appliance",
         "ConnectorSource"              : "Default",

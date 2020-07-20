@@ -21,12 +21,25 @@ function Remove-SM365TransportRules {
                     )]
     param()
     Get-SM365TransportRuleDefaults
-    Remove-TransportRule -Identity $($outgoingHeaderCleaningParam.Name) -Whatif:$Whatif
-    Remove-TransportRule -Identity $($decryptedHeaderCleaningParam.Name) -Whatif:$Whatif
-    Remove-TransportRule -Identity $($encryptedHeaderCleaningParam.Name) -Whatif:$Whatif
-    Remove-TransportRule -Identity $($InternalParam.Name) -Whatif:$Whatif
-    Remove-TransportRule -Identity $($OutboundParam.Name) -Whatif:$Whatif
-    Remove-TransportRule -Identity $($InboundParam.Name) -Whatif:$Whatif
+    if ($PSCmdlet.ShouldProcess($($outgoingHeaderCleaningParam.Name),'Remove transportrule')) {
+        Remove-TransportRule -Identity $($outgoingHeaderCleaningParam.Name)
+    }
+    if ($PSCmdlet.ShouldProcess($($decryptedHeaderCleaningParam.Name),'Remove transportrule')) {
+        Remove-TransportRule -Identity $($decryptedHeaderCleaningParam.Name)
+    }
+    if ($PSCmdlet.ShouldProcess($($encryptedHeaderCleaningParam.Name),'Remove transportrule')) {
+        Remove-TransportRule -Identity $($encryptedHeaderCleaningParam.Name)
+    }
+    if ($PSCmdlet.ShouldProcess($($InternalParam.Name),'Remove transportrule')) {
+        Remove-TransportRule -Identity $($InternalParam.Name)
+    }
+    if ($PSCmdlet.ShouldProcess($($OutboundParam.Name),'Remove transportrule')) {
+        Remove-TransportRule -Identity $($OutboundParam.Name)
+    }
+    if ($PSCmdlet.ShouldProcess($($InboundParam.Name),'Remove transportrule')) {
+        Remove-TransportRule -Identity $($InboundParam.Name)
+    }
+
 }
 function New-SM365TransportRules {
     [CmdletBinding(SupportsShouldProcess = $true,
@@ -56,11 +69,23 @@ function New-SM365TransportRules {
         $InboundParam.Priority = $placementPrio
 
         Write-Verbose "Create Transport Rules"
-        New-TransportRule @outgoingHeaderCleaningParam -whatif:$whatif # -ErrorAction Stop |Out-Null
-        New-TransportRule @decryptedHeaderCleaningParam -Whatif:$Whatif # -ErrorAction Stop |Out-Null
-        New-TransportRule @encryptedHeaderCleaningParam -Whatif:$Whatif # -ErrorAction Stop |Out-Null
-        New-TransportRule @InternalParam -Whatif:$Whatif # -ErrorAction Stop |Out-Null
-        New-TransportRule @OutboundParam -Whatif:$Whatif # -ErrorAction Stop |Out-Null
-        New-TransportRule @InboundParam -Whatif:$Whatif # -ErrorAction Stop |Out-Null
+        if ($PSCmdlet.ShouldProcess($($outgoingHeaderCleaningParam.Name),'Create transportrule')) {
+            New-TransportRule @outgoingHeaderCleaningParam
+        }
+        if ($PSCmdlet.ShouldProcess($($decryptedHeaderCleaningParam.Name),'Create transportrule')) {
+            New-TransportRule @decryptedHeaderCleaningParam
+        }
+        if ($PSCmdlet.ShouldProcess($($encryptedHeaderCleaningParam.Name),'Create transportrule')) {
+            New-TransportRule @encryptedHeaderCleaningParam
+        }
+        if ($PSCmdlet.ShouldProcess($($InternalParam.Name),'Create transportrule')) {
+            New-TransportRule @InternalParam
+        }
+        if ($PSCmdlet.ShouldProcess($($OutboundParam.Name),'Create transportrule')) {
+            New-TransportRule @OutboundParam
+        }
+        if ($PSCmdlet.ShouldProcess($($InboundParam.Name),'Create transportrule')) {
+            New-TransportRule @InboundParam
+        }
     }
 }
