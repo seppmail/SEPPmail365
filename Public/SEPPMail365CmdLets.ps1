@@ -249,8 +249,11 @@ function New-SM365Rules
             switch ($existingRulesAction)
             {
                 'Top' { $placementPrio = '0' }
+                't' { $placementPrio = '0' }
                 'Bottom' { $placementPrio = ($existingTransportRules).count }
+                'b' { $placementPrio = ($existingTransportRules).count }
                 'Cancel' { exit }
+                'c' { exit }
                 default { $placementPrio = '0' }
             }
         }

@@ -50,7 +50,7 @@ function New-SM365TransportRules {
     Write-Verbose "Read Outbound Connector Information"
     $outboundConn = Get-OutboundConnector |Where-Object Name -match '^\[SEPPmail\].*$'
     if (!($outboundconn)) {
-        Write-Error "No SEPPmail outbound connector found. Run `"Add-SEConnector`" to add the proper SEPPmail connectors"
+        Write-Error "No SEPPmail outbound connector found. Run `"New-SM365Connectors`" to add the proper SEPPmail connectors"
     } 
     else 
         {
