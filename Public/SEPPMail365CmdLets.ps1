@@ -309,20 +309,6 @@ function New-SM365Rules
     Before any change to the message flow is done, this report retreives the most needed information to decide how to integrate SEPPmail into Exchange Online
 .EXAMPLE
     New-SM365ExOReport
-.EXAMPLE
-    Another example of how to use this cmdlet
-.INPUTS
-    Inputs to this cmdlet (if any)
-.OUTPUTS
-    Output from this cmdlet (if any)
-.NOTES
-    General notes
-.COMPONENT
-    The component this cmdlet belongs to
-.ROLE
-    The role this cmdlet belongs to
-.FUNCTIONALITY
-    The functionality that best describes this cmdlet
 #>
 function New-SM365ExOReport {
     [CmdletBinding(SupportsShouldProcess=$true,

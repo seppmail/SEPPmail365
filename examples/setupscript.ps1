@@ -8,9 +8,6 @@
     Explanation of what the example does
 #>
 
-# Dev Pfad einstellen
-$env:PSModulePath = $env:PSModulePath + ';C:\Users\roman.THEGALAXY\GitRepo'
-
 # SEPPmail365 DEMO
 
 # Provide Admin-credential
