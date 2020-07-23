@@ -2,13 +2,10 @@
 .SYNOPSIS
     Example setup script that configures a SEPPmail with Exchange Online
 .DESCRIPTION
-    The script uses the module, connects to Exchange oNline and seps up the complete environment.
+    The script uses the module, connects to Exchange Online and seps up the complete environment.
 .EXAMPLE
     PS C:\> setupscript.ps1
-    Explanation of what the example does
 #>
-
-# SEPPmail365 DEMO
 
 # Provide Admin-credential
 $acred = Get-Credential
@@ -22,7 +19,7 @@ New-SM365ExOReport
 
 Read-Host 'Continue and create connectors and rules ?'
 # Create SPPmail connectors
-New-SM365Connectors -SEPPmailFQDN secmail.contoso.de -InboundAcceptedDomains '*'
+New-SM365Connectors -SEPPmailFQDN secmail.contoso.de -InboundAcceptedDomains *
 
 # Create SEPPmail rules
 New-SM365Rules

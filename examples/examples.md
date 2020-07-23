@@ -1,6 +1,7 @@
 # Examples on how to use the SMExO Module
 
-After importing the module you need to authenticate to Exchange Online.
+After importing the module you need to authenticate to Exchange Online. See the Documentation of the ExchangeOnline Module here 
+<https://docs.microsoft.com/en-us/powershell/exchange/exchange-online-powershell?view=exchange-ps>
 
 ## Get an overview of your ExO Environment
 
@@ -22,6 +23,12 @@ The below command will add new connectors to SEPPmail for Mail processing.
 
 ```powershell
 New-SM365Connectors -SQPPmailFQDN 'securemail.contoso.de' -InboundAcceptedDomains *
+```
+
+If you want to add specific domains use:
+
+```powershell
+New-SM365Connectors -SQPPmailFQDN 'securemail.contoso.de' -InboundAcceptedDomains 'domain1.de','domain2.de'
 ```
 
 ## Add SEPPmail Rules to make SEPPmail and Exchange Online work together

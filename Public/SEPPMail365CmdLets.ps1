@@ -182,18 +182,12 @@ function New-SM365Connectors
 
 <#
 .SYNOPSIS
-    Short description
+    Create SEPPmailruleset
 .DESCRIPTION
-    Long description
+    Creates rules to direct the mailflow between Exchange Online and SEPPmail
 .EXAMPLE
     PS C:\> New-SM365Rules
     Creates the needed ruleset to integrate SEPPmail with Exchange online
-.INPUTS
-    Inputs (if any)
-.OUTPUTS
-    Output (if any)
-.NOTES
-    General notes
 #>
 function New-SM365Rules
 {
@@ -225,73 +219,78 @@ function New-SM365Rules
 
     process
     {
-        Write-Verbose "Read existing custom transport rules"
-        $existingTransportRules = Get-TransportRule | Where-Object Name -NotMatch '^\[SEPPmail\].*$'
-        if ($existingTransportRules)
-        {
-            Write-Warning 'Found existing custom transport rules.'
-            Write-Warning '--------------------------------------------'
-            foreach ($etpr in $existingTransportRules)
+        try {
+            Write-Verbose "Read existing custom transport rules"
+            $existingTransportRules = Get-TransportRule | Where-Object Name -NotMatch '^\[SEPPmail\].*$'
+            if ($existingTransportRules)
             {
-                Write-Warning "Rule name `"$($etpr.Name)`" with state `"$($etpr.State)`" has priority `"$($etpr.Priority)`""
-            }
-            Write-Warning '--------------------------------------------'
-            Do
-            {
-                try
+                Write-Warning 'Found existing custom transport rules.'
+                Write-Warning '--------------------------------------------'
+                foreach ($etpr in $existingTransportRules)
                 {
-                    [ValidateSet('Top', 'Bottom', 'Cancel','t','T','b','B','c','C',$null)]$existingRulesAction = Read-Host -Prompt "Where shall we place the SEPPmail rules ? (Top(Default)/Bottom/Cancel)"
+                    Write-Warning "Rule name `"$($etpr.Name)`" with state `"$($etpr.State)`" has priority `"$($etpr.Priority)`""
                 }
-                catch {}
-            }
-            until ($?)
-
-            switch ($existingRulesAction)
-            {
-                'Top' { $placementPrio = '0' }
-                't' { $placementPrio = '0' }
-                'Bottom' { $placementPrio = ($existingTransportRules).count }
-                'b' { $placementPrio = ($existingTransportRules).count }
-                'Cancel' { exit }
-                'c' { exit }
-                default { $placementPrio = '0' }
-            }
-        }
-        else
-        {
-            Write-Verbose 'No existing custom rules found'
-        }
-        Write-Verbose "Placement priority is $placementPrio"
-
-        Write-Verbose "Read existing SEPPmail transport rules"
-        $existingSMTransportRules = Get-TransportRule | Where-Object Name -Match '^\[SEPPmail\].*$'
-        if ($existingSMTransportRules)
-        {
-            Write-Warning 'Found existing [SEPPmail] Rules.'
-            Write-Warning '--------------------------------------------'
-            foreach ($eSMtpr in $existingSMTransportRules)
-            {
-                Write-Warning "Rule name `"$($eSMtpr.Name)`" with state `"$($eSMtpr.State)`" has priority `"$($eSMtpr.Priority)`""
-            }
-            Write-Warning '--------------------------------------------'
-            Do
-            {
-                try
+                Write-Warning '--------------------------------------------'
+                Do
                 {
-                    [ValidateSet('y', 'Y', 'n', 'N')]$recreateSMRules = Read-Host -Prompt "Shall we delete and recreate them ? (Y/N)"
+                    try
+                    {
+                        [ValidateSet('Top', 'Bottom', 'Cancel','t','T','b','B','c','C',$null)]$existingRulesAction = Read-Host -Prompt "Where shall we place the SEPPmail rules ? (Top(Default)/Bottom/Cancel)"
+                    }
+                    catch {}
                 }
-                catch {}
+                until ($?)
+
+                switch ($existingRulesAction)
+                {
+                    'Top' { $placementPrio = '0' }
+                    't' { $placementPrio = '0' }
+                    'Bottom' { $placementPrio = ($existingTransportRules).count }
+                    'b' { $placementPrio = ($existingTransportRules).count }
+                    'Cancel' { exit }
+                    'c' { exit }
+                    default { $placementPrio = '0' }
+                }
             }
-            until ($?)
-            if ($recreateSMRules -like 'y')
+            else
             {
-                Remove-SM365TransportRules
+                Write-Verbose 'No existing custom rules found'
+            }
+            Write-Verbose "Placement priority is $placementPrio"
+
+            Write-Verbose "Read existing SEPPmail transport rules"
+            $existingSMTransportRules = Get-TransportRule | Where-Object Name -Match '^\[SEPPmail\].*$'
+            if ($existingSMTransportRules)
+            {
+                Write-Warning 'Found existing [SEPPmail] Rules.'
+                Write-Warning '--------------------------------------------'
+                foreach ($eSMtpr in $existingSMTransportRules)
+                {
+                    Write-Warning "Rule name `"$($eSMtpr.Name)`" with state `"$($eSMtpr.State)`" has priority `"$($eSMtpr.Priority)`""
+                }
+                Write-Warning '--------------------------------------------'
+                Do
+                {
+                    try
+                    {
+                        [ValidateSet('y', 'Y', 'n', 'N')]$recreateSMRules = Read-Host -Prompt "Shall we delete and recreate them ? (Y/N)"
+                    }
+                    catch {}
+                }
+                until ($?)
+                if ($recreateSMRules -like 'y')
+                {
+                    Remove-SM365TransportRules
+                    New-SM365TransportRules
+                }
+            }
+            else
+            {
                 New-SM365TransportRules
             }
         }
-        else
-        {
-            New-SM365TransportRules
+        catch {
+            Write-Error "Error $_.CategoryInfo occured"
         }
     }
 
@@ -324,50 +323,55 @@ function New-SM365ExOReport {
     }
 
     process {
-        if ($pscmdlet.ShouldProcess("Target", "Operation")) {
-            #"Whatis is $Whatif and `$pscmdlet.ShouldProcess is $($pscmdlet.ShouldProcess) "
-            #For later Use
-        }
+        try {
+            if ($pscmdlet.ShouldProcess("Target", "Operation")) {
+                #"Whatis is $Whatif and `$pscmdlet.ShouldProcess is $($pscmdlet.ShouldProcess) "
+                #For later Use
+            }
 
-        "*** Exchange Online Overview"
-        Get-AcceptedDomain
-        "***"
-        "** Audit Log and Dkim Settings"
-        Get-AdminAuditLogConfig |Select-Object Name,AdminAuditLogEnabled,LogLevel,AdminAuditLogAgeLimit|Format-Table
-        Get-DkimSigningConfig|Select-Object Domain,Status|Format-Table
-        "***"
-        
-        "** Phishing and Malware Policies"
-        Get-AntiPhishPolicy|Select-Object Identity,isDefault,IsValid|Format-Table
-        Get-MalwareFilterPolicy|Select-Object Identity,Action,IsDefault|Format-Table
-        "***"
-        
-        "** ATP Information"
-        Get-ATPTotalTrafficReport|Select-Object Organization,Eventtype,Messagecount|Format-Table
-        "**"
-        
-        "** Reading Hybrid Information"
-        "* Get-HybridMailflow"
-        Get-HybridMailflow|Format-Table
-        "* Get-HybridMailflowDatacenterIPs"
-        Get-HybridMailflowDatacenterIPs|Select-Object -ExpandProperty DatacenterIPs|Format-Table
-        Get-IntraOrganizationConfiguration|Select-Object OnlineTargetAddress,OnPremiseTargetAddresses,IsValid|Format-Table
-        "*Get-IntraorgConnector"
-        Get-IntraOrganizationConnector|Select-Object Identity,TargetAddressDomains,DiscoveryEndpoint,IsValid|Format-Table
-        "*Get-MigrationConfig"
-        Get-MigrationConfig|Select-Object Identity,Features,IsValid|Format-Table
-        "*Get-MigrationStatistics"
-        Get-MigrationStatistics|Select-Object Identity,Totalcount,FinalizedCount,MigrationType,IsValid|Format-Table
-        "**"
-        
-        "** InboundConnectors"
-        Get-InboundConnector |Select-Object Identity,ConnectorType,ConnectorSource,EFSkipLastIP,EFUsers,IsValid|Format-Table
-        "** OutboundConnectors"
-        Get-OutboundConnector|Select-Object Identity,ConnectorType,ConnectorSource,EFSkipLastIP,EFUsers,IsValid|Format-Table
-        "** TransportRules"
-        Get-TransportRule|Format-Table
-        "*** END of Report ***"
-    }
+            "*** Exchange Online Overview"
+            Get-AcceptedDomain
+            "***"
+            "** Audit Log and Dkim Settings"
+            Get-AdminAuditLogConfig |Select-Object Name,AdminAuditLogEnabled,LogLevel,AdminAuditLogAgeLimit|Format-Table
+            Get-DkimSigningConfig|Select-Object Domain,Status|Format-Table
+            "***"
+
+            "** Phishing and Malware Policies"
+            Get-AntiPhishPolicy|Select-Object Identity,isDefault,IsValid|Format-Table
+            Get-MalwareFilterPolicy|Select-Object Identity,Action,IsDefault|Format-Table
+            "***"
+
+            "** ATP Information"
+            Get-ATPTotalTrafficReport|Select-Object Organization,Eventtype,Messagecount|Format-Table
+            "**"
+
+            "** Reading Hybrid Information"
+            "* Get-HybridMailflow"
+            Get-HybridMailflow|Format-Table
+            "* Get-HybridMailflowDatacenterIPs"
+            Get-HybridMailflowDatacenterIPs|Select-Object -ExpandProperty DatacenterIPs|Format-Table
+            Get-IntraOrganizationConfiguration|Select-Object OnlineTargetAddress,OnPremiseTargetAddresses,IsValid|Format-Table
+            "*Get-IntraorgConnector"
+            Get-IntraOrganizationConnector|Select-Object Identity,TargetAddressDomains,DiscoveryEndpoint,IsValid|Format-Table
+            "*Get-MigrationConfig"
+            Get-MigrationConfig|Select-Object Identity,Features,IsValid|Format-Table
+            "*Get-MigrationStatistics"
+            Get-MigrationStatistics|Select-Object Identity,Totalcount,FinalizedCount,MigrationType,IsValid|Format-Table
+            "**"
+
+            "** InboundConnectors"
+            Get-InboundConnector |Select-Object Identity,ConnectorType,ConnectorSource,EFSkipLastIP,EFUsers,IsValid|Format-Table
+            "** OutboundConnectors"
+            Get-OutboundConnector|Select-Object Identity,ConnectorType,ConnectorSource,EFSkipLastIP,EFUsers,IsValid|Format-Table
+            "** TransportRules"
+            Get-TransportRule|Format-Table
+            "*** END of Report ***"
+        }
+        catch {
+            Write-Error "Error $_.CategoryInfo occured"
+        }
+    }   
     end {
     }
 }

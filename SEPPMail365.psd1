@@ -9,7 +9,7 @@
 @{
 
 # Script module or binary module file associated with this manifest.
-RootModule = 'SEPPMail365.psm1'
+RootModule = 'SEPPmail365.psm1'
 
 # Version number of this module.
 ModuleVersion = '0.5.0'
