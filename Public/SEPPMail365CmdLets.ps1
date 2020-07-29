@@ -303,7 +303,7 @@ function New-SM365Rules
 
 <#
 .SYNOPSIS
-    Produce a status Report for M 365
+    Produce a status Report for M365 Exchange Online
 .DESCRIPTION
     Before any change to the message flow is done, this report retreives the most needed information to decide how to integrate SEPPmail into Exchange Online
 .EXAMPLE
@@ -328,45 +328,52 @@ function New-SM365ExOReport {
                 #"Whatis is $Whatif and `$pscmdlet.ShouldProcess is $($pscmdlet.ShouldProcess) "
                 #For later Use
             }
+            #$HA = "Accepted Domains"|Convertto-HTML -Property @{l='Report section'; e={ $_}} -Fragment
+            $A = Get-AcceptedDomain |select-object Domainname,DomainType,Default,EmailOnly,ExternallyManaged,OutboundOnly|Convertto-HTML -Fragment
+            
+            Write-Verbose "Audit Log and Dkim Settings"
+            $B = Get-AdminAuditLogConfig |Select-Object Name,AdminAuditLogEnabled,LogLevel,AdminAuditLogAgeLimit |Convertto-HTML -Fragment
+            $C = Get-DkimSigningConfig|Select-Object Domain,Status|Convertto-HTML -Fragment
 
-            "*** Exchange Online Overview"
-            Get-AcceptedDomain
-            "***"
-            "** Audit Log and Dkim Settings"
-            Get-AdminAuditLogConfig |Select-Object Name,AdminAuditLogEnabled,LogLevel,AdminAuditLogAgeLimit|Format-Table
-            Get-DkimSigningConfig|Select-Object Domain,Status|Format-Table
-            "***"
+            Write-Verbose "Phishing and Malware Policies"
+            $D = Get-AntiPhishPolicy|Select-Object Identity,isDefault,IsValid|Convertto-HTML -Fragment
+            $E = Get-MalwareFilterPolicy|Select-Object Identity,Action,IsDefault|Convertto-HTML -Fragment
 
-            "** Phishing and Malware Policies"
-            Get-AntiPhishPolicy|Select-Object Identity,isDefault,IsValid|Format-Table
-            Get-MalwareFilterPolicy|Select-Object Identity,Action,IsDefault|Format-Table
-            "***"
+            Write-Verbose "ATP Information"
+            $F = Get-ATPTotalTrafficReport|Select-Object Organization,Eventtype,Messagecount|Convertto-HTML -Fragment
 
-            "** ATP Information"
-            Get-ATPTotalTrafficReport|Select-Object Organization,Eventtype,Messagecount|Format-Table
-            "**"
+            Write-Verbose " Get-HybridMailflow"
+            $G = Get-HybridMailflow|Convertto-HTML -Fragment
+            
+            #Write-Verbose " Get-HybridMailflowDatacenterIPs"
+            #Get-HybridMailflowDatacenterIPs|Select-Object -ExpandProperty DatacenterIPs|Format-Table
+            #$H = Get-IntraOrganizationConfiguration|Select-Object OnlineTargetAddress,OnPremiseTargetAddresses,IsValid|Convertto-HTML -Fragment
+            
+            Write-Verbose "Get-IntraorgConnector"
+            $I = Get-IntraOrganizationConnector|Select-Object Identity,TargetAddressDomains,DiscoveryEndpoint,IsValid|Convertto-HTML -Fragment
+            
+            Write-Verbose "Get-MigrationConfig"
+            $J = Get-MigrationConfig|Select-Object Identity,Features,IsValid|Convertto-HTML -Fragment
+            
+            Write-Verbose "Get-MigrationStatistics"
+            $K = Get-MigrationStatistics|Select-Object Identity,Totalcount,FinalizedCount,MigrationType,IsValid|Convertto-HTML -Fragment
 
-            "** Reading Hybrid Information"
-            "* Get-HybridMailflow"
-            Get-HybridMailflow|Format-Table
-            "* Get-HybridMailflowDatacenterIPs"
-            Get-HybridMailflowDatacenterIPs|Select-Object -ExpandProperty DatacenterIPs|Format-Table
-            Get-IntraOrganizationConfiguration|Select-Object OnlineTargetAddress,OnPremiseTargetAddresses,IsValid|Format-Table
-            "*Get-IntraorgConnector"
-            Get-IntraOrganizationConnector|Select-Object Identity,TargetAddressDomains,DiscoveryEndpoint,IsValid|Format-Table
-            "*Get-MigrationConfig"
-            Get-MigrationConfig|Select-Object Identity,Features,IsValid|Format-Table
-            "*Get-MigrationStatistics"
-            Get-MigrationStatistics|Select-Object Identity,Totalcount,FinalizedCount,MigrationType,IsValid|Format-Table
-            "**"
+            Write-Verbose "InboundConnectors"
+            $L = Get-InboundConnector |Select-Object Identity,ConnectorType,ConnectorSource,EFSkipLastIP,EFUsers,IsValid|Convertto-HTML -Fragment
+            
+            Write-Verbose "OutboundConnectors"
+            $M = Get-OutboundConnector|Select-Object Identity,ConnectorType,ConnectorSource,EFSkipLastIP,EFUsers,IsValid|Convertto-HTML -Fragment
+            
+            Write-Verbose "TransportRules"
+            $N = Get-TransportRule | select-object Name,IsValid |Convertto-HTML -Fragment
 
-            "** InboundConnectors"
-            Get-InboundConnector |Select-Object Identity,ConnectorType,ConnectorSource,EFSkipLastIP,EFUsers,IsValid|Format-Table
-            "** OutboundConnectors"
-            Get-OutboundConnector|Select-Object Identity,ConnectorType,ConnectorSource,EFSkipLastIP,EFUsers,IsValid|Format-Table
-            "** TransportRules"
-            Get-TransportRule|Format-Table
-            "*** END of Report ***"
+            $style = "<style>BODY{font-family: Arial; font-size: 10pt;}"
+            $style = $style + "TABLE{border: 1px solid black; border-collapse: collapse;}"
+            $style = $style + "TH{border: 1px solid black; background: #dddddd; padding: 5px; }"
+            $style = $style + "TD{border: 1px solid black; padding: 5px; }"
+            $style = $style + "</style>"
+            Convertto-HTML -Body "$HA $a $b $c $d $e $f $g $i $j $k $l $m $n" -Title "SEPPmail365 Exo Report" -Head $style
+
         }
         catch {
             Write-Error "Error $_.CategoryInfo occured"

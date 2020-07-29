@@ -12,7 +12,7 @@
 RootModule = 'SEPPmail365.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.5.0'
+ModuleVersion = '0.5.1'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Desktop')
@@ -54,7 +54,7 @@ ProcessorArchitecture = 'Amd64'
 RequiredModules = @(
     @{
         ModuleName = 'ExchangeOnlineManagement'
-        ModuleVersion = '2.0.3'
+        ModuleVersion = '1.0.1'
         GUID = 'B5ECED50-AFA4-455B-847A-D8FB64140A22'
     }
 )
@@ -127,6 +127,8 @@ PrivateData = @{
 17.07.20    0.2.0 Build same functionality as the existing SEPPmail O365 deployment script
 
 21.07.20    0.5.0 Add Whatif/Confim, some bugfixes, beta2
+
+29.07.20    0.5.1 Some fixes in readme/examples and basic HTML report
 '@
 
         # Prerelease string of this module
