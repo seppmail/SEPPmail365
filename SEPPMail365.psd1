@@ -12,7 +12,7 @@
 RootModule = 'SEPPmail365.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.5.1'
+ModuleVersion = '0.9.0'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Desktop')
@@ -119,7 +119,7 @@ PrivateData = @{
         ProjectUri = 'https://github.com/seppmail/SEPPmail365'
 
         # A URL to an icon representing this module.
-        IconUri = 'https://seppmail.de/wp-content/uploads/logo_seppmail_V1_Screen_S2.png'
+        IconUri = 'https://seppmail.de/wp-content/uploads/SEPPmail-Secure-E-Mail-Gateway-300x300.jpg'
 
         # ReleaseNotes of this module
         ReleaseNotes = 
@@ -129,10 +129,12 @@ PrivateData = @{
 21.07.20    0.5.0 Add Whatif/Confim, some bugfixes, beta2
 
 29.07.20    0.5.1 Some fixes in readme/examples and basic HTML report
+
+03.08.20    0.9.0 Updated readme, examples and prep for release
 '@
 
         # Prerelease string of this module
-        Prerelease = 'beta3'
+        Prerelease = 'RC'
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         # RequireLicenseAcceptance = $false

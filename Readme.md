@@ -8,6 +8,8 @@ This module helps customer and partners to smoothly integrate a SEPPmail-Applian
 
 The module only works on Windows PowerShell 5.1 (64Bit), because it depends on the ExchangeOnlineManagement Module which currently works also only on Windows PowerShell 5.1.
 
+The ExchangeOnlineManagement module must be installed with the minimum Version 1.0.1, we also tested this with 2.0.3-Preview and will support future versions.
+
 ## Functionality
 
 The module has a basic overview report of the existing Exchange Online environment, as well as 2 commands to create Connectors and rules to make Exchange online work seamlessly with SEPPmail.

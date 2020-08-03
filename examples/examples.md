@@ -5,11 +5,13 @@ After importing the module you need to authenticate to Exchange Online. See the 
 
 ## Get an overview of your ExO Environment
 
+Before you change anything, run the report to get insights into your ExO environment.
+
 ```powershell
 New-SM365ExOReport
 ```
 
-### Reporting Infos Overview
+### Report content overview
 
 * List of managed Domains (Settings -> Domains) and definition of the default domain and status
 * Connectors
@@ -17,7 +19,11 @@ New-SM365ExOReport
 * Accepted Domains and type
 * Remote domains
 
-## Add necessary SEPPmail Connectors
+## Integrating a SEPPmail Appliance
+
+Before you continue the steps below, your SEPPmail must be configure accordingly to be able to process E-Mails for the ExO environment. Please see <https://docs.seppmail.com> for more.
+
+### Step 1 - Add necessary SEPPmail Connectors
 
 The below command will add new connectors to SEPPmail for Mail processing.
 
@@ -25,13 +31,13 @@ The below command will add new connectors to SEPPmail for Mail processing.
 New-SM365Connectors -SQPPmailFQDN 'securemail.contoso.de' -InboundAcceptedDomains *
 ```
 
-If you want to add specific domains use:
+If you want to limit the usage to specific domains use:
 
 ```powershell
 New-SM365Connectors -SQPPmailFQDN 'securemail.contoso.de' -InboundAcceptedDomains 'domain1.de','domain2.de'
 ```
 
-## Add SEPPmail Rules to make SEPPmail and Exchange Online work together
+## Step 2 - Add SEPPmail rules to make SEPPmail and ExO work together
 
 The below command will add the new connectors and default rules so that messages in-, and outbound, routed to SEPPmail for Mail processing. Rules will be placed on top of all other rules. The -force parameter will skip existing rules check.
 
@@ -41,4 +47,7 @@ New-SM365Rules
 
 ## More help and examples
 
-Look at the help and examples for each CmdLet with Get-Help.
+Look at the help and examples for each CmdLet with Get-Help to get more infos.
+
+If you want to pack the whole process into a script, see this example:
+<https://github.com/seppmail/SEPPmail365/blob/master/examples/setupscript.ps1>
