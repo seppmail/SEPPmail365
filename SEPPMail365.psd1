@@ -12,7 +12,7 @@
 RootModule = 'SEPPmail365.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.9.0'
+ModuleVersion = '0.9.1'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Desktop')
@@ -133,7 +133,7 @@ PrivateData = @{
 
 03.08.20    0.9.0 Updated readme, examples and prep for release
 
-04.08.20    Updated Logo, updated publisher, finished for release 1.0
+04.08.20    0.9.1 Updated Logo, updated publisher, finished for release 1.0
 '@
 
         # Prerelease string of this module

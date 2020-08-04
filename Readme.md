@@ -26,7 +26,7 @@ The module has a basic overview report of the existing ExO environment, as well 
 
 ## Authentication
 
-As Microsoft will soon deprecate basic authentication with ExO, the module will support multi-factor (MFA) or app/certificate based authentication (https://docs.microsoft.com/en-us/powershell/exchange/app-only-auth-powershell-v2?view=exchange-ps).
+As Microsoft will soon deprecate basic authentication with ExO, the module will support multi-factor (MFA) or app/certificate based authentication <https://docs.microsoft.com/en-us/powershell/exchange/app-only-auth-powershell-v2?view=exchange-ps>.
 
 So you can login without MFA with:
 
