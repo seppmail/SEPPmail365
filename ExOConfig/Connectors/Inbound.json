@@ -12,6 +12,6 @@
         "RequireTls"                   : true,
         "RestrictDomainsToCertificate" : true,
         "RestrictDomainsToIPAddresses" : false,
-        "TreatMessagesAsInternal"      : true,
+        "CloudServicesMailEnabled"     : true,
         "TlsSenderCertificateName"     : "--SET-BY-PARAMETER--"
 }

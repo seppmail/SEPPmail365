@@ -119,7 +119,8 @@ PrivateData = @{
         ProjectUri = 'https://github.com/seppmail/SEPPmail365'
 
         # A URL to an icon representing this module.
-        IconUri = 'https://seppmail.de/wp-content/uploads/SEPPmail-Secure-E-Mail-Gateway-300x300.jpg'
+        #IconUri = 'https://seppmail.de/wp-content/uploads/SEPPmail-Secure-E-Mail-Gateway-300x300.jpg'
+        IconUri = 'https://avatars1.githubusercontent.com/u/55975553?s=400&u=ab22c52a439397dca458e58dfcec9f0a9dd347db&v=4'
 
         # ReleaseNotes of this module
         ReleaseNotes = 
@@ -131,6 +132,8 @@ PrivateData = @{
 29.07.20    0.5.1 Some fixes in readme/examples and basic HTML report
 
 03.08.20    0.9.0 Updated readme, examples and prep for release
+
+04.08.20    Updated Logo, updated publisher, finished for release 1.0
 '@
 
         # Prerelease string of this module

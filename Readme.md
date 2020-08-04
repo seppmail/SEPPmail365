@@ -8,15 +8,25 @@ This module helps customer and partners to smoothly integrate a SEPPmail-Applian
 
 The module only works on Windows PowerShell 5.1 (64Bit), because it depends on the ExchangeOnlineManagement Module which currently works also only on Windows PowerShell 5.1.
 
-The ExchangeOnlineManagement module must be installed with the minimum Version 1.0.1, we also tested this with 2.0.3-Preview and will support future versions.
+The ExchangeOnlineManagement module must be installed with the minimum Version 1.0.1, we also tested this with 2.0.3-Preview and will support future versions of ExchangeOnlineManagement.
+
+## Installation
+
+To install the module from the Powershell Gallery use:
+
+```powershell
+Install-Module SEPPmail365
+```
+
+This will install the module in the user scope.
 
 ## Functionality
 
-The module has a basic overview report of the existing Exchange Online environment, as well as 2 commands to create Connectors and rules to make Exchange online work seamlessly with SEPPmail.
+The module has a basic overview report of the existing ExO environment, as well as 2 commands to create Connectors and Rules to make ExO work seamlessly with the SMA.
 
 ## Authentication
 
-As Microsoft will soon deprecate basic authentication with ExO, the Module will support Multi-Factor or APP/Certificate-based authentication (https://docs.microsoft.com/en-us/powershell/exchange/app-only-auth-powershell-v2?view=exchange-ps).
+As Microsoft will soon deprecate basic authentication with ExO, the module will support multi-factor (MFA) or app/certificate based authentication (https://docs.microsoft.com/en-us/powershell/exchange/app-only-auth-powershell-v2?view=exchange-ps).
 
 So you can login without MFA with:
 

@@ -8,5 +8,6 @@
         "SmartHosts"               : "--SET-BY-PARAMETER--",
         "TlsDomain"                : "--SET-BY-PARAMETER--",
         "TlsSettings"              : "DomainValidation",
-        "UseMXRecord"              : false
+        "UseMXRecord"              : false,
+        "CloudServicesMailEnabled" : true
 }
