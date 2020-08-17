@@ -34,52 +34,49 @@ function New-SM365Connectors
 
     begin
     {
-        if (!(Get-AcceptedDomain))
-        {
-            Write-Error "Cannot retrieve Exchange Domain Information, please reconnect with 'Connect-ExchangeOnline'"
-            break
-        }
-        else
-        {
-            $defdomain = (Get-AcceptedDomain | Where-Object Default -Like 'True').DomainName
-            Write-Information "Connected to Exchange Organization `"$defdomain`"" -InformationAction Continue
+        $domains = Get-AcceptedDomain
+        if(!$domains)
+        {throw [System.Exception] "Cannot retrieve Exchange Domain Information, please reconnect with 'Connect-ExchangeOnline'"}
 
-            Write-Verbose "Testing for hybrid Setup"
-            $HybridInboundConn = Get-InboundConnector |Where-Object {(($_.Name -clike 'Inbound from *') -or ($_.ConnectorSource -clike 'HybridWizard'))} 
-            $HybridOutBoundConn = Get-OutBoundConnector |Where-Object {(($_.Name -clike 'Outbound to *') -or ($_.ConnectorSource -clike 'HybridWizard'))} 
 
-            if ($HybridInboundConn -or $HybridOutBoundConn) {
-                Write-Warning "!!! - Hybrid Configuration detected - we assume you know what you are doing. Be sure to backup your connector settings before making any change."
-                Write-Verbose "Ask user to continue if Hybrid is found."
-                Do
+        $defdomain = ($domains | Where-Object Default -Like 'True').DomainName
+        Write-Information "Connected to Exchange Organization `"$defdomain`"" -InformationAction Continue
+
+        Write-Verbose "Testing for hybrid Setup"
+        $HybridInboundConn = Get-InboundConnector |Where-Object {(($_.Name -clike 'Inbound from *') -or ($_.ConnectorSource -clike 'HybridWizard'))} 
+        $HybridOutBoundConn = Get-OutBoundConnector |Where-Object {(($_.Name -clike 'Outbound to *') -or ($_.ConnectorSource -clike 'HybridWizard'))} 
+
+        if ($HybridInboundConn -or $HybridOutBoundConn) {
+            Write-Warning "!!! - Hybrid Configuration detected - we assume you know what you are doing. Be sure to backup your connector settings before making any change."
+            Write-Verbose "Ask user to continue if Hybrid is found."
+            Do
+            {
+                try
                 {
-                    try
-                    {
-                        [ValidateSet('y', 'Y', 'n', 'N')]$hybridContinue = Read-Host -Prompt "Create SEPPmail connectors in hybrid environment ? (Y/N)"
-                    }
-                    catch {}
+                    [ValidateSet('y', 'Y', 'n', 'N')]$hybridContinue = Read-Host -Prompt "Create SEPPmail connectors in hybrid environment ? (Y/N)"
                 }
-                until ($?)
-                if (($hybridContinue -eq 'n') -or ($hybridContinue -eq 'N')) {
-                    Write-Verbose "Exiting due to user decision."
-                    break
-                }
+                catch {}
+            }
+            until ($?)
+            if (($hybridContinue -eq 'n') -or ($hybridContinue -eq 'N')) {
+                Write-Verbose "Exiting due to user decision."
+                break
+            }
     
-            } else {
-                Write-Information "No Hybrid Connectors detected, seems to be a clean cloud-only environment" -InformationAction Continue
-            }
+        } else {
+            Write-Information "No Hybrid Connectors detected, seems to be a clean cloud-only environment" -InformationAction Continue
+        }
 
-            function New-SM365InboundConnector {
-                Write-Verbose "Creating SEPPmail Inbound Connector !"
-                if ($PSCmdLet.ShouldProcess($($InboundConnParam.Name),'Creating Inbound Connector')) {
-                    $InboundConn = New-InboundConnector @InboundConnParam 
-                }
+        function New-SM365InboundConnector {
+            Write-Verbose "Creating SEPPmail Inbound Connector !"
+            if ($PSCmdLet.ShouldProcess($($InboundConnParam.Name),'Creating Inbound Connector')) {
+                New-InboundConnector @InboundConnParam 
             }
-            function New-SM365OutboundConnector {
-                Write-Verbose "Creating SEPPmail Outbound Connector $($outboundConnParam.Name)!"
-                if ($PSCmdLet.ShouldProcess($($outboundConnParam.Name),'Creating Outbound Connector')) {
-                    $OutboundConn = New-OutboundConnector @OutboundConnParam
-                }
+        }
+        function New-SM365OutboundConnector {
+            Write-Verbose "Creating SEPPmail Outbound Connector $($outboundConnParam.Name)!"
+            if ($PSCmdLet.ShouldProcess($($outboundConnParam.Name),'Creating Outbound Connector')) {
+                New-OutboundConnector @OutboundConnParam
             }
         }
     }
