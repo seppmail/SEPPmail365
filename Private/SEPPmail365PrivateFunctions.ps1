@@ -50,10 +50,10 @@ function New-SM365TransportRules {
     Write-Verbose "Read Outbound Connector Information"
     $outboundConn = Get-OutboundConnector |Where-Object Name -match '^\[SEPPmail\].*$'
     if (!($outboundconn)) {
-        Write-Error "No SEPPmail outbound connector found. Run `"New-SM365Connectors`" to add the proper SEPPmail connectors"
+        throw [System.Exception] "No SEPPmail outbound connector found. Run `"New-SM365Connectors`" to add the proper SEPPmail connectors"
     } 
     else 
-        {
+    {
         Get-SM365TransportRuleDefaults
         Write-Verbose "Adapt Transport rules with outbound connector information"
         $InternalParam.RouteMessageOutboundConnector = $OutboundConn.Name
@@ -68,25 +68,33 @@ function New-SM365TransportRules {
         $OutboundParam.Priority = $placementPrio
         $InboundParam.Priority = $placementPrio
 
-        Write-Verbose "Create Transport Rules"
-        if ($PSCmdlet.ShouldProcess($($outgoingHeaderCleaningParam.Name),'Create transportrule')) {
-            New-TransportRule @outgoingHeaderCleaningParam
+        try
+        {
+            Write-Verbose "Create Transport Rules"
+            if ($PSCmdlet.ShouldProcess($($outgoingHeaderCleaningParam.Name),'Create transportrule')) {
+                New-TransportRule @outgoingHeaderCleaningParam
+            }
+            if ($PSCmdlet.ShouldProcess($($decryptedHeaderCleaningParam.Name),'Create transportrule')) {
+                New-TransportRule @decryptedHeaderCleaningParam
+            }
+            if ($PSCmdlet.ShouldProcess($($encryptedHeaderCleaningParam.Name),'Create transportrule')) {
+                New-TransportRule @encryptedHeaderCleaningParam
+            }
+            if ($PSCmdlet.ShouldProcess($($InternalParam.Name),'Create transportrule')) {
+                New-TransportRule @InternalParam
+            }
+            if ($PSCmdlet.ShouldProcess($($OutboundParam.Name),'Create transportrule')) {
+                New-TransportRule @OutboundParam
+            }
+            if ($PSCmdlet.ShouldProcess($($InboundParam.Name),'Create transportrule')) {
+                New-TransportRule @InboundParam
+            }
+
+            if(!$?)
+            {throw [System.Exception] "unknown reason"}
         }
-        if ($PSCmdlet.ShouldProcess($($decryptedHeaderCleaningParam.Name),'Create transportrule')) {
-            New-TransportRule @decryptedHeaderCleaningParam
-        }
-        if ($PSCmdlet.ShouldProcess($($encryptedHeaderCleaningParam.Name),'Create transportrule')) {
-            New-TransportRule @encryptedHeaderCleaningParam
-        }
-        if ($PSCmdlet.ShouldProcess($($InternalParam.Name),'Create transportrule')) {
-            New-TransportRule @InternalParam
-        }
-        if ($PSCmdlet.ShouldProcess($($OutboundParam.Name),'Create transportrule')) {
-            New-TransportRule @OutboundParam
-        }
-        if ($PSCmdlet.ShouldProcess($($InboundParam.Name),'Create transportrule')) {
-            New-TransportRule @InboundParam
-        }
+        catch
+        {throw [System.Exception] "Could not create transport rules: $($_.Exception.Message)"}
     }
 }
 

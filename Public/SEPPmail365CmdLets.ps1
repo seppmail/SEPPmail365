@@ -1,4 +1,7 @@
-﻿<#
+﻿# Request terminating errors by default
+$PSDefaultParameterValues['*:ErrorAction'] = [System.Management.Automation.ActionPreference]::Stop
+
+<#
 .SYNOPSIS
     Adds SEPPmail Exchange Online connectors
 .DESCRIPTION
@@ -34,52 +37,49 @@ function New-SM365Connectors
 
     begin
     {
-        if (!(Get-AcceptedDomain))
-        {
-            Write-Error "Cannot retrieve Exchange Domain Information, please reconnect with 'Connect-ExchangeOnline'"
-            break
-        }
-        else
-        {
-            $defdomain = (Get-AcceptedDomain | Where-Object Default -Like 'True').DomainName
-            Write-Information "Connected to Exchange Organization `"$defdomain`"" -InformationAction Continue
+        $domains = Get-AcceptedDomain
+        if(!$domains)
+        {throw [System.Exception] "Cannot retrieve Exchange Domain Information, please reconnect with 'Connect-ExchangeOnline'"}
 
-            Write-Verbose "Testing for hybrid Setup"
-            $HybridInboundConn = Get-InboundConnector |Where-Object {(($_.Name -clike 'Inbound from *') -or ($_.ConnectorSource -clike 'HybridWizard'))} 
-            $HybridOutBoundConn = Get-OutBoundConnector |Where-Object {(($_.Name -clike 'Outbound to *') -or ($_.ConnectorSource -clike 'HybridWizard'))} 
 
-            if ($HybridInboundConn -or $HybridOutBoundConn) {
-                Write-Warning "!!! - Hybrid Configuration detected - we assume you know what you are doing. Be sure to backup your connector settings before making any change."
-                Write-Verbose "Ask user to continue if Hybrid is found."
-                Do
+        $defdomain = ($domains | Where-Object Default -Like 'True').DomainName
+        Write-Information "Connected to Exchange Organization `"$defdomain`"" -InformationAction Continue
+
+        Write-Verbose "Testing for hybrid Setup"
+        $HybridInboundConn = Get-InboundConnector |Where-Object {(($_.Name -clike 'Inbound from *') -or ($_.ConnectorSource -clike 'HybridWizard'))} 
+        $HybridOutBoundConn = Get-OutBoundConnector |Where-Object {(($_.Name -clike 'Outbound to *') -or ($_.ConnectorSource -clike 'HybridWizard'))} 
+
+        if ($HybridInboundConn -or $HybridOutBoundConn) {
+            Write-Warning "!!! - Hybrid Configuration detected - we assume you know what you are doing. Be sure to backup your connector settings before making any change."
+            Write-Verbose "Ask user to continue if Hybrid is found."
+            Do
+            {
+                try
                 {
-                    try
-                    {
-                        [ValidateSet('y', 'Y', 'n', 'N')]$hybridContinue = Read-Host -Prompt "Create SEPPmail connectors in hybrid environment ? (Y/N)"
-                    }
-                    catch {}
+                    [ValidateSet('y', 'Y', 'n', 'N')]$hybridContinue = Read-Host -Prompt "Create SEPPmail connectors in hybrid environment ? (Y/N)"
                 }
-                until ($?)
-                if (($hybridContinue -eq 'n') -or ($hybridContinue -eq 'N')) {
-                    Write-Verbose "Exiting due to user decision."
-                    break
-                }
+                catch {}
+            }
+            until ($?)
+            if (($hybridContinue -eq 'n') -or ($hybridContinue -eq 'N')) {
+                Write-Verbose "Exiting due to user decision."
+                break
+            }
     
-            } else {
-                Write-Information "No Hybrid Connectors detected, seems to be a clean cloud-only environment" -InformationAction Continue
-            }
+        } else {
+            Write-Information "No Hybrid Connectors detected, seems to be a clean cloud-only environment" -InformationAction Continue
+        }
 
-            function New-SM365InboundConnector {
-                Write-Verbose "Creating SEPPmail Inbound Connector !"
-                if ($PSCmdLet.ShouldProcess($($InboundConnParam.Name),'Creating Inbound Connector')) {
-                    $InboundConn = New-InboundConnector @InboundConnParam 
-                }
+        function New-SM365InboundConnector {
+            Write-Verbose "Creating SEPPmail Inbound Connector !"
+            if ($PSCmdLet.ShouldProcess($($InboundConnParam.Name),'Creating Inbound Connector')) {
+                New-InboundConnector @InboundConnParam 
             }
-            function New-SM365OutboundConnector {
-                Write-Verbose "Creating SEPPmail Outbound Connector $($outboundConnParam.Name)!"
-                if ($PSCmdLet.ShouldProcess($($outboundConnParam.Name),'Creating Outbound Connector')) {
-                    $OutboundConn = New-OutboundConnector @OutboundConnParam
-                }
+        }
+        function New-SM365OutboundConnector {
+            Write-Verbose "Creating SEPPmail Outbound Connector $($outboundConnParam.Name)!"
+            if ($PSCmdLet.ShouldProcess($($outboundConnParam.Name),'Creating Outbound Connector')) {
+                New-OutboundConnector @OutboundConnParam
             }
         }
     }
@@ -125,7 +125,7 @@ function New-SM365Connectors
             if ($recreateSMInboundConn -like 'y')
             {
                 Write-Verbose "Removing existing SEPPmail Inbound Connector !"
-                $existingSMInboundConn | Remove-InboundConnector 
+                $existingSMInboundConn | Remove-InboundConnector -Confirm:$false # user already confirmed action
                 
                 New-SM365InboundConnector
             }
@@ -158,7 +158,7 @@ function New-SM365Connectors
             if ($recreateSMOutboundConn -like 'y')
             {
                 Write-Verbose "Removing existing Outbound Connector $($existingSMOutboundConn.Name) !"
-                $existingSMOutboundConn | Remove-OutboundConnector
+                $existingSMOutboundConn | Remove-OutboundConnector -Confirm:$false # user already confirmed action
 
                 New-SM365OutboundConnector
             }
@@ -175,8 +175,6 @@ function New-SM365Connectors
 
     end
     {
-        if ($outboundConn) { return $OutboundConn }
-        if ($inboundConn) { return $InboundConn }
     }
 }
 
@@ -201,19 +199,14 @@ function New-SM365Rules
     begin
     {
         try {
-            if (!(Get-AcceptedDomain))
-            {
-                Write-Error "Cannot retrieve Exchange Domain Information, please reconnect with 'Connect-ExchangeOnline'"
-                break
-            }
-            else
-            {
-                $defdomain = (Get-AcceptedDomain | Where-Object Default -Like 'True').DomainName
-                Write-Information "Connected to Exchange Organization `"$defdomain`"" -InformationAction Continue
-            }
+            $domains = Get-AcceptedDomain
+            if (!$domains)
+            {throw [System.Exception] "Cannot retrieve Exchange Domain Information, please reconnect with 'Connect-ExchangeOnline'"}
+            
+            $defdomain = ($domains | Where-Object Default -Like 'True').DomainName
+            Write-Information "Connected to Exchange Organization `"$defdomain`"" -InformationAction Continue
         } catch {
-            Write-Error "Could not retrieve Exchange Online information - are you connected to your subscription as admin ?"
-            Write-Error "Category Info: $Error[0].CategoryInfo"
+            throw [System.Exception] "Could not retrieve Exchange Online information - are you connected to your subscription as admin ?"
         }
     }
 
@@ -247,8 +240,8 @@ function New-SM365Rules
                     't' { $placementPrio = '0' }
                     'Bottom' { $placementPrio = ($existingTransportRules).count }
                     'b' { $placementPrio = ($existingTransportRules).count }
-                    'Cancel' { exit }
-                    'c' { exit }
+                    'Cancel' { return }
+                    'c' { return }
                     default { $placementPrio = '0' }
                 }
             }
@@ -290,7 +283,7 @@ function New-SM365Rules
             }
         }
         catch {
-            Write-Error "Error $_.CategoryInfo occured"
+            throw [System.Exception] "Error $($_.CategoryInfo) occured"
         }
     }
 
@@ -300,6 +293,29 @@ function New-SM365Rules
     }
 }
 
+<#
+.SYNOPSIS
+    Removes the SEPPmail inbound and outbound connectors
+.DESCRIPTION
+    Convenience function to remove the SEPPmail connectors
+.EXAMPLE
+    Remove-SM365Connector
+#>
+function Remove-SM365Connector 
+{
+    [CmdletBinding(SupportsShouldProcess=$true,
+                   ConfirmImpact='Medium')]
+    Param 
+    (
+           
+    )
+
+    if($PSCmdlet.ShouldProcess("Outbound connector", "Remove SEPPmail connector"))
+    {Get-OutboundConnector | Where-Object Name -Match '^\[SEPPmail\].*$' | Remove-OutboundConnector}
+
+    if($PSCmdlet.ShouldProcess("Inbound connector", "Remove SEPPmail connector"))
+    {Get-InboundConnector | Where-Object Name -Match '^\[SEPPmail\].*$' | Remove-InboundConnector}
+}
 
 <#
 .SYNOPSIS
@@ -376,7 +392,7 @@ function New-SM365ExOReport {
 
         }
         catch {
-            Write-Error "Error $_.CategoryInfo occured"
+            throw [System.Exception] "Error $($_.CategoryInfo) occured"
         }
     }   
     end {
