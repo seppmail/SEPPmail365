@@ -1,4 +1,7 @@
-﻿<#
+﻿# Request terminating errors by default
+$PSDefaultParameterValues['*:ErrorAction'] = [System.Management.Automation.ActionPreference]::Stop
+
+<#
 .SYNOPSIS
     Adds SEPPmail Exchange Online connectors
 .DESCRIPTION
@@ -122,7 +125,7 @@ function New-SM365Connectors
             if ($recreateSMInboundConn -like 'y')
             {
                 Write-Verbose "Removing existing SEPPmail Inbound Connector !"
-                $existingSMInboundConn | Remove-InboundConnector 
+                $existingSMInboundConn | Remove-InboundConnector -Confirm:$false # user already confirmed action
                 
                 New-SM365InboundConnector
             }
@@ -155,7 +158,7 @@ function New-SM365Connectors
             if ($recreateSMOutboundConn -like 'y')
             {
                 Write-Verbose "Removing existing Outbound Connector $($existingSMOutboundConn.Name) !"
-                $existingSMOutboundConn | Remove-OutboundConnector
+                $existingSMOutboundConn | Remove-OutboundConnector -Confirm:$false # user already confirmed action
 
                 New-SM365OutboundConnector
             }
@@ -172,8 +175,6 @@ function New-SM365Connectors
 
     end
     {
-        if ($outboundConn) { return $OutboundConn }
-        if ($inboundConn) { return $InboundConn }
     }
 }
 
@@ -198,19 +199,14 @@ function New-SM365Rules
     begin
     {
         try {
-            if (!(Get-AcceptedDomain))
-            {
-                Write-Error "Cannot retrieve Exchange Domain Information, please reconnect with 'Connect-ExchangeOnline'"
-                break
-            }
-            else
-            {
-                $defdomain = (Get-AcceptedDomain | Where-Object Default -Like 'True').DomainName
-                Write-Information "Connected to Exchange Organization `"$defdomain`"" -InformationAction Continue
-            }
+            $domains = Get-AcceptedDomain
+            if (!$domains)
+            {throw [System.Exception] "Cannot retrieve Exchange Domain Information, please reconnect with 'Connect-ExchangeOnline'"}
+            
+            $defdomain = ($domains | Where-Object Default -Like 'True').DomainName
+            Write-Information "Connected to Exchange Organization `"$defdomain`"" -InformationAction Continue
         } catch {
-            Write-Error "Could not retrieve Exchange Online information - are you connected to your subscription as admin ?"
-            Write-Error "Category Info: $Error[0].CategoryInfo"
+            throw [System.Exception] "Could not retrieve Exchange Online information - are you connected to your subscription as admin ?"
         }
     }
 
@@ -244,8 +240,8 @@ function New-SM365Rules
                     't' { $placementPrio = '0' }
                     'Bottom' { $placementPrio = ($existingTransportRules).count }
                     'b' { $placementPrio = ($existingTransportRules).count }
-                    'Cancel' { exit }
-                    'c' { exit }
+                    'Cancel' { return }
+                    'c' { return }
                     default { $placementPrio = '0' }
                 }
             }
@@ -287,7 +283,7 @@ function New-SM365Rules
             }
         }
         catch {
-            Write-Error "Error $_.CategoryInfo occured"
+            throw [System.Exception] "Error $($_.CategoryInfo) occured"
         }
     }
 
@@ -396,7 +392,7 @@ function New-SM365ExOReport {
 
         }
         catch {
-            Write-Error "Error $_.CategoryInfo occured"
+            throw [System.Exception] "Error $($_.CategoryInfo) occured"
         }
     }   
     end {
