@@ -300,6 +300,29 @@ function New-SM365Rules
     }
 }
 
+<#
+.SYNOPSIS
+    Removes the SEPPmail inbound and outbound connectors
+.DESCRIPTION
+    Convenience function to remove the SEPPmail connectors
+.EXAMPLE
+    Remove-SM365Connector
+#>
+function Remove-SM365Connector 
+{
+    [CmdletBinding(SupportsShouldProcess=$true,
+                   ConfirmImpact='Medium')]
+    Param 
+    (
+           
+    )
+
+    if($PSCmdlet.ShouldProcess("Outbound connector", "Remove SEPPmail connector"))
+    {Get-OutboundConnector | Where-Object Name -Match '^\[SEPPmail\].*$' | Remove-OutboundConnector}
+
+    if($PSCmdlet.ShouldProcess("Inbound connector", "Remove SEPPmail connector"))
+    {Get-InboundConnector | Where-Object Name -Match '^\[SEPPmail\].*$' | Remove-InboundConnector}
+}
 
 <#
 .SYNOPSIS
