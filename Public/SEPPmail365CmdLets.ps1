@@ -379,10 +379,10 @@ function New-SM365ExOReport {
             $K = Get-MigrationStatistics|Select-Object Identity,Totalcount,FinalizedCount,MigrationType,IsValid|Convertto-HTML -Fragment
 
             Write-Verbose "InboundConnectors"
-            $L = Get-InboundConnector |Select-Object Identity,ConnectorType,ConnectorSource,EFSkipLastIP,EFUsers,IsValid|Convertto-HTML -Fragment
+            $L = Get-InboundConnector |Select-Object Identity,OrganizationalUnitRootInternal,TlsSenderCertificateName,ConnectorType,ConnectorSource,EFSkipLastIP,EFUsers,IsValid|Convertto-HTML -Fragment
             
             Write-Verbose "OutboundConnectors"
-            $M = Get-OutboundConnector|Select-Object Identity,ConnectorType,ConnectorSource,EFSkipLastIP,EFUsers,IsValid|Convertto-HTML -Fragment
+            $M = Get-OutboundConnector|Select-Object Identity,TlsDomain,OriginatingServer,TlsSettings,ConnectorType,ConnectorSource,EFSkipLastIP,EFUsers,IsValid|Convertto-HTML -Fragment
             
             Write-Verbose "TransportRules"
             $N = Get-TransportRule | select-object Name,IsValid |Convertto-HTML -Fragment
