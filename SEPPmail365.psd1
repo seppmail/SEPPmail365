@@ -12,7 +12,7 @@
 RootModule = 'SEPPmail365.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.9.2'
+ModuleVersion = '1.0.0'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Desktop')
@@ -137,10 +137,12 @@ PrivateData = @{
 04.08.20    0.9.1 Updated Logo, updated publisher, finished for release 1.0
 
 18.8.20     0.9.2 Improved error handling, connector output, new CmdLet Remove-SM365Connectors
+
+26.8.20     1.0.0 Fixing final issues and ready to release.
 '@
 
         # Prerelease string of this module
-        Prerelease = 'RC'
+        # Prerelease = ''
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         # RequireLicenseAcceptance = $false
@@ -159,7 +161,6 @@ PrivateData = @{
 # DefaultCommandPrefix = ''
 
 }
-
 
 # SIG # Begin signature block
 # MIIL1wYJKoZIhvcNAQcCoIILyDCCC8QCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
