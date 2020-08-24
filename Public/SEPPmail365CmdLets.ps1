@@ -124,9 +124,10 @@ function New-SM365Connectors
 
             if ($recreateSMInboundConn -like 'y')
             {
-                Write-Verbose "Removing existing SEPPmail Inbound Connector !"
-                $existingSMInboundConn | Remove-InboundConnector -Confirm:$false # user already confirmed action
-                
+                Write-Verbose "Removing existing SEPPmail Inbound Connector $($existingSMInboundConn.Name) !"
+                if ($PSCmdLet.ShouldProcess($($InboundConnParam.Name),'Removing existing SEPPmail inbound Connector')) {
+                    $existingSMInboundConn | Remove-InboundConnector -Confirm:$false # user already confirmed action
+                }
                 New-SM365InboundConnector
             }
             
@@ -158,7 +159,10 @@ function New-SM365Connectors
             if ($recreateSMOutboundConn -like 'y')
             {
                 Write-Verbose "Removing existing Outbound Connector $($existingSMOutboundConn.Name) !"
-                $existingSMOutboundConn | Remove-OutboundConnector -Confirm:$false # user already confirmed action
+                if ($PSCmdLet.ShouldProcess($($InboundConnParam.Name),'Removing existing SEPPmail Outbound Connector')) {
+                    $existingSMOutboundConn | Remove-OutboundConnector -Confirm:$false # user already confirmed action
+                }
+
 
                 New-SM365OutboundConnector
             }
