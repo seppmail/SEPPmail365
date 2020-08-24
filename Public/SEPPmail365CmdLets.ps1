@@ -387,12 +387,19 @@ function New-SM365ExOReport {
             Write-Verbose "TransportRules"
             $N = Get-TransportRule | select-object Name,IsValid |Convertto-HTML -Fragment
 
+            # Get MX Record Report for each domain
+            $O = $Null
+            $oTemp = Get-AcceptedDomain
+            Foreach ($AcceptedDomain in $oTemp.DomainName) {
+                $O += (Get-MxRecordReport -Domain $AcceptedDomain|Select-Object -Unique|Select-Object HighestPriorityMailhost,HighestPriorityMailhostIpAddress,Domain|Convertto-HTML -Fragment)
+            }
+
             $style = "<style>BODY{font-family: Arial; font-size: 10pt;}"
             $style = $style + "TABLE{border: 1px solid black; border-collapse: collapse;}"
             $style = $style + "TH{border: 1px solid black; background: #dddddd; padding: 5px; }"
             $style = $style + "TD{border: 1px solid black; padding: 5px; }"
             $style = $style + "</style>"
-            Convertto-HTML -Body "$HA $a $b $c $d $e $f $g $i $j $k $l $m $n" -Title "SEPPmail365 Exo Report" -Head $style
+            Convertto-HTML -Body "$HA $a $b $c $d $e $f $g $i $j $k $l $m $n $o" -Title "SEPPmail365 Exo Report" -Head $style
 
         }
         catch {
