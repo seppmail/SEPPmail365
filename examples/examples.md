@@ -8,7 +8,7 @@ After importing the module you need to authenticate to Exchange Online. See the 
 Before you change anything, run the report to get insights into your ExO environment.
 
 ```powershell
-New-SM365ExOReport |out-file $env:temp\ExOReport.html
+New-SM365ExOReport -FilePath $env:temp\ExOReport.html
 # To display the report execute:
 & $env:temp\ExOReport.html
 ```

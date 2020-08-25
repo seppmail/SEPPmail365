@@ -333,10 +333,11 @@ function New-SM365ExOReport {
     [CmdletBinding(SupportsShouldProcess=$true,
                    ConfirmImpact='Medium')]
     Param (
-        # Define output Format
-        [Parameter(Mandatory=$false)]
-        [ValidateSet("Console", "HTML")]
-        $Output = 'Console'
+        # Define output Filapath
+        [Parameter(   Mandatory = $true,
+                    HelpMessage = 'Path of the HTML report on disk'
+        )]
+        $FilePath
     )
 
     begin {
@@ -348,21 +349,28 @@ function New-SM365ExOReport {
                 #"Whatis is $Whatif and `$pscmdlet.ShouldProcess is $($pscmdlet.ShouldProcess) "
                 #For later Use
             }
-            #$HA = "Accepted Domains"|Convertto-HTML -Property @{l='Report section'; e={ $_}} -Fragment
+            $Top = "<p><h1>Exchange Online Report</h1><p>"
+            Write-Verbose "Collecting Accepted Domains"
+            $hA = '<p><h2>Accepted Domains</h2><p>'
             $A = Get-AcceptedDomain |select-object Domainname,DomainType,Default,EmailOnly,ExternallyManaged,OutboundOnly|Convertto-HTML -Fragment
-            
-            Write-Verbose "Audit Log and Dkim Settings"
+            Write-Verbose "Collecting Audit Log and Dkim Settings"
+            $hB = '<p><h2>Audit Log Settings</h2><p>'
             $B = Get-AdminAuditLogConfig |Select-Object Name,AdminAuditLogEnabled,LogLevel,AdminAuditLogAgeLimit |Convertto-HTML -Fragment
+
+            $hC = '<p><h2>DKIM Settings</h2><p>'
             $C = Get-DkimSigningConfig|Select-Object Domain,Status|Convertto-HTML -Fragment
 
-            Write-Verbose "Phishing and Malware Policies"
+            Write-Verbose "Collecting Phishing and Malware Policies"
+            $hD = '<p><h2>Phishing and Malware Policies</h2><p>'
             $D = Get-AntiPhishPolicy|Select-Object Identity,isDefault,IsValid|Convertto-HTML -Fragment
             $E = Get-MalwareFilterPolicy|Select-Object Identity,Action,IsDefault|Convertto-HTML -Fragment
 
             Write-Verbose "ATP Information"
+            $hF = '<p><h2>ATP Information</h2><p>'
             $F = Get-ATPTotalTrafficReport|Select-Object Organization,Eventtype,Messagecount|Convertto-HTML -Fragment
-
-            Write-Verbose " Get-HybridMailflow"
+            
+            Write-Verbose "Get-HybridMailflow"
+            $hG = '<p><h2>Hybrid Mailflow Information</h2><p>'
             $G = Get-HybridMailflow|Convertto-HTML -Fragment
             
             #Write-Verbose " Get-HybridMailflowDatacenterIPs"
@@ -370,36 +378,49 @@ function New-SM365ExOReport {
             #$H = Get-IntraOrganizationConfiguration|Select-Object OnlineTargetAddress,OnPremiseTargetAddresses,IsValid|Convertto-HTML -Fragment
             
             Write-Verbose "Get-IntraorgConnector"
+            $hI = '<p><h2>Intra Org Connector Settings</h2><p>'
             $I = Get-IntraOrganizationConnector|Select-Object Identity,TargetAddressDomains,DiscoveryEndpoint,IsValid|Convertto-HTML -Fragment
             
             Write-Verbose "Get-MigrationConfig"
+            $hJ = '<p><h2>Migration Configuration Settings</h2><p>'
             $J = Get-MigrationConfig|Select-Object Identity,Features,IsValid|Convertto-HTML -Fragment
             
             Write-Verbose "Get-MigrationStatistics"
+            $hK = '<p><h2>Migration Statistics</h2><p>'
             $K = Get-MigrationStatistics|Select-Object Identity,Totalcount,FinalizedCount,MigrationType,IsValid|Convertto-HTML -Fragment
 
             Write-Verbose "InboundConnectors"
+            $hL = '<p><h2>Inbound Connectors</h2><p>'
             $L = Get-InboundConnector |Select-Object Identity,OrganizationalUnitRootInternal,TlsSenderCertificateName,ConnectorType,ConnectorSource,EFSkipLastIP,EFUsers,IsValid|Convertto-HTML -Fragment
             
             Write-Verbose "OutboundConnectors"
+            $hM = '<p><h2>Outbound Connectors</h2><p>'
             $M = Get-OutboundConnector|Select-Object Identity,TlsDomain,OriginatingServer,TlsSettings,ConnectorType,ConnectorSource,EFSkipLastIP,EFUsers,IsValid|Convertto-HTML -Fragment
             
             Write-Verbose "TransportRules"
-            $N = Get-TransportRule | select-object Name,IsValid |Convertto-HTML -Fragment
+            $hN = '<p><h2>Existing Transport Rules</h2><p>'
+            $N = Get-TransportRule | select-object Name,IsValid,Priority,FromScope,SentToScope,Comments |Convertto-HTML -Fragment
 
             # Get MX Record Report for each domain
+            $hO = '<p><h2>MX Record for each Domain</h2><p>'
             $O = $Null
             $oTemp = Get-AcceptedDomain
             Foreach ($AcceptedDomain in $oTemp.DomainName) {
                 $O += (Get-MxRecordReport -Domain $AcceptedDomain|Select-Object -Unique|Select-Object HighestPriorityMailhost,HighestPriorityMailhostIpAddress,Domain|Convertto-HTML -Fragment)
             }
 
-            $style = "<style>BODY{font-family: Arial; font-size: 10pt;}"
-            $style = $style + "TABLE{border: 1px solid black; border-collapse: collapse;}"
-            $style = $style + "TH{border: 1px solid black; background: #dddddd; padding: 5px; }"
-            $style = $style + "TD{border: 1px solid black; padding: 5px; }"
-            $style = $style + "</style>"
-            Convertto-HTML -Body "$HA $a $b $c $d $e $f $g $i $j $k $l $m $n $o" -Title "SEPPmail365 Exo Report" -Head $style
+            # Find out possible Sending Limits for LFT
+            Write-Verbose "Collecting Send and Receive limits for SEPPmail LFT configuration"
+            $hN = '<p><h2>Send and Receive limits (for SEPPmail LFT configuration)</h2><p>'
+            $N = Get-TransportConfig |Select-Object MaxSendSize,MaxReceiveSize |Convertto-HTML -Fragment
+
+
+            $HeaderLogo = [Convert]::ToBase64String((Get-Content -path $ModulePath\HTML\SEPPmailLogo.jpg -encoding byte ))
+            $LogoHTML = @"
+<img src="data:image/jpg;base64,$($HeaderLogo)" style="left:150px alt="Exchange Online System Report">
+"@
+            $style = Get-Content $ModulePath\HTML\SEPPmailReport.css
+            Convertto-HTML -Body "$LogoHTML $Top $hA $a $hB $b $hC $c $hd $d $e $hF $f $hG $g $hI $i $hJ $j $hK $k $hL $l $hM $m $hN $n $hO $o" -Title "SEPPmail365 Exo Report" -Head $style|Out-File -FilePath $filePath
 
         }
         catch {
