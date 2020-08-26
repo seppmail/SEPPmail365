@@ -18,7 +18,11 @@ To install the module from the Powershell Gallery use:
 Install-Module SEPPmail365
 ```
 
-This will install the module in the user scope.
+This will install the module in the user scope. To make it available to all users of that machinee, install it in the allusers-scope by running a Powershell session as administrator and install with:
+
+```powershell
+Install-Module SEPPmail365 -Scope AllUsers
+```
 
 ## Functionality
 
@@ -40,7 +44,7 @@ And with MFA:
 Connect-ExchangeOnline -UserPrincipalName frank@contoso.com -ShowProgress $true
 ```
 
-Fact is, without an established implicit remoting session to Exchange Online, the module will not work.
+Fact is, without an established implicit remoting session to ExO, the module will not work.
 
 ## Usage
 
@@ -48,7 +52,7 @@ For examples on how to use the module see <https://github.com/seppmail/SEPPmail3
 
 ## Whatif option
 
-Before the actual changes happen, all CmdLets, which to configuration changes, must have a `-Whatif` Option to simulate the change in advance.
+Before the actual changes happen, all CmdLets, which apply configuration changes, du have a `-Whatif` Option to simulate the change in advance.
 
 ## Verbose Option
 

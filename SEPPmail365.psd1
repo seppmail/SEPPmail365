@@ -21,7 +21,7 @@ CompatiblePSEditions = @('Desktop')
 GUID = '485013db-02ab-4bf7-9161-7119e152c297'
 
 # Author of this module
-Author = 'Roman Stadlmair - SEPPmail Deutschland GmbH'
+Author = 'Roman Stadlmair, Max Mueller-Domhardt'
 
 # Company or vendor of this module
 CompanyName = 'SEPPmail AG'
@@ -75,12 +75,11 @@ RequiredModules = @(
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = @(
+FunctionsToExport = @(    
     'New-SM365Connectors'
     'New-SM365Rules'
     'New-SM365ExOReport'
-    'Remove-SM365Connectors'
-)
+    )
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
@@ -111,7 +110,7 @@ PrivateData = @{
                 'ExchangeOnline',
                 'Microsoft365',
                 'PSEdition_Desktop',
-                'Windows')
+                'Office365')
 
         # A URL to the license for this module.
         LicenseUri = 'https://github.com/seppmail/SEPPmail365/blob/master/LICENSE'
@@ -120,7 +119,6 @@ PrivateData = @{
         ProjectUri = 'https://github.com/seppmail/SEPPmail365'
 
         # A URL to an icon representing this module.
-        #IconUri = 'https://seppmail.de/wp-content/uploads/SEPPmail-Secure-E-Mail-Gateway-300x300.jpg'
         IconUri = 'https://avatars1.githubusercontent.com/u/55975553?s=400&u=ab22c52a439397dca458e58dfcec9f0a9dd347db&v=4'
 
         # ReleaseNotes of this module
@@ -165,8 +163,8 @@ PrivateData = @{
 # SIG # Begin signature block
 # MIIL1wYJKoZIhvcNAQcCoIILyDCCC8QCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUodWeAOLERMOJk5eyQu6OMPeQ
-# BWWggglAMIIEmTCCA4GgAwIBAgIQcaC3NpXdsa/COyuaGO5UyzANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUlzs9iCyFDn9mJKqJysFXpD9j
+# dUmggglAMIIEmTCCA4GgAwIBAgIQcaC3NpXdsa/COyuaGO5UyzANBgkqhkiG9w0B
 # AQsFADCBqTELMAkGA1UEBhMCVVMxFTATBgNVBAoTDHRoYXd0ZSwgSW5jLjEoMCYG
 # A1UECxMfQ2VydGlmaWNhdGlvbiBTZXJ2aWNlcyBEaXZpc2lvbjE4MDYGA1UECxMv
 # KGMpIDIwMDYgdGhhd3RlLCBJbmMuIC0gRm9yIGF1dGhvcml6ZWQgdXNlIG9ubHkx
@@ -220,11 +218,11 @@ PrivateData = @{
 # NiBDb2RlIFNpZ25pbmcgQ0ECEF0xOuf5lHR9Mf0X/F6tAjYwCQYFKw4DAhoFAKB4
 # MBgGCisGAQQBgjcCAQwxCjAIoAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQB
 # gjcCAQQwHAYKKwYBBAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkE
-# MRYEFKYOBKIW8ZR3EWst3fAJduzR0BPLMA0GCSqGSIb3DQEBAQUABIIBAH7ROMka
-# wDj47rxkG7Btx0LyiNTIRwIcBJqdZozNYtVvGFyb6yZxKY1KkX+Gmq7tYtCAsRm3
-# LD774nm8xFdA/wSa8H6ecqTlhQZoAzbpcjDFTBO/NJe5yrjeSZi+vLc6QO2MK1a5
-# PQZXoP1gdStfZrEqFiqSc0llzVzNhLPmbQcUZsZysQCmWKFVcDUHGuHUi841Gulo
-# fGCxlzht8FMmwOyoSqCdX11YaUrK7nhOcE92d8AjCsdlrfOeJKvq9D5Aw7BEHXhH
-# uiUOcG6ZB2UdLg4ecTwmXmoj6vvOe/emoheVT95UBu1VrpBzvSI2Bvf7wN/K1Jjo
-# KhneYVNsLYzPHJo=
+# MRYEFA/YfmVJ9NvVqMfi9uz4If1ejYbzMA0GCSqGSIb3DQEBAQUABIIBABKCwqZi
+# nIax9wgMT4LlhoNL9GgkdPXSYb5+D4Q15dUOOIrsQiaELdNLwkhFWJNVSthk4xYp
+# 7gR4nIetS+JQEekzAcTUA1h6Syb5CjKDulaCDoENMlh4CYXpXPJmPTzdZQ1AWDOc
+# h5ca2/Q2fpTpIf7CJaeEMRLl0Xfo7rKfoqLmSAE+Jqndo0Ao0tIU5p4hweWtizjE
+# piu8NP/6V9VerKzmqPSOj4+xR+8qpU7iO8YcXSEUlA1oSfFPBPN4oxrMBV3dbcCb
+# 5lqeBfh6lCdSLfO9knw8zRqmPN9Pi0xTrjd24EILK0reDaljrQC8C5AXSSHXV/Iu
+# vURBXeThU3rHmhU=
 # SIG # End signature block
