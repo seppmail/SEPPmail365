@@ -8,7 +8,11 @@ $PSDefaultParameterValues['*:ErrorAction'] = [System.Management.Automation.Actio
     SEPPmail uses 2 Connectors to transfer messages between SEPPmail and Exchange Online
     This commandlet will create the connectors for you.
 
-    The -SEPPmailFQDN must point to a SEPPmail Appliance with a valid certificat to establish the TLS conenction.
+    The -SEPPmailFQDN must point to a SEPPmail Appliance with a valid certificate to establish the TLS connection.
+    The parameter -TlsDomain is required, if the SEPPmailFQDN differs from the one in the SSL certificate.
+    This Cmdlet attempts to retrieve this information automatically by issuing a request to the specified
+    FQDN and inspecting the certificate. If you do not want this to happen simply set the parameter -TlsDomain
+    to the corresponding value.
 
 .EXAMPLE
     New-SM365Connectors -SEPPmailFQDN 'securemail.consoso.com'
@@ -18,22 +22,40 @@ function New-SM365Connectors
     [CmdletBinding(SupportsShouldProcess = $true,
                            ConfirmImpact = 'Medium'
                     )]
-    param(
-            [Parameter(
-                Mandatory = $true,
-                HelpMessage = 'FQDN of the SEPPmail Appliance'
-            )]
-            [ValidatePattern("^(?!:\/\/)(?=.{1,255}$)((.{1,63}\.){1,127}(?![0-9]*$)[a-z0-9-]+\.?)$")]
-            [Alias("FQDN")]
-            [String]$SEPPmailFQDN,
+    param
+    (
+        [Parameter(
+             Mandatory = $true,
+             HelpMessage = 'FQDN of the SEPPmail Appliance'
+         )]
+        [ValidatePattern("^(?!:\/\/)(?=.{1,255}$)((.{1,63}\.){1,127}(?![0-9]*$)[a-z0-9-]+\.?)$")]
+        [Alias("FQDN")]
+        [String] $SEPPmailFQDN,
 
-            [Parameter(
-                Mandatory = $true,
-                HelpMessage = 'Associated Accepted Domains, the connector will take e-Mails from'
-            )]
-            [Alias("ibad")]
-            [String[]]$InboundAcceptedDomains
-        )
+        [Parameter(
+             Mandatory = $true,
+             HelpMessage = 'Associated Accepted Domains, the connector will take e-Mails from'
+         )]
+        [Alias("ibad")]
+        [String[]] $InboundAcceptedDomains,
+
+        [Parameter(
+            Mandatory = $false,
+            HelpMessage = 'The FQDN the SEPPmail SSL certificate has been issued to'
+        )]
+        [string] $TlsDomain,
+
+        [Parameter(
+             Mandatory = $false,
+             HelpMessage = 'If you are behind a proxy you might need this switch'
+         )]
+        [switch] $UseSystemProxy,
+        [Parameter(
+            Mandatory = $false,
+            HelpMessage = 'If you are behind a proxy you might need this switch'
+        )]
+        [switch] $UseDefaultCredentials
+    )
 
     begin
     {
@@ -41,13 +63,37 @@ function New-SM365Connectors
         if(!$domains)
         {throw [System.Exception] "Cannot retrieve Exchange Domain Information, please reconnect with 'Connect-ExchangeOnline'"}
 
+        # only check if the user did not already provide subject information
+        if(!$TlsDomain)
+        {
+            $request = [System.Net.WebRequest]::Create($SEPPmailFQDN)
+            if ($UseSystemProxy)
+            {
+                $request.Proxy = [System.Net.WebRequest]::DefaultWebProxy
+            }
+
+            if ($UseSystemProxy -and $UseDefaultCredentials)
+            {
+                $request.Proxy.Credentials = [System.Net.CredentialCache]::DefaultNetworkCredentials
+            }
+
+            try
+            {$request.GetResponse() | Out-Null}
+            catch
+            {}
+
+            $TlsDomain = $request.ServicePoint.Certificate.Subject | ?{$_ -match "cn=(.+?)(,|$)"} | %{$Matches[1]}
+
+            if(!$TlsDomain)
+            {throw [System.Exception] "Could not determine SSL subject for $SEPPmailFQDN"}
+        }
 
         $defdomain = ($domains | Where-Object Default -Like 'True').DomainName
         Write-Information "Connected to Exchange Organization `"$defdomain`"" -InformationAction Continue
 
         Write-Verbose "Testing for hybrid Setup"
-        $HybridInboundConn = Get-InboundConnector |Where-Object {(($_.Name -clike 'Inbound from *') -or ($_.ConnectorSource -clike 'HybridWizard'))} 
-        $HybridOutBoundConn = Get-OutBoundConnector |Where-Object {(($_.Name -clike 'Outbound to *') -or ($_.ConnectorSource -clike 'HybridWizard'))} 
+        $HybridInboundConn = Get-InboundConnector |Where-Object {(($_.Name -clike 'Inbound from *') -or ($_.ConnectorSource -clike 'HybridWizard'))}
+        $HybridOutBoundConn = Get-OutBoundConnector |Where-Object {(($_.Name -clike 'Outbound to *') -or ($_.ConnectorSource -clike 'HybridWizard'))}
 
         if ($HybridInboundConn -or $HybridOutBoundConn) {
             Write-Warning "!!! - Hybrid Configuration detected - we assume you know what you are doing. Be sure to backup your connector settings before making any change."
@@ -65,7 +111,7 @@ function New-SM365Connectors
                 Write-Verbose "Exiting due to user decision."
                 break
             }
-    
+
         } else {
             Write-Information "No Hybrid Connectors detected, seems to be a clean cloud-only environment" -InformationAction Continue
         }
@@ -73,7 +119,7 @@ function New-SM365Connectors
         function New-SM365InboundConnector {
             Write-Verbose "Creating SEPPmail Inbound Connector !"
             if ($PSCmdLet.ShouldProcess($($InboundConnParam.Name),'Creating Inbound Connector')) {
-                New-InboundConnector @InboundConnParam 
+                New-InboundConnector @InboundConnParam
             }
         }
         function New-SM365OutboundConnector {
@@ -95,8 +141,8 @@ function New-SM365Connectors
 
         Write-Verbose "Fill in values from Parameters"
         $OutboundConnParam.SmartHosts = $SEPPmailFQDN
-        $OutboundConnParam.TlsDomain = $SEPPmailFQDN
-        $InboundConnParam.TlsSenderCertificateName = $SEPPmailFQDN
+        $OutboundConnParam.TlsDomain = $TlsDomain
+        $InboundConnParam.TlsSenderCertificateName = $TlsDomain
         Write-Verbose "Set AssociatedAcceptedDomains to $null for all or specific domains"
         if ($InboundAcceptedDomains -eq '*') {
             Write-Verbose "Removing Key AssociatedAcceptedDomains from parameter-hashtable"
@@ -130,7 +176,7 @@ function New-SM365Connectors
                 }
                 New-SM365InboundConnector
             }
-            
+
             else
             {
                 Write-Warning "Leaving existing SEPPmail Inbound Connector `"$($existingSMInboundConn.Name)`" untouched."
@@ -206,7 +252,7 @@ function New-SM365Rules
             $domains = Get-AcceptedDomain
             if (!$domains)
             {throw [System.Exception] "Cannot retrieve Exchange Domain Information, please reconnect with 'Connect-ExchangeOnline'"}
-            
+
             $defdomain = ($domains | Where-Object Default -Like 'True').DomainName
             Write-Information "Connected to Exchange Organization `"$defdomain`"" -InformationAction Continue
         } catch {
@@ -305,13 +351,13 @@ function New-SM365Rules
 .EXAMPLE
     Remove-SM365Connector
 #>
-function Remove-SM365Connectors 
+function Remove-SM365Connectors
 {
     [CmdletBinding(SupportsShouldProcess=$true,
                    ConfirmImpact='Medium')]
-    Param 
+    Param
     (
-           
+
     )
 
     if($PSCmdlet.ShouldProcess("Outbound connector", "Remove SEPPmail connector"))
@@ -368,23 +414,23 @@ function New-SM365ExOReport {
             Write-Verbose "ATP Information"
             $hF = '<p><h2>ATP Information</h2><p>'
             $F = Get-ATPTotalTrafficReport|Select-Object Organization,Eventtype,Messagecount|Convertto-HTML -Fragment
-            
+
             Write-Verbose "Get-HybridMailflow"
             $hG = '<p><h2>Hybrid Mailflow Information</h2><p>'
             $G = Get-HybridMailflow|Convertto-HTML -Fragment
-            
+
             #Write-Verbose " Get-HybridMailflowDatacenterIPs"
             #Get-HybridMailflowDatacenterIPs|Select-Object -ExpandProperty DatacenterIPs|Format-Table
             #$H = Get-IntraOrganizationConfiguration|Select-Object OnlineTargetAddress,OnPremiseTargetAddresses,IsValid|Convertto-HTML -Fragment
-            
+
             Write-Verbose "Get-IntraorgConnector"
             $hI = '<p><h2>Intra Org Connector Settings</h2><p>'
             $I = Get-IntraOrganizationConnector|Select-Object Identity,TargetAddressDomains,DiscoveryEndpoint,IsValid|Convertto-HTML -Fragment
-            
+
             Write-Verbose "Get-MigrationConfig"
             $hJ = '<p><h2>Migration Configuration Settings</h2><p>'
             $J = Get-MigrationConfig|Select-Object Identity,Features,IsValid|Convertto-HTML -Fragment
-            
+
             Write-Verbose "Get-MigrationStatistics"
             $hK = '<p><h2>Migration Statistics</h2><p>'
             $K = Get-MigrationStatistics|Select-Object Identity,Totalcount,FinalizedCount,MigrationType,IsValid|Convertto-HTML -Fragment
@@ -392,11 +438,11 @@ function New-SM365ExOReport {
             Write-Verbose "InboundConnectors"
             $hL = '<p><h2>Inbound Connectors</h2><p>'
             $L = Get-InboundConnector |Select-Object Identity,OrganizationalUnitRootInternal,TlsSenderCertificateName,ConnectorType,ConnectorSource,EFSkipLastIP,EFUsers,IsValid|Convertto-HTML -Fragment
-            
+
             Write-Verbose "OutboundConnectors"
             $hM = '<p><h2>Outbound Connectors</h2><p>'
             $M = Get-OutboundConnector|Select-Object Identity,TlsDomain,OriginatingServer,TlsSettings,ConnectorType,ConnectorSource,EFSkipLastIP,EFUsers,IsValid|Convertto-HTML -Fragment
-            
+
             Write-Verbose "TransportRules"
             $hN = '<p><h2>Existing Transport Rules</h2><p>'
             $N = Get-TransportRule | select-object Name,IsValid,Priority,FromScope,SentToScope,Comments |Convertto-HTML -Fragment
@@ -426,15 +472,15 @@ function New-SM365ExOReport {
         catch {
             throw [System.Exception] "Error $($_.CategoryInfo) occured"
         }
-    }   
+    }
     end {
     }
-}
+
 # SIG # Begin signature block
 # MIIL1wYJKoZIhvcNAQcCoIILyDCCC8QCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQU+zrsjGCmh+uloOng0RcZ5oo1
-# K5CggglAMIIEmTCCA4GgAwIBAgIQcaC3NpXdsa/COyuaGO5UyzANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUzJarY1+6yohr8TWGRKAqbwpG
+# em2ggglAMIIEmTCCA4GgAwIBAgIQcaC3NpXdsa/COyuaGO5UyzANBgkqhkiG9w0B
 # AQsFADCBqTELMAkGA1UEBhMCVVMxFTATBgNVBAoTDHRoYXd0ZSwgSW5jLjEoMCYG
 # A1UECxMfQ2VydGlmaWNhdGlvbiBTZXJ2aWNlcyBEaXZpc2lvbjE4MDYGA1UECxMv
 # KGMpIDIwMDYgdGhhd3RlLCBJbmMuIC0gRm9yIGF1dGhvcml6ZWQgdXNlIG9ubHkx
@@ -488,11 +534,11 @@ function New-SM365ExOReport {
 # NiBDb2RlIFNpZ25pbmcgQ0ECEF0xOuf5lHR9Mf0X/F6tAjYwCQYFKw4DAhoFAKB4
 # MBgGCisGAQQBgjcCAQwxCjAIoAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQB
 # gjcCAQQwHAYKKwYBBAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkE
-# MRYEFGobyP8tQnuc2ZscGkiwxu/3WKyQMA0GCSqGSIb3DQEBAQUABIIBAJBjtRsA
-# mxe+Unu9nTtqBJ1CXtNvya0jjs2rf8IF/WSU4a1AHj+k1jtCqM/fPmWQMj7hlePk
-# Dan58bTOS+4/cSvgtvoemAiiShCc3RuCE5HpxNiI/DccSh6XHmyVlKYpDfA2t2UJ
-# +WouMHrHQNVl2nlBHke+dWPfbL+DO8tV0tHS5/ITxcxVrNDm6yGXCnpf96qBXkVb
-# IHrO9wme4Ah3GzKyr6b1aEshX0Ven9Ds23Oj/8Ks5M5xRBPPXXwUJ40q61a+gw/j
-# lMOn34+DwVi/q/odLKoYVgiGrbkh8lB5sTSuPwVY4O9eVl6akqzCuKDjyAMSzVU/
-# G8JrcVUXOXp3oUA=
+# MRYEFK5njZ2hqyjNUcK0wC9obTKH8ZtqMA0GCSqGSIb3DQEBAQUABIIBAEK2Knip
+# mK98/FdIuJtoCfz9mZbYG2IfaeG+sSbI0UcYsaP2V1yc0kioJZyu/svG8Ap5Xnhe
+# REv4UkMf6g1iaFI5tyRSNbSnIzk2UjIRdsPRxaD8budjlPHfpQfe5R/hxyUrK1jC
+# zKLs7E1RshVnsC3h+Neq9Tbtbobq/XetPcTRB2FN+kTkL8ifEcQ81/wDC7/S8jn6
+# uq3Mqx0XK1ppRFPZnwFzOhVYIta/fQMNHoqd9r7fwv71OANTHBDWY9eZ352ZwMgo
+# pDV1+fjdYb7pLLXx8F+Ts09AM9nNifvTqJ5lhSsmc3rJ/Y2x2p2opJdCW0W9Qz77
+# KGOHBrxmFKaZPhs=
 # SIG # End signature block
