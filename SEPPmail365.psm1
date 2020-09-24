@@ -5,11 +5,13 @@ $ModulePath = Split-Path ((Get-Module -Name SEPPmail365 -Listavailable).Path)
 If (!(Get-Module -Name 'tmp_*')) {
     Write-Warning "It seems you are not connected to Exchange Online. Connect using 'Connect-ExchangeOnline'"
 }
+
+
 # SIG # Begin signature block
 # MIIL1wYJKoZIhvcNAQcCoIILyDCCC8QCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUtP/brQF0BmQbGtrzIPqr3WAj
-# 8g6ggglAMIIEmTCCA4GgAwIBAgIQcaC3NpXdsa/COyuaGO5UyzANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUH5YcRsf57k5JSYAujZmhkBW7
+# j3yggglAMIIEmTCCA4GgAwIBAgIQcaC3NpXdsa/COyuaGO5UyzANBgkqhkiG9w0B
 # AQsFADCBqTELMAkGA1UEBhMCVVMxFTATBgNVBAoTDHRoYXd0ZSwgSW5jLjEoMCYG
 # A1UECxMfQ2VydGlmaWNhdGlvbiBTZXJ2aWNlcyBEaXZpc2lvbjE4MDYGA1UECxMv
 # KGMpIDIwMDYgdGhhd3RlLCBJbmMuIC0gRm9yIGF1dGhvcml6ZWQgdXNlIG9ubHkx
@@ -63,11 +65,11 @@ If (!(Get-Module -Name 'tmp_*')) {
 # NiBDb2RlIFNpZ25pbmcgQ0ECEF0xOuf5lHR9Mf0X/F6tAjYwCQYFKw4DAhoFAKB4
 # MBgGCisGAQQBgjcCAQwxCjAIoAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQB
 # gjcCAQQwHAYKKwYBBAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkE
-# MRYEFP4SBskeiB2Lp05VHlcRAge/pYl1MA0GCSqGSIb3DQEBAQUABIIBAJlKeljh
-# CJH4iA4C7rCPSJnlp5thtdvjta1gCINHoqhjyVfGBNqVdIj6Rb4qp8dK1cmt/KMe
-# sbLlxIqHLpXGXEQDPr/5sBlmgcF5Vcylb793LFiWfE8CO4Y+oW+DxWbA7JNOVDI6
-# eQozqxnT4St/7ZlUjXeYd1DiVq+2weLt1yHhqfDJslUA+eK0QNCc8D09tn8t1sjc
-# s2vJ8hsKKR0AGwiTEZ9lzlAVaTiuTCgEzeT0TL8Fj1ocuNTu7SjMPUWz853W2s7+
-# CUvy4H/+BtJ3QAYgTbxwIATjih28zl2IILTfkpi4FFNN9Z9/fdqRLRW/URQYbhtj
-# KCva0Gvh7DWvLLs=
+# MRYEFEWVF/oHhXlpofhDR2rYV0sq9CKXMA0GCSqGSIb3DQEBAQUABIIBAAr9Vn1d
+# k6d5/XbftHnlX6IUzSS3zh+16IsRa6HnQ9y38ejLSdr829F295vQ57L9W+ypkrqf
+# Z2rJ1WBzuanjsBjz1y1itocCxXs0bqpsTEOu7TDBOV1zf428woqwRTwNzihfVqjB
+# /ObHYsflSCr/4f+2rj0EWng7pWVNWhUGZrB6lzJ4LxgBA38PROQsjHj59Q5Po/rP
+# La+lHuoqqjNJJ6gmk4S/3zJI1GqhbPLSllw0qs8pXshbKMLu8BfryqnUq3nHDXOV
+# s3cOsoRwplEq5wlqIxxbjxrEq6iM+3WxxD1XX9BLS+HqhyKdLrw8diUh7Sf8FMFV
+# W1CWNBfnb1YM5Po=
 # SIG # End signature block
