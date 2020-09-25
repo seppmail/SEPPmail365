@@ -66,7 +66,9 @@ function New-SM365Connectors
         # only check if the user did not already provide subject information
         if(!$TlsDomain)
         {
-            $request = [System.Net.WebRequest]::Create($SEPPmailFQDN)
+            Write-Verbose "Tls domain not supplied, trying to determine automatically via request to https://$SEPPmailFQDN"
+
+            $request = [System.Net.WebRequest]::Create("https://$SEPPmailFQDN")
             if ($UseSystemProxy)
             {
                 $request.Proxy = [System.Net.WebRequest]::DefaultWebProxy
@@ -85,7 +87,9 @@ function New-SM365Connectors
             $TlsDomain = $request.ServicePoint.Certificate.Subject | ?{$_ -match "cn=(.+?)(,|$)"} | %{$Matches[1]}
 
             if(!$TlsDomain)
-            {throw [System.Exception] "Could not determine SSL subject for $SEPPmailFQDN"}
+            {throw [System.Exception] "Could not determine Tls domain for $SEPPmailFQDN"}
+
+            Write-Verbose "Tls domain $TlsDomain found..."
         }
 
         $defdomain = ($domains | Where-Object Default -Like 'True').DomainName
