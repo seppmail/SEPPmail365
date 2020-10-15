@@ -337,7 +337,7 @@ function New-SM365Rules
             }
         }
         catch {
-            throw [System.Exception] "Error $($_.CategoryInfo) occured"
+            throw [System.Exception] "Error: $($_.Exception.Message)"
         }
     }
 
@@ -474,7 +474,7 @@ function New-SM365ExOReport {
 
         }
         catch {
-            throw [System.Exception] "Error $($_.CategoryInfo) occured"
+            throw [System.Exception] "Error: $($_.Exception.Message)"
         }
     }
     end {
@@ -485,8 +485,8 @@ function New-SM365ExOReport {
 # SIG # Begin signature block
 # MIIL1wYJKoZIhvcNAQcCoIILyDCCC8QCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUwcRrysjRFt5idtHcLRG74dMr
-# h1+ggglAMIIEmTCCA4GgAwIBAgIQcaC3NpXdsa/COyuaGO5UyzANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQU6rOOiFIP/6wMw17oeBSTjuak
+# 7UmggglAMIIEmTCCA4GgAwIBAgIQcaC3NpXdsa/COyuaGO5UyzANBgkqhkiG9w0B
 # AQsFADCBqTELMAkGA1UEBhMCVVMxFTATBgNVBAoTDHRoYXd0ZSwgSW5jLjEoMCYG
 # A1UECxMfQ2VydGlmaWNhdGlvbiBTZXJ2aWNlcyBEaXZpc2lvbjE4MDYGA1UECxMv
 # KGMpIDIwMDYgdGhhd3RlLCBJbmMuIC0gRm9yIGF1dGhvcml6ZWQgdXNlIG9ubHkx
@@ -540,11 +540,11 @@ function New-SM365ExOReport {
 # NiBDb2RlIFNpZ25pbmcgQ0ECEF0xOuf5lHR9Mf0X/F6tAjYwCQYFKw4DAhoFAKB4
 # MBgGCisGAQQBgjcCAQwxCjAIoAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQB
 # gjcCAQQwHAYKKwYBBAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkE
-# MRYEFIFizcxCLhDlhIeaqU12hlwz1XVKMA0GCSqGSIb3DQEBAQUABIIBAIgbXKTc
-# 0j/c+2HsGSSleUEt0x7vli51hcBxX9DsNvUIWOorjsisuEAT9URFqZOXYuzJPn9b
-# jEP2j8aCRZZREMuJJVhFK5iUWHI+dnoXkiHp+TC3bakelj2Sed8ZC71swQnpbKVk
-# TinWbaarftO9YehL2rgp7YDtcmFyHHhfu9znB4tnTSRk6VHa5I6cQHF3lWsg19PX
-# K8GkIYQ/OAyA6JUchCeesp08NLKKO+mInqzCCWNZhsLRpUp04JXJILq4K1rZ+F4/
-# N0HZeTv7Z7+dUYvZ9wQuxqS35z+FoabmgO3nrlj5T0TNG934onaLWkEpTIEFj1gL
-# 9+N4r9Jry4SO+jQ=
+# MRYEFDgzeJHOc3pff5WRmwVmF+6u66xZMA0GCSqGSIb3DQEBAQUABIIBAHcSK5N2
+# z7SLPjCHITBBB+950RHPDs7PxtE4zHE8LSN1Tn6aZQEUKCXQ97vpFBOiRUN4ooJp
+# EjspsG9Mm9IncQSShT0JrldzZU7gXa+9WmPIquMgnJrS1KykpByTli+swpMv8OgN
+# WkSphH/vFiSqEzQZ4Vqq1i6fSpaZZSrcnsjpLR0W8IXPg95ImTNRNQzQzoZeEDUJ
+# o9sXDso6JgeXwkjiwiqoOAQFpKEgOOuDAZdeFuy31VXfmXid3ml/ZwGfryvA1MRF
+# GqjbUUoMB34sF8MLawKnpkBBsBWgXzcwyGNQs9cqFMHDFsXDaI/mQvXkHex75C6y
+# bxgCE+818irS4os=
 # SIG # End signature block
