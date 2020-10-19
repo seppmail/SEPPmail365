@@ -1,5 +1,6 @@
 [CmdLetBinding()]
-$ModulePath = Split-Path ((Get-Module -Name SEPPmail365 -Listavailable).Path) 
+
+$ModulePath = $PSScriptRoot
 . $ModulePath\Public\SEPPmail365CmdLets.ps1
 . $ModulePath\Private\SEPPmail365PrivateFunctions.ps1
 If (!(Get-Module -Name 'tmp_*')) {
@@ -9,8 +10,8 @@ If (!(Get-Module -Name 'tmp_*')) {
 # SIG # Begin signature block
 # MIIL1wYJKoZIhvcNAQcCoIILyDCCC8QCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUxuQnbfVhcpJzJJ1qvoXz0yIF
-# iXqggglAMIIEmTCCA4GgAwIBAgIQcaC3NpXdsa/COyuaGO5UyzANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUTr2rCptG+O3L6xLCDpXwtUvc
+# 2bGggglAMIIEmTCCA4GgAwIBAgIQcaC3NpXdsa/COyuaGO5UyzANBgkqhkiG9w0B
 # AQsFADCBqTELMAkGA1UEBhMCVVMxFTATBgNVBAoTDHRoYXd0ZSwgSW5jLjEoMCYG
 # A1UECxMfQ2VydGlmaWNhdGlvbiBTZXJ2aWNlcyBEaXZpc2lvbjE4MDYGA1UECxMv
 # KGMpIDIwMDYgdGhhd3RlLCBJbmMuIC0gRm9yIGF1dGhvcml6ZWQgdXNlIG9ubHkx
@@ -64,11 +65,11 @@ If (!(Get-Module -Name 'tmp_*')) {
 # NiBDb2RlIFNpZ25pbmcgQ0ECEF0xOuf5lHR9Mf0X/F6tAjYwCQYFKw4DAhoFAKB4
 # MBgGCisGAQQBgjcCAQwxCjAIoAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQB
 # gjcCAQQwHAYKKwYBBAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkE
-# MRYEFLrsmuTD370MC3D8hKqn7cTlFCnrMA0GCSqGSIb3DQEBAQUABIIBAAj+Iqzs
-# aglovzyEPjOMrH2a5uDUy5t8Z41kXjoxm546yRQor3tupl8tjKWDwM8CcuEPzQ0s
-# nI/6cmkjEvUb774SM/XQ7AfrH93dAcUXFLRG29TOaSm4hSBS5Ms7vBCcW5hs22sZ
-# bTjYev1zENFPiZIk1MHGgqDrfYiX0dmAArRdQx5Hlpe8w3Nt6GXjxgoRoLFczqrf
-# 3ebT7Gqyt1GZXsullL0gUva+QiehmZce3RodWuC+N90dlfaJf6GDm2lWN5yvcg5N
-# P9gqrx41exP1dzGODR/443N2i25T3FN6q2Tzp6d9xILlg08ZVzAlfi1hLPYz5EW0
-# HqgYQhUIZhVeeCU=
+# MRYEFDQ+aV/PSL44pZAXV/efuDTp6t7UMA0GCSqGSIb3DQEBAQUABIIBAIw+u2RG
+# mK2AzY8vH7otj2kpd0VYydEiHwANmcDaG7SA/pQOveu72XKiljOvDJHxM+7grWd7
+# 94JI2GjtRdTRUn4IJ8ls3kHiwyBCQM0V1KDk/95rCPhLhV0A//TKTY5oZpgvGRgy
+# lmjvJT17hZfw6YfaqJ+iyFozMcOTiIytzS1XTV+LIAOs6Rq4DEvJ4MnDXtuEpoWf
+# 2WbXS8CEwl/rur6Oir8rYS1gbpwp4z1dehbU9FMKZReidMbO/yQK4RNynkmHgBYB
+# 0JoeEsgxk1f90vNCGbjlN/TgGsX3A7Ur/fbTTfvfemYuSmgb6qtWqXhCYRFC4gOr
+# jbBoaMG5C4GNU1A=
 # SIG # End signature block
