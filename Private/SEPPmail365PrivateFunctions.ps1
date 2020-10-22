@@ -115,6 +115,58 @@ function New-SM365TransportRules {
         {throw [System.Exception] "Could not create transport rules: $($_.Exception.Message)"}
     }
 }
+
+function Set-SM365TransportRules {
+    [CmdletBinding(SupportsShouldProcess = $true,
+                           ConfirmImpact = 'Medium'
+                )]
+    param
+    (
+        [ConfigVersion] $Version = [ConfigVersion]::Default
+    )
+
+    Get-SM365TransportRuleDefaults -Version $Version
+
+    # Rules are referenced via name, so we don't need this key
+    $InternalParam.Remove("RouteMessageOutboundConnector")
+    $OutboundParam.Remove("RouteMessageOutboundConnector")
+    $InboundParam.Remove("RouteMessageOutboundConnector")
+
+    # Don't modify priority for existing rules
+    @($outgoingHeaderCleaningParam, $decryptedHeaderCleaningParam,
+      $encryptedHeaderCleaningParam, $InternalParam,
+      $OutboundParam, $InboundParam) | %{$_.Remove("Priority")}
+
+    try
+    {
+        Write-Verbose "Create Transport Rules"
+        if ($PSCmdlet.ShouldProcess($($outgoingHeaderCleaningParam.Name),'Update transportrule')) {
+            Set-TransportRule @outgoingHeaderCleaningParam
+        }
+        if ($PSCmdlet.ShouldProcess($($decryptedHeaderCleaningParam.Name),'Update transportrule')) {
+            Set-TransportRule @decryptedHeaderCleaningParam
+        }
+        if ($PSCmdlet.ShouldProcess($($encryptedHeaderCleaningParam.Name),'Update transportrule')) {
+            Set-TransportRule @encryptedHeaderCleaningParam
+        }
+        if ($PSCmdlet.ShouldProcess($($InternalParam.Name),'Update transportrule')) {
+            Set-TransportRule @InternalParam
+        }
+        if ($PSCmdlet.ShouldProcess($($OutboundParam.Name),'Update transportrule')) {
+            Set-TransportRule @OutboundParam
+        }
+        if ($PSCmdlet.ShouldProcess($($InboundParam.Name),'Update transportrule')) {
+            Set-TransportRule @InboundParam
+        }
+
+        if(!$?)
+        {throw [System.Exception] "unknown reason"}
+    }
+    catch
+    {throw [System.Exception] "Could not create transport rules: $($_.Exception.Message)"}
+}
+
+
 # SIG # Begin signature block
 # MIIL1wYJKoZIhvcNAQcCoIILyDCCC8QCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
