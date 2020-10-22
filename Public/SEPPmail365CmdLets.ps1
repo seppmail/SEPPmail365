@@ -1,6 +1,12 @@
 ﻿# Request terminating errors by default
 $PSDefaultParameterValues['*:ErrorAction'] = [System.Management.Automation.ActionPreference]::Stop
 
+# Documents the available configuration versions
+enum ConfigVersion
+{
+    Default
+}
+
 <#
 .SYNOPSIS
     Adds SEPPmail Exchange Online connectors
