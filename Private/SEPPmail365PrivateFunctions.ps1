@@ -1,26 +1,41 @@
 function Get-SM365TransportRuleDefaults {
-    #[CmdLetBinding(SupportsShouldProcess)]
+    [CmdLetBinding()]
+    Param
+    (
+        [ConfigVersion] $Version = [ConfigVersion]::Default
+    )
+
+    # prepare version string for version specific configuration
+    # default configuration does not have any version suffix at the moment
+    if($Version -ne [ConfigVersion]::Default)
+    {$Version = "-v$Version"}
+
     Write-Verbose "Load default transport rules from module folder and transform into hashtables"
     $script:outgoingHeaderCleaningParam = [ordered]@{}
-    (ConvertFrom-Json (Get-Content -Path $ModulePath\ExOConfig\Rules\X-SM-outgoing-header-cleaning.json -Raw)).psobject.properties | ForEach-Object {$outgoingHeaderCleaningParam[$_.Name] = $_.Value}
+    (ConvertFrom-Json (Get-Content -Path "$ModulePath\ExOConfig\Rules\X-SM-outgoing-header-cleaning$Version.json" -Raw)).psobject.properties | ForEach-Object {$outgoingHeaderCleaningParam[$_.Name] = $_.Value}
     $script:decryptedHeaderCleaningParam = [ordered]@{}
-    (ConvertFrom-Json (Get-Content -Path $ModulePath\ExOConfig\Rules\X-SM-decrypted-header-cleaning.json -Raw)).psobject.properties | ForEach-Object {$decryptedHeaderCleaningParam[$_.Name] = $_.Value}
+    (ConvertFrom-Json (Get-Content -Path "$ModulePath\ExOConfig\Rules\X-SM-decrypted-header-cleaning$Version.json" -Raw)).psobject.properties | ForEach-Object {$decryptedHeaderCleaningParam[$_.Name] = $_.Value}
     $script:encryptedHeaderCleaningParam = [ordered]@{}
-    (ConvertFrom-Json (Get-Content -Path $ModulePath\ExOConfig\Rules\X-SM-encrypted-header-cleaning.json -Raw)).psobject.properties | ForEach-Object {$encryptedHeaderCleaningParam[$_.Name] = $_.Value}
+    (ConvertFrom-Json (Get-Content -Path "$ModulePath\ExOConfig\Rules\X-SM-encrypted-header-cleaning$Version.json" -Raw)).psobject.properties | ForEach-Object {$encryptedHeaderCleaningParam[$_.Name] = $_.Value}
     $script:InternalParam = [ordered]@{}
-    (ConvertFrom-Json (Get-Content -Path $ModulePath\ExOConfig\Rules\internal.json -Raw)).psobject.properties | ForEach-Object {$InternalParam[$_.Name] = $_.Value}
+    (ConvertFrom-Json (Get-Content -Path "$ModulePath\ExOConfig\Rules\internal$Version.json" -Raw)).psobject.properties | ForEach-Object {$InternalParam[$_.Name] = $_.Value}
     $script:OutboundParam = [ordered]@{}
-    (ConvertFrom-Json (Get-Content -Path $ModulePath\ExOConfig\Rules\outbound.json -Raw)).psobject.properties | ForEach-Object {$OutboundParam[$_.Name] = $_.Value}
+    (ConvertFrom-Json (Get-Content -Path "$ModulePath\ExOConfig\Rules\outbound$Version.json" -Raw)).psobject.properties | ForEach-Object {$OutboundParam[$_.Name] = $_.Value}
     $script:InboundParam = [ordered]@{}
-    (ConvertFrom-Json (Get-Content -Path $ModulePath\ExOConfig\Rules\inbound.json -Raw)).psobject.properties | ForEach-Object {$InboundParam[$_.Name] = $_.Value}
+    (ConvertFrom-Json (Get-Content -Path "$ModulePath\ExOConfig\Rules\inbound$Version.json" -Raw)).psobject.properties | ForEach-Object {$InboundParam[$_.Name] = $_.Value}
 }
+
 function Remove-SM365TransportRules {
 
     [CmdletBinding(SupportsShouldProcess = $true,
                            ConfirmImpact = 'Medium'
                     )]
-    param()
-    Get-SM365TransportRuleDefaults
+    param
+    (
+        [ConfigVersion] $Version = [ConfigVersion]::Default
+    )
+
+    Get-SM365TransportRuleDefaults -Version $Version
     if ($PSCmdlet.ShouldProcess($($outgoingHeaderCleaningParam.Name),'Remove transportrule')) {
         Remove-TransportRule -Identity $($outgoingHeaderCleaningParam.Name)
     }
