@@ -216,9 +216,164 @@ function New-SM365Connectors
 
 <#
 .SYNOPSIS
-    Create SEPPmailruleset
+    Updates existing SEPPmail Exchange Online connectors
 .DESCRIPTION
-    Creates rules to direct the mailflow between Exchange Online and SEPPmail
+    SEPPmail uses 2 Connectors to transfer messages between SEPPmail and Exchange Online
+    This commandlet will update the connectors for you.
+
+    The -SEPPmailFQDN must point to a SEPPmail Appliance with a valid certificate to establish the TLS connection.
+    The parameter -TlsDomain is required, if the SEPPmailFQDN differs from the one in the SSL certificate.
+
+.EXAMPLE
+    New-SM365Connectors -SEPPmailFQDN 'securemail.consoso.com'
+#>
+function Set-SM365Connectors
+{
+    [CmdletBinding(SupportsShouldProcess = $true,
+                           ConfirmImpact = 'Medium'
+                    )]
+    param
+    (
+        [Parameter(
+             Mandatory = $false,
+             HelpMessage = 'FQDN of the SEPPmail Appliance'
+         )]
+        [ValidatePattern("^(?!:\/\/)(?=.{1,255}$)((.{1,63}\.){1,127}(?![0-9]*$)[a-z0-9-]+\.?)$")]
+        [Alias("FQDN")]
+        [String] $SEPPmailFQDN,
+
+        [Parameter(
+             Mandatory = $false,
+             HelpMessage = 'Associated Accepted Domains, the connector will take e-Mails from'
+         )]
+        [Alias("ibad")]
+        [String[]] $InboundAcceptedDomains,
+
+        [Parameter(
+            Mandatory = $false,
+            HelpMessage = 'The subject of the SEPPmail SSL certificate (used for both in- and outbound connectors)'
+        )]
+        [string] $TlsDomain,
+
+        [Parameter(
+             Mandatory = $false,
+             HelpMessage = 'The subject of the SEPPmail SSL certificate for the inbound connector'
+         )]
+        [string] $InboundTlsDomain,
+
+        [Parameter(
+            Mandatory = $false,
+            HelpMessage = 'The subject of the SEPPmail SSL certificate for the outbound connector'
+        )]
+        [string] $OutboundTlsDomain,
+
+        [Parameter(
+             Mandatory = $false,
+             HelpMessage = 'Also sets all other connector settings to the SEPPmail default'
+         )]
+        [switch] $SetDefaults
+    )
+
+    begin
+    {
+        $domains = Get-AcceptedDomain
+        if(!$domains)
+        {throw [System.Exception] "Cannot retrieve Exchange Domain Information, please reconnect with 'Connect-ExchangeOnline'"}
+
+        # provide defaults for parameters, if not specified
+        if(!$TlsDomain)
+        {$TlsDomain = $SEPPmailFQDN}
+
+        if(!$InboundTlsDomain)
+        {$InboundTlsDomain = $TlsDomain}
+
+        if(!$OutboundTlsDomain)
+        {$OutboundTlsDomain = $TlsDomain}
+
+        $defdomain = ($domains | Where-Object Default -Like 'True').DomainName
+        Write-Information "Connected to Exchange Organization `"$defdomain`"" -InformationAction Continue
+
+        function Set-SM365InboundConnector {
+            Write-Verbose "Updating SEPPmail Inbound Connector $($InboundConnParam.Name)!"
+            if ($PSCmdLet.ShouldProcess($InboundConnParam.Name, "Updating Inbound Connector")){
+                Set-InboundConnector @InboundConnParam
+            }
+        }
+        function Set-SM365OutboundConnector {
+            Write-Verbose "Updating SEPPmail Outbound Connector $($OutboundConnParam.Name)!"
+            if ($PSCmdLet.ShouldProcess($OutboundConnParam.Name, "Updating Outbound Connector")){
+                Set-OutboundConnector @OutboundConnParam
+            }
+        }
+    }
+
+    process
+    {
+        #region
+        $InboundConnParam = [ordered]@{}
+        $OutboundConnParam = [ordered]@{}
+
+        if($SetDefaults)
+        {
+            # Default settings requested
+            (ConvertFrom-Json (Get-Content -Path $ModulePath\ExOConfig\Connectors\Inbound.json -Raw)).psobject.properties | ForEach-Object {
+                $InboundConnParam[$_.Name] = $_.Value
+            }
+            (ConvertFrom-Json (Get-Content -Path $ModulePath\ExOConfig\Connectors\Outbound.json -Raw)).psobject.properties | ForEach-Object {
+                $OutboundConnParam[$_.Name] = $_.Value
+            }
+        }
+        else
+        {
+            # Pull in the names of our connectors
+            $InboundConnParam.Name = (ConvertFrom-Json (Get-Content -Path $ModulePath\ExOConfig\Connectors\Inbound.json -Raw)) | % Name
+            $OutboundConnParam.Name = (ConvertFrom-Json (Get-Content -Path $ModulePath\ExOConfig\Connectors\Outbound.json -Raw)) | % Name
+        }
+
+        Write-Verbose "Fill in values from Parameters"
+        $OutboundConnParam.SmartHosts = $SEPPmailFQDN
+        $OutboundConnParam.TlsDomain = $OutboundTlsDomain
+        $InboundConnParam.TlsSenderCertificateName = $InboundTlsDomain
+        $InboundConnParam.AssociatedAcceptedDomains = @();
+
+        if ($InboundAcceptedDomains -and !($InboundAcceptedDomains -eq '*')) {
+            $InboundConnParam.AssociatedAcceptedDomains = $InboundAcceptedDomains
+        }
+        #endregion
+
+        Write-Verbose "Read existing SEPPmail Inbound Connector"
+        $existingSMInboundConn = Get-InboundConnector | Where-Object Name -EQ $InboundConnParam.Name
+
+        if(!$existingSMInboundConn)
+        {Write-Warning "No existing SEPPmail inbound connector found"}
+        else
+        {
+            Write-Verbose "Found existing inbound connector $($InboundConnParam.Name)"
+            Set-SM365InboundConnector
+        }
+
+        Write-Verbose "Read existing SEPPmail outbound connector"
+        $existingSMOutboundConn = Get-OutboundConnector | Where-Object Name -EQ $OutboundConnParam.Name
+
+        if(!$existingSMOutboundConn)
+        {Write-Warning "No existing SEPPmail outbound connector found"}
+        else
+        {
+            Write-Verbose "Found existing outbound connector $($InboundConnParam.Name)"
+            Set-SM365OutboundConnector
+        }
+    }
+
+    end
+    {
+    }
+}
+
+<#
+.SYNOPSIS
+    Create SEPPmail transport rules
+.DESCRIPTION
+    Creates rules to direct the mailflow between Exchange Online and SEPPmail.
 .EXAMPLE
     PS C:\> New-SM365Rules
     Creates the needed ruleset to integrate SEPPmail with Exchange online
@@ -226,10 +381,13 @@ function New-SM365Connectors
 function New-SM365Rules
 {
     [CmdletBinding(SupportsShouldProcess = $true,
-                           ConfirmImpact = 'Medium'
-                    )]
-    param(
-
+                   ConfirmImpact = 'Medium'
+                  )]
+    param
+    (
+        [Parameter(Mandatory=$false,
+                   HelpMessage='Major version of the SEPPmail appliance')]
+        [ConfigVersion] $Version = [ConfigVersion]::Default
     )
 
     begin
