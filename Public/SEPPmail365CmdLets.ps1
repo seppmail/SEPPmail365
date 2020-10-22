@@ -467,13 +467,75 @@ function New-SM365Rules
                 until ($?)
                 if ($recreateSMRules -like 'y')
                 {
-                    Remove-SM365TransportRules
-                    New-SM365TransportRules
+                    Remove-SM365TransportRules -Version $Version
+                    New-SM365TransportRules -Version $Version
                 }
             }
             else
             {
-                New-SM365TransportRules
+                New-SM365TransportRules -Version $Version
+            }
+        }
+        catch {
+            throw [System.Exception] "Error: $($_.Exception.Message)"
+        }
+    }
+
+    end
+    {
+
+    }
+}
+
+<#
+.SYNOPSIS
+    Updates existing SEPPmail transport rules to default values
+.DESCRIPTION
+    The -Version parameter can be used to update to a specific ruleset version
+    matching your SEPPmail appliance.
+.EXAMPLE
+    Set-SM365Rules -Version Default
+#>
+function Set-SM365Rules
+{
+    [CmdletBinding(SupportsShouldProcess = $true,
+                   ConfirmImpact = 'Medium'
+                  )]
+    param
+    (
+        [Parameter(Mandatory=$false,
+                   HelpMessage='Major version of the SEPPmail appliance')]
+        [ConfigVersion] $Version = [ConfigVersion]::Default
+    )
+
+    begin
+    {
+        try
+        {
+            $domains = Get-AcceptedDomain
+            if (!$domains)
+            {throw [System.Exception] "Cannot retrieve Exchange Domain Information, please reconnect with 'Connect-ExchangeOnline'"}
+
+            $defdomain = ($domains | Where-Object Default -Like 'True').DomainName
+            Write-Information "Connected to Exchange Organization `"$defdomain`"" -InformationAction Continue
+        } catch {
+            throw [System.Exception] "Could not retrieve Exchange Online information - are you connected to your subscription as admin ?"
+        }
+    }
+
+    process
+    {
+        try
+        {
+            Write-Verbose "Read existing SEPPmail transport rules"
+            $existingSMTransportRules = Get-TransportRule | Where-Object Name -Match '^\[SEPPmail\].*$'
+            if ($existingSMTransportRules)
+            {
+                Set-SM365TransportRules -Version $Version
+            }
+            else
+            {
+                throw [System.Exception] "no SEPPmail transport rules found, cannot update"
             }
         }
         catch {
