@@ -60,16 +60,19 @@ function New-SM365TransportRules {
     [CmdletBinding(SupportsShouldProcess = $true,
                            ConfirmImpact = 'Medium'
                 )]
-    param()
+    param
+    (
+        [ConfigVersion] $Version = [ConfigVersion]::Default
+    )
 
     Write-Verbose "Read Outbound Connector Information"
     $outboundConn = Get-OutboundConnector |Where-Object Name -match '^\[SEPPmail\].*$'
     if (!($outboundconn)) {
         throw [System.Exception] "No SEPPmail outbound connector found. Run `"New-SM365Connectors`" to add the proper SEPPmail connectors"
-    } 
-    else 
+    }
+    else
     {
-        Get-SM365TransportRuleDefaults
+        Get-SM365TransportRuleDefaults -Version $Version
         Write-Verbose "Adapt Transport rules with outbound connector information"
         $InternalParam.RouteMessageOutboundConnector = $OutboundConn.Name
         $OutboundParam.RouteMessageOutboundConnector = $OutboundConn.Name
