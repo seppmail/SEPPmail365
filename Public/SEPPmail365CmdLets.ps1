@@ -16,9 +16,6 @@ enum ConfigVersion
 
     The -SEPPmailFQDN must point to a SEPPmail Appliance with a valid certificate to establish the TLS connection.
     The parameter -TlsDomain is required, if the SEPPmailFQDN differs from the one in the SSL certificate.
-    This Cmdlet attempts to retrieve this information automatically by issuing a request to the specified
-    FQDN and inspecting the certificate. If you do not want this to happen simply set the parameter -TlsDomain
-    to the corresponding value.
 
 .EXAMPLE
     New-SM365Connectors -SEPPmailFQDN 'securemail.consoso.com'
@@ -39,7 +36,7 @@ function New-SM365Connectors
         [String] $SEPPmailFQDN,
 
         [Parameter(
-             Mandatory = $true,
+             Mandatory = $false,
              HelpMessage = 'Associated Accepted Domains, the connector will take e-Mails from'
          )]
         [Alias("ibad")]
@@ -47,20 +44,21 @@ function New-SM365Connectors
 
         [Parameter(
             Mandatory = $false,
-            HelpMessage = 'The FQDN the SEPPmail SSL certificate has been issued to'
+            HelpMessage = 'The subject of the SEPPmail SSL certificate (used for both in- and outbound connectors)'
         )]
         [string] $TlsDomain,
 
         [Parameter(
              Mandatory = $false,
-             HelpMessage = 'If you are behind a proxy you might need this switch'
+             HelpMessage = 'The subject of the SEPPmail SSL certificate for the inbound connector'
          )]
-        [switch] $UseSystemProxy,
+        [string] $InboundTlsDomain,
+
         [Parameter(
             Mandatory = $false,
-            HelpMessage = 'If you are behind a proxy you might need this switch'
+            HelpMessage = 'The subject of the SEPPmail SSL certificate for the outbound connector'
         )]
-        [switch] $UseDefaultCredentials
+        [string] $OutboundTlsDomain
     )
 
     begin
@@ -69,34 +67,15 @@ function New-SM365Connectors
         if(!$domains)
         {throw [System.Exception] "Cannot retrieve Exchange Domain Information, please reconnect with 'Connect-ExchangeOnline'"}
 
-        # only check if the user did not already provide subject information
+        # provide defaults for parameters, if not specified
         if(!$TlsDomain)
-        {
-            Write-Verbose "Tls domain not supplied, trying to determine automatically via request to https://$SEPPmailFQDN"
+        {$TlsDomain = $SEPPmailFQDN}
 
-            $request = [System.Net.WebRequest]::Create("https://$SEPPmailFQDN")
-            if ($UseSystemProxy)
-            {
-                $request.Proxy = [System.Net.WebRequest]::DefaultWebProxy
-            }
+        if(!$InboundTlsDomain)
+        {$InboundTlsDomain = $TlsDomain}
 
-            if ($UseSystemProxy -and $UseDefaultCredentials)
-            {
-                $request.Proxy.Credentials = [System.Net.CredentialCache]::DefaultNetworkCredentials
-            }
-
-            try
-            {$request.GetResponse() | Out-Null}
-            catch
-            {}
-
-            $TlsDomain = $request.ServicePoint.Certificate.Subject | ?{$_ -match "cn=(.+?)(,|$)"} | %{$Matches[1]}
-
-            if(!$TlsDomain)
-            {throw [System.Exception] "Could not determine Tls domain for $SEPPmailFQDN"}
-
-            Write-Verbose "Tls domain $TlsDomain found..."
-        }
+        if(!$OutboundTlsDomain)
+        {$OutboundTlsDomain = $TlsDomain}
 
         $defdomain = ($domains | Where-Object Default -Like 'True').DomainName
         Write-Information "Connected to Exchange Organization `"$defdomain`"" -InformationAction Continue
@@ -127,7 +106,7 @@ function New-SM365Connectors
         }
 
         function New-SM365InboundConnector {
-            Write-Verbose "Creating SEPPmail Inbound Connector !"
+            Write-Verbose "Creating SEPPmail Inbound Connector $($InboundConnParam.Name)!"
             if ($PSCmdLet.ShouldProcess($($InboundConnParam.Name),'Creating Inbound Connector')) {
                 New-InboundConnector @InboundConnParam
             }
@@ -151,14 +130,11 @@ function New-SM365Connectors
 
         Write-Verbose "Fill in values from Parameters"
         $OutboundConnParam.SmartHosts = $SEPPmailFQDN
-        $OutboundConnParam.TlsDomain = $TlsDomain
-        $InboundConnParam.TlsSenderCertificateName = $TlsDomain
-        Write-Verbose "Set AssociatedAcceptedDomains to $null for all or specific domains"
-        if ($InboundAcceptedDomains -eq '*') {
-            Write-Verbose "Removing Key AssociatedAcceptedDomains from parameter-hashtable"
-            $InboundConnParam.Remove('AssociatedAcceptedDomains')
-        }
-        else {
+        $OutboundConnParam.TlsDomain = $OutboundTlsDomain
+        $InboundConnParam.TlsSenderCertificateName = $InboundTlsDomain
+        $InboundConnParam.AssociatedAcceptedDomains = @();
+
+        if ($InboundAcceptedDomains -and !($InboundAcceptedDomains -eq '*')) {
             $InboundConnParam.AssociatedAcceptedDomains = $InboundAcceptedDomains
         }
         #endregion
