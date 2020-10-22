@@ -12,7 +12,7 @@
 RootModule = 'SEPPmail365.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.0.1'
+ModuleVersion = '1.0.2'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Desktop')
@@ -21,7 +21,7 @@ CompatiblePSEditions = @('Desktop')
 GUID = '485013db-02ab-4bf7-9161-7119e152c297'
 
 # Author of this module
-Author = 'Roman Stadlmair, Max Mueller-Domhardt'
+Author = 'Roman Stadlmair, Max Domhardt'
 
 # Company or vendor of this module
 CompanyName = 'SEPPmail AG'
@@ -77,7 +77,13 @@ RequiredModules = @(
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = @(    
     'New-SM365Connectors'
+    'Set-SM365Connectors'
+    'Remove-SM365Connectors'
     'New-SM365Rules'
+    'Set-SM365Rules'
+    'Remove-SM365Rules'
+    'Backup-SM365Connectors'
+    'Backup-SM365Rules'
     'New-SM365ExOReport'
     )
 
