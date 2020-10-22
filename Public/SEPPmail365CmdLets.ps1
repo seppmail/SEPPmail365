@@ -555,7 +555,7 @@ function Set-SM365Rules
 .DESCRIPTION
     Convenience function to remove the SEPPmail connectors
 .EXAMPLE
-    Remove-SM365Connector
+    Remove-SM365Connectors
 #>
 function Remove-SM365Connectors
 {
@@ -571,6 +571,122 @@ function Remove-SM365Connectors
 
     if($PSCmdlet.ShouldProcess("Inbound connector", "Remove SEPPmail connector"))
     {Get-InboundConnector | Where-Object Name -Match '^\[SEPPmail\].*$' | Remove-InboundConnector}
+}
+
+<#
+.SYNOPSIS
+    Removes the SEPPmail transport rules
+.DESCRIPTION
+    Convenience function to remove the SEPPmail transport rules
+.EXAMPLE
+    Remove-SM365TransportRules
+#>
+function Remove-SM365Rules {
+    [CmdletBinding(SupportsShouldProcess = $true,
+                   ConfirmImpact = 'Medium'
+                  )]
+    param
+    (
+        [Parameter(Mandatory=$false,
+                   HelpMessage='The SEPPmail Appliance major version')]
+        [ConfigVersion] $Version = [ConfigVersion]::Default
+    )
+
+    Remove-SM365TransportRules -Version $Version
+}
+
+<#
+.SYNOPSIS
+    Backs up all existing connectors to individual json files
+.DESCRIPTION
+    Convenience function to perform a backup of all existing connectors
+.EXAMPLE
+    Backup-SM365Connectors -OutFolder "C:\temp"
+#>
+function Backup-SM365Connectors
+{
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(
+             Mandatory = $true,
+             HelpMessage = 'Folder in which the backed up configuration will be stored'
+         )]
+        [Alias("Folder")]
+        [String] $OutFolder
+    )
+
+    begin
+    {
+        $domains = Get-AcceptedDomain
+        if(!$domains)
+        {throw [System.Exception] "Cannot retrieve Exchange Domain Information, please reconnect with 'Connect-ExchangeOnline'"}
+
+        $defdomain = ($domains | Where-Object Default -Like 'True').DomainName
+        Write-Information "Connected to Exchange Organization `"$defdomain`"" -InformationAction Continue
+    }
+
+    process
+    {
+        if(!(Test-Path $OutFolder))
+        {New-Item $OutFolder -ItemType Directory}
+
+        Get-InboundConnector | %{
+            $p = "$OutFolder\inbound_connector_$($_.Name).json"
+            Write-Verbose "Backing up $($_.Name) to $p"
+            ConvertTo-Json -InputObject $_ | Out-File $p
+        }
+
+        Get-OutboundConnector | % {
+            $p = "$OutFolder\outbound_connector_$($_.Name).json"
+            Write-Verbose "Backing up $($_.Name) to $p"
+            ConvertTo-Json -InputObject $_ | Out-File $p
+        }
+    }
+}
+
+<#
+.SYNOPSIS
+    Backs up all existing transport rules to individual json files
+.DESCRIPTION
+    Convenience function to perform a backup of all existing transport rules
+.EXAMPLE
+    Backup-SM365Rules -OutFolder "C:\temp"
+#>
+function Backup-SM365Rules
+{
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(
+             Mandatory = $true,
+             HelpMessage = 'Folder in which the backed up configuration will be stored'
+         )]
+        [Alias("Folder")]
+        [String] $OutFolder
+    )
+
+    begin
+    {
+        $domains = Get-AcceptedDomain
+        if(!$domains)
+        {throw [System.Exception] "Cannot retrieve Exchange Domain Information, please reconnect with 'Connect-ExchangeOnline'"}
+
+        $defdomain = ($domains | Where-Object Default -Like 'True').DomainName
+        Write-Information "Connected to Exchange Organization `"$defdomain`"" -InformationAction Continue
+    }
+
+    process
+    {
+        if(!(Test-Path $OutFolder))
+        {New-Item $OutFolder -ItemType Directory}
+
+        Get-TransportRule | %{
+            $p = "$OutFolder\rule_$($_.Name).json"
+            Write-Verbose "Backing up $($_.Name) to $p"
+            ConvertTo-Json -InputObject $_ | Out-File $p
+        }
+    }
 }
 
 <#
