@@ -1,4 +1,34 @@
-function Get-SM365TransportRuleDefaults {
+function Get-SM365ConnectorDefaults
+{
+    [CmdletBinding()]
+    Param
+    (
+        [ConfigVersion] $Version = [ConfigVersion]::Default
+    )
+
+    if($Version -ne [ConfigVersion]::Default)
+    {$Version = "-v$Version"}
+
+    Write-Verbose "Load default connector settings and transform into hashtables"
+
+    [hashtable] $ret = @{
+        InboundConnector = @{}
+        OutboundConnector = @{}
+    }
+
+    (ConvertFrom-Json (Get-Content -Path "$ModulePath\ExOConfig\Connectors\Inbound$Version.json" -Raw)).psobject.properties | ForEach-Object {
+        $ret.InboundConnector[$_.Name] = $_.Value
+    }
+
+    (ConvertFrom-Json (Get-Content -Path "$ModulePath\ExOConfig\Connectors\Outbound$Version.json" -Raw)).psobject.properties | ForEach-Object {
+        $ret.OutboundConnector[$_.Name] = $_.Value
+    }
+
+    return $ret
+}
+
+function Get-SM365TransportRuleDefaults
+{
     [CmdLetBinding()]
     Param
     (
@@ -10,160 +40,48 @@ function Get-SM365TransportRuleDefaults {
     if($Version -ne [ConfigVersion]::Default)
     {$Version = "-v$Version"}
 
+    [hashtable] $ret = @{
+        outgoingHeaderCleaning = @{}
+        decryptedHeaderCleaning = @{}
+        encryptedHeaderCleaning = @{}
+        internal = @{}
+        outbound = @{}
+        inbound = @{}
+    }
+
     Write-Verbose "Load default transport rules from module folder and transform into hashtables"
-    $script:outgoingHeaderCleaningParam = [ordered]@{}
-    (ConvertFrom-Json (Get-Content -Path "$ModulePath\ExOConfig\Rules\X-SM-outgoing-header-cleaning$Version.json" -Raw)).psobject.properties | ForEach-Object {$outgoingHeaderCleaningParam[$_.Name] = $_.Value}
-    $script:decryptedHeaderCleaningParam = [ordered]@{}
-    (ConvertFrom-Json (Get-Content -Path "$ModulePath\ExOConfig\Rules\X-SM-decrypted-header-cleaning$Version.json" -Raw)).psobject.properties | ForEach-Object {$decryptedHeaderCleaningParam[$_.Name] = $_.Value}
-    $script:encryptedHeaderCleaningParam = [ordered]@{}
-    (ConvertFrom-Json (Get-Content -Path "$ModulePath\ExOConfig\Rules\X-SM-encrypted-header-cleaning$Version.json" -Raw)).psobject.properties | ForEach-Object {$encryptedHeaderCleaningParam[$_.Name] = $_.Value}
-    $script:InternalParam = [ordered]@{}
-    (ConvertFrom-Json (Get-Content -Path "$ModulePath\ExOConfig\Rules\internal$Version.json" -Raw)).psobject.properties | ForEach-Object {$InternalParam[$_.Name] = $_.Value}
-    $script:OutboundParam = [ordered]@{}
-    (ConvertFrom-Json (Get-Content -Path "$ModulePath\ExOConfig\Rules\outbound$Version.json" -Raw)).psobject.properties | ForEach-Object {$OutboundParam[$_.Name] = $_.Value}
-    $script:InboundParam = [ordered]@{}
-    (ConvertFrom-Json (Get-Content -Path "$ModulePath\ExOConfig\Rules\inbound$Version.json" -Raw)).psobject.properties | ForEach-Object {$InboundParam[$_.Name] = $_.Value}
-}
 
-function Remove-SM365TransportRules {
-
-    [CmdletBinding(SupportsShouldProcess = $true,
-                           ConfirmImpact = 'Medium'
-                    )]
-    param
-    (
-        [ConfigVersion] $Version = [ConfigVersion]::Default
-    )
-
-    Get-SM365TransportRuleDefaults -Version $Version
-    if ($PSCmdlet.ShouldProcess($($outgoingHeaderCleaningParam.Name),'Remove transportrule')) {
-        Remove-TransportRule -Identity $($outgoingHeaderCleaningParam.Name)
-    }
-    if ($PSCmdlet.ShouldProcess($($decryptedHeaderCleaningParam.Name),'Remove transportrule')) {
-        Remove-TransportRule -Identity $($decryptedHeaderCleaningParam.Name)
-    }
-    if ($PSCmdlet.ShouldProcess($($encryptedHeaderCleaningParam.Name),'Remove transportrule')) {
-        Remove-TransportRule -Identity $($encryptedHeaderCleaningParam.Name)
-    }
-    if ($PSCmdlet.ShouldProcess($($InternalParam.Name),'Remove transportrule')) {
-        Remove-TransportRule -Identity $($InternalParam.Name)
-    }
-    if ($PSCmdlet.ShouldProcess($($OutboundParam.Name),'Remove transportrule')) {
-        Remove-TransportRule -Identity $($OutboundParam.Name)
-    }
-    if ($PSCmdlet.ShouldProcess($($InboundParam.Name),'Remove transportrule')) {
-        Remove-TransportRule -Identity $($InboundParam.Name)
+    (ConvertFrom-Json (
+         Get-Content "$ModulePath\ExOConfig\Rules\X-SM-outgoing-header-cleaning$Version.json" -Raw)).psobject.properties | ForEach-Object {
+             $ret.outgoingHeaderCleaning[$_.Name] = $_.Value
     }
 
-}
-function New-SM365TransportRules {
-    [CmdletBinding(SupportsShouldProcess = $true,
-                           ConfirmImpact = 'Medium'
-                )]
-    param
-    (
-        [ConfigVersion] $Version = [ConfigVersion]::Default
-    )
-
-    Write-Verbose "Read Outbound Connector Information"
-    $outboundConn = Get-OutboundConnector |Where-Object Name -match '^\[SEPPmail\].*$'
-    if (!($outboundconn)) {
-        throw [System.Exception] "No SEPPmail outbound connector found. Run `"New-SM365Connectors`" to add the proper SEPPmail connectors"
+    (ConvertFrom-Json (
+         Get-Content "$ModulePath\ExOConfig\Rules\X-SM-decrypted-header-cleaning$Version.json" -Raw)).psobject.properties | ForEach-Object {
+             $ret.decryptedHeaderCleaning[$_.Name] = $_.Value
     }
-    else
-    {
-        Get-SM365TransportRuleDefaults -Version $Version
-        Write-Verbose "Adapt Transport rules with outbound connector information"
-        $InternalParam.RouteMessageOutboundConnector = $OutboundConn.Name
-        $OutboundParam.RouteMessageOutboundConnector = $OutboundConn.Name
-        $InboundParam.RouteMessageOutboundConnector = $OutboundConn.Name
 
-        Write-Verbose "Set rules priority"
-        $outgoingHeaderCleaningParam.Priority = $placementPrio
-        $decryptedHeaderCleaningParam.Priority = $placementPrio
-        $encryptedHeaderCleaningParam.Priority = $placementPrio
-        $InternalParam.Priority = $placementPrio
-        $OutboundParam.Priority = $placementPrio
-        $InboundParam.Priority = $placementPrio
-
-        try
-        {
-            Write-Verbose "Create Transport Rules"
-            if ($PSCmdlet.ShouldProcess($($outgoingHeaderCleaningParam.Name),'Create transportrule')) {
-                New-TransportRule @outgoingHeaderCleaningParam
-            }
-            if ($PSCmdlet.ShouldProcess($($decryptedHeaderCleaningParam.Name),'Create transportrule')) {
-                New-TransportRule @decryptedHeaderCleaningParam
-            }
-            if ($PSCmdlet.ShouldProcess($($encryptedHeaderCleaningParam.Name),'Create transportrule')) {
-                New-TransportRule @encryptedHeaderCleaningParam
-            }
-            if ($PSCmdlet.ShouldProcess($($InternalParam.Name),'Create transportrule')) {
-                New-TransportRule @InternalParam
-            }
-            if ($PSCmdlet.ShouldProcess($($OutboundParam.Name),'Create transportrule')) {
-                New-TransportRule @OutboundParam
-            }
-            if ($PSCmdlet.ShouldProcess($($InboundParam.Name),'Create transportrule')) {
-                New-TransportRule @InboundParam
-            }
-
-            if(!$?)
-            {throw [System.Exception] "unknown reason"}
-        }
-        catch
-        {throw [System.Exception] "Could not create transport rules: $($_.Exception.Message)"}
+    (ConvertFrom-Json (
+         Get-Content "$ModulePath\ExOConfig\Rules\X-SM-encrypted-header-cleaning$Version.json" -Raw)).psobject.properties | ForEach-Object {
+             $ret.encryptedHeaderCleaning[$_.Name] = $_.Value
     }
-}
 
-function Set-SM365TransportRules {
-    [CmdletBinding(SupportsShouldProcess = $true,
-                           ConfirmImpact = 'Medium'
-                )]
-    param
-    (
-        [ConfigVersion] $Version = [ConfigVersion]::Default
-    )
-
-    Get-SM365TransportRuleDefaults -Version $Version
-
-    # Rules are referenced via name, so we don't need this key
-    $InternalParam.Remove("RouteMessageOutboundConnector")
-    $OutboundParam.Remove("RouteMessageOutboundConnector")
-    $InboundParam.Remove("RouteMessageOutboundConnector")
-
-    # Don't modify priority for existing rules
-    @($outgoingHeaderCleaningParam, $decryptedHeaderCleaningParam,
-      $encryptedHeaderCleaningParam, $InternalParam,
-      $OutboundParam, $InboundParam) | %{$_.Remove("Priority")}
-
-    try
-    {
-        Write-Verbose "Create Transport Rules"
-        if ($PSCmdlet.ShouldProcess($($outgoingHeaderCleaningParam.Name),'Update transportrule')) {
-            Set-TransportRule @outgoingHeaderCleaningParam
-        }
-        if ($PSCmdlet.ShouldProcess($($decryptedHeaderCleaningParam.Name),'Update transportrule')) {
-            Set-TransportRule @decryptedHeaderCleaningParam
-        }
-        if ($PSCmdlet.ShouldProcess($($encryptedHeaderCleaningParam.Name),'Update transportrule')) {
-            Set-TransportRule @encryptedHeaderCleaningParam
-        }
-        if ($PSCmdlet.ShouldProcess($($InternalParam.Name),'Update transportrule')) {
-            Set-TransportRule @InternalParam
-        }
-        if ($PSCmdlet.ShouldProcess($($OutboundParam.Name),'Update transportrule')) {
-            Set-TransportRule @OutboundParam
-        }
-        if ($PSCmdlet.ShouldProcess($($InboundParam.Name),'Update transportrule')) {
-            Set-TransportRule @InboundParam
-        }
-
-        if(!$?)
-        {throw [System.Exception] "unknown reason"}
+    (ConvertFrom-Json (
+         Get-Content "$ModulePath\ExOConfig\Rules\internal$Version.json" -Raw)).psobject.properties | ForEach-Object {
+             $ret.internal[$_.Name] = $_.Value
     }
-    catch
-    {throw [System.Exception] "Could not create transport rules: $($_.Exception.Message)"}
+
+    (ConvertFrom-Json (
+         Get-Content "$ModulePath\ExOConfig\Rules\outbound$Version.json" -Raw)).psobject.properties | ForEach-Object {
+             $ret.outbound[$_.Name] = $_.Value
+    }
+
+    (ConvertFrom-Json (
+         Get-Content "$ModulePath\ExOConfig\Rules\inbound$Version.json" -Raw)).psobject.properties | ForEach-Object {
+             $ret.inbound[$_.Name] = $_.Value
+    }
+
+    return $ret
 }
 
 
