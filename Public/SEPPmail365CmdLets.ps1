@@ -37,6 +37,12 @@ function New-SM365Connectors
 
         [Parameter(
              Mandatory = $false,
+             HelpMessage = 'IP addresses or ranges of the SEPPmail appliances'
+         )]
+        [string[]] $TrustedIPs,
+
+        [Parameter(
+             Mandatory = $false,
              HelpMessage = 'Internal Mail Domains, the connector will take E-Mails from'
          )]
         [string[]] $SenderDomains,
@@ -129,6 +135,14 @@ function New-SM365Connectors
 
         $parameters.InboundConnector.TlsSenderCertificateName = $InboundTlsDomain
         $parameters.InboundConnector.AssociatedAcceptedDomains = @()
+
+        if($TrustedIPs)
+        {
+            $parameters.InboundConnector.EFSkipLastIP = $false
+            $parameters.InboundConnector.EFSkipIPs = $TrustedIPs
+        }
+        else
+        {$parameters.InboundConnector.EFSkipLastIP = $true}
 
         if($SenderDomains -and !($SenderDomains -eq '*'))
         {
@@ -274,6 +288,12 @@ function Set-SM365Connectors
 
         [Parameter(
             Mandatory = $false,
+            HelpMessage = 'IP addresses or ranges of the SEPPmail appliances'
+        )]
+        [string[]] $TrustedIPs,
+
+        [Parameter(
+            Mandatory = $false,
             HelpMessage = 'Internal Mail Domains, the connectors allow sending for'
         )]
         [string[]] $SenderDomains,
@@ -333,19 +353,6 @@ function Set-SM365Connectors
 
         $defdomain = ($domains | Where-Object Default -Like 'True').DomainName
         Write-Information "Connected to Exchange Organization `"$defdomain`"" -InformationAction Continue
-
-        function Set-SM365InboundConnector {
-            Write-Verbose "Updating SEPPmail Inbound Connector $($InboundConnParam.Name)!"
-            if ($PSCmdLet.ShouldProcess($InboundConnParam.Name, "Updating Inbound Connector")){
-                Set-InboundConnector @InboundConnParam
-            }
-        }
-        function Set-SM365OutboundConnector {
-            Write-Verbose "Updating SEPPmail Outbound Connector $($OutboundConnParam.Name)!"
-            if ($PSCmdLet.ShouldProcess($OutboundConnParam.Name, "Updating Outbound Connector")){
-                Set-OutboundConnector @OutboundConnParam
-            }
-        }
     }
 
     process
@@ -354,6 +361,13 @@ function Set-SM365Connectors
         if($SetDefaults)
         {
             $parameters = Get-SM365ConnectorDefaults -Version $Version
+
+            # these are filled in via parameters, so remove them and set later if requested
+            $parameters.InboundConnector.Remove("AssociatedAcceptedDomains")
+            $parameters.InboundConnector.Remove("TlsSenderCertificateName")
+
+            $parameters.OutboundConnector.Remove("SmartHosts")
+            $parameters.OutboundConnector.Remove("TlsDomain")
         }
         else
         {
@@ -363,6 +377,14 @@ function Set-SM365Connectors
             $parameters.InboundConnector.Name = (ConvertFrom-Json (Get-Content -Path $ModulePath\ExOConfig\Connectors\Inbound.json -Raw)) | % Name
             $parameters.OutboundConnector.Name = (ConvertFrom-Json (Get-Content -Path $ModulePath\ExOConfig\Connectors\Outbound.json -Raw)) | % Name
         }
+
+        if($TrustedIPs)
+        {
+            $parameters.InboundConnector.EFSkipLastIP = $false
+            $parameters.InboundConnector.EFSkipIPs = $TrustedIPs
+        }
+        elseif($SetDefaults)
+        {$parameters.InboundConnector.EFSkipLastIP = $true}
 
         if($PSBoundParameters.ContainsKey("SEPPmailFQDN"))
         {$parameters.OutboundConnector.SmartHosts = $SEPPmailFQDN}
