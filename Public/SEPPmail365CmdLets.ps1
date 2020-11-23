@@ -22,9 +22,11 @@ enum ConfigVersion
 #>
 function New-SM365Connectors
 {
-    [CmdletBinding(SupportsShouldProcess = $true,
-                           ConfirmImpact = 'Medium'
-                    )]
+    [CmdletBinding(
+         SupportsShouldProcess = $true,
+         ConfirmImpact = 'Medium'
+     )]
+
     param
     (
         [Parameter(
@@ -75,7 +77,13 @@ function New-SM365Connectors
              Mandatory = $false,
              HelpMessage = 'Major verison of the SEPPmail appliance'
          )]
-        [ConfigVersion] $Version = [ConfigVersion]::Default
+        [ConfigVersion] $Version = [ConfigVersion]::Default,
+
+        [Parameter(
+             Mandatory = $false,
+             HelpMessage = 'Should the connectors be created active or inactive'
+         )]
+        [switch] $Enabled
     )
 
     begin
@@ -130,11 +138,13 @@ function New-SM365Connectors
     {
         $parameters = Get-SM365ConnectorDefaults -Version $Version
 
-        $parameters.OuboundConnector.SmartHosts = $SEPPmailFQDN
+        $parameters.OutboundConnector.SmartHosts = $SEPPmailFQDN
         $parameters.OutboundConnector.TlsDomain = $OutboundTlsDomain
+        $parameters.OutboundConnector.Enabled = $Enabled
 
         $parameters.InboundConnector.TlsSenderCertificateName = $InboundTlsDomain
         $parameters.InboundConnector.AssociatedAcceptedDomains = @()
+        $parameters.InboundConnector.Enabled = $Enabled
 
         if($TrustedIPs)
         {
@@ -332,7 +342,13 @@ function Set-SM365Connectors
              Mandatory = $false,
              HelpMessage = 'Major version of the SEPPmail appliance'
          )]
-        [ConfigVersion] $Version = [ConfigVersion]::Default
+        [ConfigVersion] $Version = [ConfigVersion]::Default,
+
+        [Parameter(
+            Mandatory = $false,
+            HelpMessage = 'Should the connectors be set to active or inactive'
+        )]
+        [switch] $Enabled
     )
 
     begin
@@ -377,6 +393,9 @@ function Set-SM365Connectors
             $parameters.InboundConnector.Name = (ConvertFrom-Json (Get-Content -Path $ModulePath\ExOConfig\Connectors\Inbound.json -Raw)) | % Name
             $parameters.OutboundConnector.Name = (ConvertFrom-Json (Get-Content -Path $ModulePath\ExOConfig\Connectors\Outbound.json -Raw)) | % Name
         }
+
+        $parameters.InboundConnector.Enabled = $Enabled
+        $parameters.OutboundConnector.Enabled = $Enabled
 
         if($TrustedIPs)
         {
@@ -454,7 +473,13 @@ function New-SM365Rules
     (
         [Parameter(Mandatory=$false,
                    HelpMessage='Major version of the SEPPmail appliance')]
-        [ConfigVersion] $Version = [ConfigVersion]::Default
+        [ConfigVersion] $Version = [ConfigVersion]::Default,
+
+        [Parameter(
+            Mandatory = $false,
+            HelpMessage = 'Should the rules be created active or inactive'
+        )]
+        [switch] $Enabled
     )
 
     begin
@@ -568,6 +593,7 @@ function New-SM365Rules
                     if($PSCmdlet.ShouldProcess($_.Value.Name, "Create transport rule"))
                     {
                         $param = $_.Value
+                        $param.Enabled = $Enabled
                         New-TransportRule @param
                     }
                 }
@@ -603,7 +629,13 @@ function Set-SM365Rules
     (
         [Parameter(Mandatory=$false,
                    HelpMessage='Major version of the SEPPmail appliance')]
-        [ConfigVersion] $Version = [ConfigVersion]::Default
+        [ConfigVersion] $Version = [ConfigVersion]::Default,
+
+        [Parameter(
+            Mandatory = $false,
+            HelpMessage = 'Should the rules be set to active or inactive'
+        )]
+        [switch] $Enabled
     )
 
     begin
@@ -640,6 +672,7 @@ function Set-SM365Rules
                 if($PSCmdlet.ShouldProcess($_.Value.Name, "Update transport rule"))
                 {
                     $param = $_.Value
+                    $param.Enabled = $Enabled
                     Set-TransportRule @param
                 }
             }
