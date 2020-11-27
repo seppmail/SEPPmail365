@@ -1,12 +1,18 @@
 {
     "Name"                  : "[SEPPmail] - Clean outbound SEPPmail header encrypted",
     "Comments"              : "Removes encrypted SEPPmail x-headers from E-Mail.",
-    "FromScope"             : "InOrganization",
-    "SentToScope"           : "NotInOrganization",
-    "RemoveHeader"          : "X-SM-encrypted",
-    "Priority"              : 0,
-    "SetAuditSeverity"      : "DoNotAudit",
-    "Mode"                  : "Enforce",
-    "SenderAddressLocation" : "Header",
-    "Enabled"               : true
+
+    "Version":
+    {
+        "Default":
+        {
+            "FromScope"             : "InOrganization",
+            "SentToScope"           : "NotInOrganization",
+            "RemoveHeader"          : "X-SM-encrypted",
+            "Priority"              : 0,
+            "SetAuditSeverity"      : "DoNotAudit",
+            "Mode"                  : "Enforce",
+            "SenderAddressLocation" : "Header"
+        }
+    }
 }

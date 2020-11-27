@@ -1,12 +1,18 @@
 {
     "Name"                  : "[SEPPmail] - Clean outbound SEPPmail header outgoing",
     "Comments"              : "Removes outgoing SEPPmail x-headers from E-Mail.",
-    "FromScope"             : "InOrganization",
-    "SentToScope"           : "NotInOrganization",
-    "RemoveHeader"          : "X-SM-outgoing",
-    "Priority"              : 0,
-    "SetAuditSeverity"      : "DoNotAudit",
-    "Mode"                  : "Enforce",
-    "SenderAddressLocation" : "Header",
-    "Enabled"               : true
+
+    "Version":
+    {
+        "Default":
+        {
+            "FromScope"             : "InOrganization",
+            "SentToScope"           : "NotInOrganization",
+            "RemoveHeader"          : "X-SM-outgoing",
+            "Priority"              : 0,
+            "SetAuditSeverity"      : "DoNotAudit",
+            "Mode"                  : "Enforce",
+            "SenderAddressLocation" : "Header"
+        }
+    }
 }

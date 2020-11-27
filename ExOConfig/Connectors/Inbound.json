@@ -1,17 +1,22 @@
 {
-        "Name"                         : "[SEPPmail] Appliance -> ExchangeOnline",
-        "AssociatedAcceptedDomains"    : "--SET-BY-PARAMETER--",
-        "SenderDomains"                : "*",
-        "Comment"                      : "Accept E-Mails from SEPPmail Appliance",
-        "ConnectorSource"              : "Default",
-        "ConnectorType"                : "OnPremises",
-        "EFSkipIPs"                    : null,
-        "EFSkipLastIP"                 : true,
-        "EFUsers"                      : null,
-        "Enabled"                      : true,
-        "RequireTls"                   : true,
-        "RestrictDomainsToCertificate" : true,
-        "RestrictDomainsToIPAddresses" : false,
-        "CloudServicesMailEnabled"     : true,
-        "TlsSenderCertificateName"     : "--SET-BY-PARAMETER--"
+    "Name"                         : "[SEPPmail] Appliance -> ExchangeOnline",
+    "Comment"                      : "Accept E-Mails from SEPPmail Appliance",
+
+    "Version":
+    {
+        "Default":
+        {
+            "SenderDomains"                : "*",
+            "ConnectorSource"              : "Default",
+            "ConnectorType"                : "OnPremises",
+            "EFSkipIPs"                    : null,
+            "EFSkipLastIP"                 : true,
+            "EFUsers"                      : null,
+            "Enabled"                      : true,
+            "RequireTls"                   : true,
+            "RestrictDomainsToCertificate" : true,
+            "RestrictDomainsToIPAddresses" : false,
+            "CloudServicesMailEnabled"     : true
+        }
+    }
 }
