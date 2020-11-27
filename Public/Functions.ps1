@@ -86,8 +86,6 @@ function New-SM365Connectors
 
     begin
     {
-        $DebugPreference = "Continue"
-
         $domains = Get-AcceptedDomain
         if(!$domains)
         {throw [System.Exception] "Cannot retrieve Exchange Domain Information, please reconnect with 'Connect-ExchangeOnline'"}
