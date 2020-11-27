@@ -1,23 +1,23 @@
-- [Abstract](#org502d0b5)
-- [Prerequisites](#orgdbb67b3)
-- [Module Installation](#orgd372e42)
-- [Preparation](#orga8dea90)
-- [Exchange Online Settings](#orgaa93821)
-  - [Connectors](#orgf19ed8a)
-    - [Inbound](#orgf5e49fe)
-    - [Outbound](#org30639f2)
-  - [Transport Rules](#org9da5b37)
-- [SEPPmail365 CmdLets](#org86f07b3)
-  - [New-SM365Connectors](#orgf4128c0)
-  - [Set-SM365Connectors](#org455dc22)
-  - [Remove-SM365Connectors](#orgf70c792)
-  - [New-SM365Rules](#orge370bcc)
-  - [Set-SM365Rules](#org105a8e2)
-  - [Remove-SM365Rules](#orgc339eb1)
-  - [Backup-SM365Connectors](#org7fc8f0d)
-  - [Backup-SM365Rules](#orgff3b440)
-  - [New-SM365ExOReport](#org9eec97d)
-- [Examples](#org55895c6)
+- [Abstract](#orgb4ea9c8)
+- [Prerequisites](#orge031922)
+- [Module Installation](#org722277c)
+- [Preparation](#org8e9dac5)
+- [Exchange Online Settings](#org9c221fb)
+  - [Connectors](#org755555b)
+    - [Inbound](#org766141f)
+    - [Outbound](#orgd7f4a22)
+  - [Transport Rules](#org3774dc5)
+- [SEPPmail365 CmdLets](#org9bd0acf)
+  - [New-SM365Connectors](#org454005e)
+  - [Set-SM365Connectors](#org434b1b9)
+  - [Remove-SM365Connectors](#org3be46e2)
+  - [New-SM365Rules](#orgcddd1ae)
+  - [Set-SM365Rules](#org5e5940f)
+  - [Remove-SM365Rules](#org80e2ae4)
+  - [Backup-SM365Connectors](#orgfceddb6)
+  - [Backup-SM365Rules](#org845e8a2)
+  - [New-SM365ExOReport](#org72528ef)
+- [Examples](#org773eda2)
 
 <div class="html">
 
@@ -31,7 +31,7 @@
 <a href="https://www.seppmail.ch">SEPPmail Home Page</a></p>
 
 
-<a id="org502d0b5"></a>
+<a id="orgb4ea9c8"></a>
 
 # Abstract
 
@@ -48,7 +48,7 @@ backing up existing configuration, as well as generating a report about the
 current state of the environment.  
 
 
-<a id="orgdbb67b3"></a>
+<a id="orge031922"></a>
 
 # Prerequisites
 
@@ -58,7 +58,7 @@ The module requires at least PowerShell 5.1 (64bit) and the
 Future versions of the [ExchangeOnlineManagement](https://www.powershellgallery.com/packages/ExchangeOnlineManagement/1.0.1) module should also work.  
 
 
-<a id="orgd372e42"></a>
+<a id="org722277c"></a>
 
 # Module Installation
 
@@ -77,7 +77,7 @@ Import-Module "C:\path\to\module\SEPPmail365.psd1"
 ```
 
 
-<a id="orga8dea90"></a>
+<a id="org8e9dac5"></a>
 
 # Preparation
 
@@ -101,12 +101,12 @@ Connect-ExchangeOnline -UserPrincipalName frank@contoso.com -ShowProgress $true
 ```
 
 
-<a id="orgaa93821"></a>
+<a id="org9c221fb"></a>
 
 # Exchange Online Settings
 
 
-<a id="orgf19ed8a"></a>
+<a id="org755555b"></a>
 
 ## Connectors
 
@@ -122,12 +122,12 @@ If you're looking at the terms from a mail flow point of view, they are actually
 reversed (i.e. an inbound connector routes outgoing mails).  
 
 
-<a id="orgf5e49fe"></a>
+<a id="org766141f"></a>
 
 ### Inbound
 
 Exchange Online CmdLet: [New-InboundConnector](https://docs.microsoft.com/en-us/powershell/module/exchange/new-inboundconnector?view=exchange-ps)  
-SEPPmail CmdLet: [New-SM365Connectors](#orgf4128c0)  
+SEPPmail CmdLet: [New-SM365Connectors](#org454005e)  
 
 **Parameters in Use:**  
 
@@ -195,17 +195,17 @@ Set via: <none>
 Default: `$true`  
 
 
-<a id="org30639f2"></a>
+<a id="orgd7f4a22"></a>
 
 ### Outbound
 
 
-<a id="org9da5b37"></a>
+<a id="org3774dc5"></a>
 
 ## Transport Rules
 
 
-<a id="org86f07b3"></a>
+<a id="org9bd0acf"></a>
 
 # SEPPmail365 CmdLets
 
@@ -216,7 +216,7 @@ All CmdLets support the PowerShell [common parameters](https://docs.microsoft.co
 `-Verbose`, etc.  
 
 
-<a id="orgf4128c0"></a>
+<a id="org454005e"></a>
 
 ## New-SM365Connectors
 
@@ -276,7 +276,7 @@ New-SM365Connectors -SEPPmailFQDN "seppmail.contoso.com" -Enabled:$false
 ```
 
 
-<a id="org455dc22"></a>
+<a id="org434b1b9"></a>
 
 ## Set-SM365Connectors
 
@@ -313,7 +313,7 @@ Same as -TlsDomain, but applies only to the outbound connector.
 `-SetDefaults [switch] (optional)`  
 The default behaviour is to only set the provided parameters, but this switch  
 causes all other parameters be set to the default values, provided by  
-[New-SM365Connectors](#orgf4128c0).  
+[New-SM365Connectors](#org454005e).  
 
 `-Version [ConfigVersion] (optional)`  
 The major version of your SEPPmail appliance. You most likely won't need this  
@@ -341,7 +341,7 @@ Set-SM365Connectors -SetDefaults
 ```
 
 
-<a id="orgf70c792"></a>
+<a id="org3be46e2"></a>
 
 ## Remove-SM365Connectors
 
@@ -366,7 +366,7 @@ Remove-SM365Connectors -Confirm
 ```
 
 
-<a id="orge370bcc"></a>
+<a id="orgcddd1ae"></a>
 
 ## New-SM365Rules
 
@@ -395,7 +395,7 @@ New-SM365Rules -Enabled:$false
 ```
 
 
-<a id="org105a8e2"></a>
+<a id="org5e5940f"></a>
 
 ## Set-SM365Rules
 
@@ -407,8 +407,6 @@ version.
 `-Version [ConfigVersion] (optional)`  
 The major version of your SEPPmail appliance.  
 
-`-Enabled [Switch] (optional)`  
-Sets the transport rules to an inactive state.  
 **Examples:**  
 
 ```powershell
@@ -416,13 +414,8 @@ Sets the transport rules to an inactive state.
 Set-SM365Rules -Version Default
 ```
 
-```powershell
-# Set the tranport rules to an inactive state
-Set-SM365Rules -Enabled:$false
-```
 
-
-<a id="orgc339eb1"></a>
+<a id="org80e2ae4"></a>
 
 ## Remove-SM365Rules
 
@@ -440,7 +433,7 @@ Remove-SM365Rules -Whatif
 ```
 
 
-<a id="org7fc8f0d"></a>
+<a id="orgfceddb6"></a>
 
 ## Backup-SM365Connectors
 
@@ -458,7 +451,7 @@ Backup-SM365Connectors -OutFolder C:\Temp
 ```
 
 
-<a id="orgff3b440"></a>
+<a id="org845e8a2"></a>
 
 ## Backup-SM365Rules
 
@@ -477,7 +470,7 @@ Backup-SM365Rules -OutFolder C:\Temp
 ```
 
 
-<a id="org9eec97d"></a>
+<a id="org72528ef"></a>
 
 ## New-SM365ExOReport
 
@@ -495,6 +488,6 @@ New-SM365ExOReport -FilePath C:\Temp\ExOReport.html
 ```
 
 
-<a id="org55895c6"></a>
+<a id="org773eda2"></a>
 
 # Examples
