@@ -1,5 +1,51 @@
 . $PSScriptRoot\SetupTypes.ps1
 
+function Test-SM365ConnectionStatus
+{
+    [CmdLetBinding()]
+    Param
+    (
+
+    )
+
+    [bool] $isConnected = $false
+
+    if(!(Get-Module ExchangeOnlineManagement -ErrorAction SilentlyContinue))
+    {
+        Write-Warning "ExchangeOnlineManagement module not yet imported"
+        Write-Warning "Importing ExchangeOnlineManagement module"
+        Import-Module ExchangeOnlineManagement
+    }
+    else
+    {
+        $isConnected = (Get-PSSession | ? { $_.Name -like "ExchangeOnlineInternalSession*" -and $_.State -eq "Opened" }).Count -gt 0
+    }
+
+    if(!$isConnected)
+    {
+        Write-Warning "You're not connected to your Exchange Online organization"
+
+        if($InteractiveSession) # defined in public/Functions.ps1
+        {
+            try
+            {
+                # throws an exception if authentication fails
+                Connect-ExchangeOnline
+                $isConnected = $true
+            }
+            catch
+            {}
+        }
+    }
+
+    # Record the default domain, of the Exchange Online organization we're connected to
+    if($isConnected -and !$Script:ExODefaultDomain)
+    {
+        [string] $Script:ExODefaultDomain = Get-AcceptedDomain | ?{$_.Default} | select -ExpandProperty DomainName -First 1
+    }
+
+    return $isConnected
+}
 
 # Generic function to avoid code duplication
 function Set-SM365PropertiesFromConfigJson
