@@ -30,6 +30,12 @@ namespace SM365
         All = Inbound | Outbound | Internal | EncryptedHeaderCleaning | DecryptedHeaderCleaning | OutgoingHeaderCleaning
     }
 
+    public enum OperationType
+    {
+        Create,
+        Update
+    }
+
     public static class Bit
     {
         public static ulong Set(ulong no, int pos)
@@ -76,10 +82,10 @@ namespace SM365
         public List<string> SenderDomains {get; set;}
 
         // This is for splatting
-        public Hashtable ToHashtable()
+        public Hashtable ToHashtable(OperationType op = OperationType.Create)
         {
             Hashtable ret = new Hashtable();
-            ret["Name"] = Name;
+            ret[(op == OperationType.Create ? "Name" : "Identity")] = Name;
             ret["Enabled"] = Enabled;
 
             if(!string.IsNullOrEmpty(Comment))
@@ -141,10 +147,10 @@ namespace SM365
         public List<string> SmartHosts {get; set;}
 
         // This is for splatting
-        public Hashtable ToHashtable()
+        public Hashtable ToHashtable(OperationType op = OperationType.Create)
         {
             Hashtable ret = new Hashtable();
-            ret["Name"] = Name;
+            ret[(op == OperationType.Create ? "Name" : "Identity")] = Name;
             ret["Enabled"] = Enabled;
 
             if(!string.IsNullOrEmpty(Comment))
@@ -204,12 +210,16 @@ namespace SM365
         public string RemoveHeader {get; set;}
 
         // This is for splatting
-        public Hashtable ToHashtable()
+        public Hashtable ToHashtable(OperationType op = OperationType.Create)
         {
             Hashtable ret = new Hashtable();
-            ret["Name"] = Name;
-            ret["Enabled"] = Enabled;
-            ret["Priority"] = Priority;
+            ret[(op == OperationType.Create ? "Name" : "Identity")] = Name;
+
+            if(op == OperationType.Create)
+            {
+                ret["Enabled"] = Enabled; // invalid for set
+                ret["Priority"] = Priority; // changing priority might be dangerous on set
+            }
 
             if(!string.IsNullOrEmpty(Comments))
                 ret["Comments"] = Comments;
@@ -217,7 +227,8 @@ namespace SM365
                 ret["FromScope"] = FromScope;
             if(!string.IsNullOrEmpty(SentToScope))
                 ret["SentToScope"] = SentToScope;
-            if(!string.IsNullOrEmpty(RouteMessageOutboundConnector))
+            if(op == OperationType.Create &&
+                !string.IsNullOrEmpty(RouteMessageOutboundConnector))
                 ret["RouteMessageOutboundConnector"] = RouteMessageOutboundConnector;
             if(!string.IsNullOrEmpty(ExceptIfHeaderContainsMessageHeader))
                 ret["ExceptIfHeaderContainsMessageHeader"] = ExceptIfHeaderContainsMessageHeader;
