@@ -86,9 +86,10 @@ function New-SM365Connectors
 
     begin
     {
-        $domains = Get-AcceptedDomain
-        if(!$domains)
-        {throw [System.Exception] "Cannot retrieve Exchange Domain Information, please reconnect with 'Connect-ExchangeOnline'"}
+        if(!(Test-SM365ConnectionStatus))
+        {throw [System.Exception] "You're not connected to Exchange Online - please connect prior to using this CmdLet"}
+
+        Write-Information "Connected to Exchange Organization `"$Script:ExODefaultDomain`"" -InformationAction Continue
 
         # provide defaults for parameters, if not specified
         if(!$TlsDomain)
@@ -99,9 +100,6 @@ function New-SM365Connectors
 
         if(!$OutboundTlsDomain)
         {$OutboundTlsDomain = $TlsDomain}
-
-        $defdomain = ($domains | Where-Object Default -Like 'True').DomainName
-        Write-Information "Connected to Exchange Organization `"$defdomain`"" -InformationAction Continue
 
         $allInboundConnectors = Get-InboundConnector
         $allOutboundConnectors = Get-OutboundConnector
@@ -387,14 +385,15 @@ function Set-SM365Connectors
             Mandatory = $false,
             HelpMessage = 'Should the connectors be set to active or inactive'
         )]
-        [switch] $Enabled
+        [switch] $Enabled = $true
     )
 
     begin
     {
-        $domains = Get-AcceptedDomain
-        if(!$domains)
-        {throw [System.Exception] "Cannot retrieve Exchange Domain Information, please reconnect with 'Connect-ExchangeOnline'"}
+        if (!(Test-SM365ConnectionStatus))
+        { throw [System.Exception] "You're not connected to Exchange Online - please connect prior to using this CmdLet" }
+
+        Write-Information "Connected to Exchange Organization `"$Script:ExODefaultDomain`"" -InformationAction Continue
 
         # provide defaults for parameters, if not specified
         if(!$TlsDomain)
@@ -405,9 +404,6 @@ function Set-SM365Connectors
 
         if(!$OutboundTlsDomain)
         {$OutboundTlsDomain = $TlsDomain}
-
-        $defdomain = ($domains | Where-Object Default -Like 'True').DomainName
-        Write-Information "Connected to Exchange Organization `"$defdomain`"" -InformationAction Continue
     }
 
     process
@@ -461,9 +457,9 @@ function Set-SM365Connectors
         {throw [System.Exception] "No existing SEPPmail inbound connector found"}
         else
         {
-            $param = $inbound.ToHashtable()
+            $param = $inbound.ToHashtable("Update")
             Write-Verbose "Updating SEPPmail Inbound Connector $($param.Name)!"
-            if ($PSCmdLet.ShouldProcess($param.Name, "Updating Inbound Connector")) {
+            if ($PSCmdLet.ShouldProcess($inbound.Name, "Updating Inbound Connector")) {
                 Write-Debug "Inbound Connector settings:"
                 $param.GetEnumerator() | % {
                     Write-Debug "$($_.Key) = $($_.Value)"
@@ -483,9 +479,9 @@ function Set-SM365Connectors
         {throw [System.Exception] "No existing SEPPmail outbound connector found"}
         else
         {
-            $param = $outbound.ToHashtable()
+            $param = $outbound.ToHashtable("Update")
             Write-Verbose "Updating SEPPmail Outbound Connector $($param.Name)!"
-            if ($PSCmdLet.ShouldProcess($param.Name, "Updating Outbound Connector")) {
+            if ($PSCmdLet.ShouldProcess($outbound.Name, "Updating Outbound Connector")) {
                 Write-Debug "Outbound Connector settings:"
                 $param.GetEnumerator() | % {
                     Write-Debug "$($_.Key) = $($_.Value)"
@@ -537,12 +533,10 @@ function New-SM365Rules
 
     begin
     {
-        $domains = Get-AcceptedDomain
-        if (!$domains)
-        {throw [System.Exception] "Cannot retrieve Exchange Domain Information, please reconnect with 'Connect-ExchangeOnline'"}
+        if (!(Test-SM365ConnectionStatus))
+        { throw [System.Exception] "You're not connected to Exchange Online - please connect prior to using this CmdLet" }
 
-        $defdomain = ($domains | Where-Object Default -Like 'True').DomainName
-        Write-Information "Connected to Exchange Organization `"$defdomain`"" -InformationAction Continue
+        Write-Information "Connected to Exchange Organization `"$Script:ExODefaultDomain`"" -InformationAction Continue
 
         $outboundConnectors = Get-OutboundConnector | ?{ $_.Name -match "^\[SEPPmail\]" }
         if(!($outboundConnectors))
@@ -683,12 +677,10 @@ function Set-SM365Rules
 
     begin
     {
-        $domains = Get-AcceptedDomain
-        if (!$domains)
-        { throw [System.Exception] "Cannot retrieve Exchange Domain Information, please reconnect with 'Connect-ExchangeOnline'" }
+        if (!(Test-SM365ConnectionStatus))
+        { throw [System.Exception] "You're not connected to Exchange Online - please connect prior to using this CmdLet" }
 
-        $defdomain = ($domains | Where-Object Default -Like 'True').DomainName
-        Write-Information "Connected to Exchange Organization `"$defdomain`"" -InformationAction Continue
+        Write-Information "Connected to Exchange Organization `"$Script:ExODefaultDomain`"" -InformationAction Continue
 
         if(!(Get-TransportRule | ?{$_.Name -match "^\[SEPPmail\]"}))
         {throw [System.Exception] "No SEPPmail transport rules found. Please run `"New-SM365Rules`" to create them."}
@@ -700,18 +692,7 @@ function Set-SM365Rules
         {
             Get-SM365TransportRuleSettings | %{
                 $setting = $_
-
-                # Don't reset the outbound connector, 'cause admin might have
-                # changed it intentionally
-                $setting.RouteMessageOutboundConnector = $null
-
-                $parameters = $setting.ToHashtable()
-
-                # Resetting priority might be dangerous, so we don't do that here
-                $parameters.Remove("Priority")
-
-                # Set-TransportRule has no way of disabling existing rules
-                $parameters.Remove("Enabled")
+                $parameters = $setting.ToHashtable("Update")
 
                 if ($PSCmdlet.ShouldProcess($setting.Name, "Update transport rule"))
                 {
@@ -720,7 +701,7 @@ function Set-SM365Rules
                         Write-Debug "$($_.Key) = $($_.Value)"
                     }
 
-                    Set-TransportRule $setting.Name @parameters
+                    Set-TransportRule @parameters
                 }
             }
         }
@@ -752,6 +733,11 @@ function Remove-SM365Connectors
 
     )
 
+    if (!(Test-SM365ConnectionStatus))
+    { throw [System.Exception] "You're not connected to Exchange Online - please connect prior to using this CmdLet" }
+
+    Write-Information "Connected to Exchange Organization `"$Script:ExODefaultDomain`"" -InformationAction Continue
+
     $inbound = Get-SM365InboundConnectorSettings -Version "None"
     $outbound = Get-SM365OutboundConnectorSettings -Version "None"
 
@@ -778,6 +764,11 @@ function Remove-SM365Rules {
     (
 
     )
+
+    if (!(Test-SM365ConnectionStatus))
+    { throw [System.Exception] "You're not connected to Exchange Online - please connect prior to using this CmdLet" }
+
+    Write-Information "Connected to Exchange Organization `"$Script:ExODefaultDomain`"" -InformationAction Continue
 
     $settings = Get-SM365TransportRuleSettings -Version "None"
     foreach($setting in $settings)
@@ -816,12 +807,10 @@ function Backup-SM365Connectors
 
     begin
     {
-        $domains = Get-AcceptedDomain
-        if(!$domains)
-        {throw [System.Exception] "Cannot retrieve Exchange Domain Information, please reconnect with 'Connect-ExchangeOnline'"}
+        if (!(Test-SM365ConnectionStatus))
+        { throw [System.Exception] "You're not connected to Exchange Online - please connect prior to using this CmdLet" }
 
-        $defdomain = ($domains | Where-Object Default -Like 'True').DomainName
-        Write-Information "Connected to Exchange Organization `"$defdomain`"" -InformationAction Continue
+        Write-Information "Connected to Exchange Organization `"$Script:ExODefaultDomain`"" -InformationAction Continue
     }
 
     process
@@ -873,12 +862,10 @@ function Backup-SM365Rules
 
     begin
     {
-        $domains = Get-AcceptedDomain
-        if(!$domains)
-        {throw [System.Exception] "Cannot retrieve Exchange Domain Information, please reconnect with 'Connect-ExchangeOnline'"}
+        if (!(Test-SM365ConnectionStatus))
+        { throw [System.Exception] "You're not connected to Exchange Online - please connect prior to using this CmdLet" }
 
-        $defdomain = ($domains | Where-Object Default -Like 'True').DomainName
-        Write-Information "Connected to Exchange Organization `"$defdomain`"" -InformationAction Continue
+        Write-Information "Connected to Exchange Organization `"$Script:ExODefaultDomain`"" -InformationAction Continue
     }
 
     process
@@ -916,10 +903,16 @@ function New-SM365ExOReport {
         $FilePath
     )
 
-    begin {
+    begin
+    {
+        if (!(Test-SM365ConnectionStatus))
+        { throw [System.Exception] "You're not connected to Exchange Online - please connect prior to using this CmdLet" }
+
+        Write-Information "Connected to Exchange Organization `"$Script:ExODefaultDomain`"" -InformationAction Continue
     }
 
-    process {
+    process
+    {
         try {
             if ($pscmdlet.ShouldProcess("Target", "Operation")) {
                 #"Whatis is $Whatif and `$pscmdlet.ShouldProcess is $($pscmdlet.ShouldProcess) "
