@@ -14,7 +14,10 @@ function Test-SM365ConnectionStatus
     {
         Write-Warning "ExchangeOnlineManagement module not yet imported"
         Write-Warning "Importing ExchangeOnlineManagement module"
-        Import-Module ExchangeOnlineManagement
+        $m = Import-Module ExchangeOnlineManagement -PassThru -ErrorAction SilentlyContinue
+
+        if(!$m)
+        {throw [System.Exception] "ExchangeOnlineManagement module does not seem to be installed"}
     }
     else
     {
