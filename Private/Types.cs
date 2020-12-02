@@ -62,6 +62,7 @@ namespace SM365
             Name = name;
             Version = version;
             Enabled = true;
+            EFSkipIPs = new List<string>();
         }
 
         public ConfigVersion Version {get; private set;}
@@ -112,7 +113,7 @@ namespace SM365
 
             if(EFUsers != null)
                 ret["EFUsers"] = EFUsers;
-            if(EFSkipIPs != null)
+            if(EFSkipIPs != null && EFSkipIPs.Count > 0)
                 ret["EFSkipIPs"] = EFSkipIPs;
             if(AssociatedAcceptedDomains != null)
                 ret["AssociatedAcceptedDomains"] = AssociatedAcceptedDomains;
