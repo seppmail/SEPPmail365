@@ -147,14 +147,14 @@ function New-SM365Connectors
         $inbound.TlsSenderCertificateName = $InboundTlsDomain
         $inbound.Enabled = $Enabled
 
-
-        if($TrustedIPs)
+        if (!$TrustedIPs)
         {
-            $inbound.EFSkipLastIP = $false
-            $inbound.EFSkipIPs = $TrustedIPs
+            Write-Verbose "No IPs provided - trying to resolve $SEPPmailFQDN"
+            [string[]] $ips = [System.Net.Dns]::GetHostAddresses($SEPPmailFQDN) | % { $_.IPAddressToString }
+
+            Write-Verbose "Found following IP addresses: $ips"
+            $inbound.EFSkipIPs.AddRange($ips)
         }
-        else
-        {$inbound.EFSkipLastIP = $true}
 
         if($SenderDomains -and !($SenderDomains -eq '*'))
         {
@@ -430,8 +430,7 @@ function Set-SM365Connectors
 
         if($TrustedIPs)
         {
-            $inbound.EFSkipLastIP = $false
-            $inbound.EFSkipIPs = $TrustedIPs
+            $inbound.EFSkipIPs.AddRange($TrustedIPs)
         }
 
         if($PSBoundParameters.ContainsKey("SEPPmailFQDN"))
@@ -984,11 +983,11 @@ function New-SM365ExOReport {
             $N = Get-TransportConfig |Select-Object MaxSendSize,MaxReceiveSize |Convertto-HTML -Fragment
 
 
-            $HeaderLogo = [Convert]::ToBase64String((Get-Content -path $ModulePath\HTML\SEPPmailLogo.jpg -encoding byte ))
+            $HeaderLogo = [Convert]::ToBase64String((Get-Content -path $PSScriptRoot\..\HTML\SEPPmailLogo.jpg -encoding byte ))
             $LogoHTML = @"
 <img src="data:image/jpg;base64,$($HeaderLogo)" style="left:150px alt="Exchange Online System Report">
 "@
-            $style = Get-Content $ModulePath\HTML\SEPPmailReport.css
+            $style = Get-Content $PSScriptRoot\..\HTML\SEPPmailReport.css
             Convertto-HTML -Body "$LogoHTML $Top $hA $a $hB $b $hC $c $hd $d $e $hF $f $hG $g $hI $i $hJ $j $hK $k $hL $l $hM $m $hN $n $hO $o" -Title "SEPPmail365 Exo Report" -Head $style|Out-File -FilePath $filePath
 
         }
