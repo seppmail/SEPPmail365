@@ -190,12 +190,11 @@ function Get-SM365TransportRuleSettings
     # But via this sorting, an SMPriority 0 rule will actually be at the top (but at priority 3).
     $ret | Sort-Object -Property SMPriority -Descending
 }
-
 # SIG # Begin signature block
 # MIIL1wYJKoZIhvcNAQcCoIILyDCCC8QCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUm/u8DOYeXarvsQdh7EyUwWxs
-# ZbSggglAMIIEmTCCA4GgAwIBAgIQcaC3NpXdsa/COyuaGO5UyzANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUx0bjykmO9WE5AFuSAgGKjg88
+# PSiggglAMIIEmTCCA4GgAwIBAgIQcaC3NpXdsa/COyuaGO5UyzANBgkqhkiG9w0B
 # AQsFADCBqTELMAkGA1UEBhMCVVMxFTATBgNVBAoTDHRoYXd0ZSwgSW5jLjEoMCYG
 # A1UECxMfQ2VydGlmaWNhdGlvbiBTZXJ2aWNlcyBEaXZpc2lvbjE4MDYGA1UECxMv
 # KGMpIDIwMDYgdGhhd3RlLCBJbmMuIC0gRm9yIGF1dGhvcml6ZWQgdXNlIG9ubHkx
@@ -249,11 +248,11 @@ function Get-SM365TransportRuleSettings
 # NiBDb2RlIFNpZ25pbmcgQ0ECEF0xOuf5lHR9Mf0X/F6tAjYwCQYFKw4DAhoFAKB4
 # MBgGCisGAQQBgjcCAQwxCjAIoAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQB
 # gjcCAQQwHAYKKwYBBAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkE
-# MRYEFEjMECtLgbLDQKhfiUyT7PggIrTHMA0GCSqGSIb3DQEBAQUABIIBAEWEepIN
-# 6hLv+/2Qt0h4sbE5x1Crf4QtEYiHhQTm/n7kmrWajXtRH5MskG+eoyNvyYYgQiN3
-# qir4WlF3mkUKwDRJMDadbilqmsKgSJpx+m8Mk64lpzrcmEnQXcypAENPFHxo6W+1
-# ltqZFl1GTyqCkjxrFneHAx91XnSV7q/blYBZtstW51i8AuMeURQgPEUAHhE1kCir
-# ZYHFRvfa8DQvX2QunL6buEN6KAoaTtjkm4J7UiesCJUExUNYgB5r20SSwSiiuZEA
-# mmSnN8jFNMkzUi+WsJ+nG6kNEWw4K2zIE/JlvGuwLLXynG43noTYyMkdikKlhPd3
-# 3o0DEcATb3RY/no=
+# MRYEFC/hNRvlVNztJ0hsfLMBFTCzfRcvMA0GCSqGSIb3DQEBAQUABIIBAGx5TD+1
+# h/goM0a1KdpGEAiIoUHqkdF+EpfWvcv+1kSRYvCVIvotohOrT/ssQWswS88ramVQ
+# S2AnECRf7xNLSzs0Z4YTrTVXUdaJtyHKp1VbJhve1ktuCcQQkZ/5qJjCdVyORPgF
+# 3U3mbcO+satURCNyrxnsHFcBIEyhTnw2UzrWI3S8tMscXG5IY48HyjE0Po34wf6a
+# byLwXOt6e8lo9l3bmNaz+tsTx3NBUf7ZgxduOaPsmbd0+QmjLaftjAdndCYDqZjP
+# ZTN5ZZBv2fsyme2XDqFwUW1vqQ0sTav+EmTPssoO14QCi2ydTaN1U9OerxQCLkfC
+# zw+5hjTcYFwhUEM=
 # SIG # End signature block
