@@ -1,6 +1,7 @@
 {
     "Name"                  : "[SEPPmail] - Clean outbound SEPPmail header decrypted",
     "Comments"              : "Removes decrypted SEPPmail x-headers from E-Mail.",
+    "SMPriority"            : 10,
 
     "Version":
     {

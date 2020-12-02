@@ -2,6 +2,7 @@
     "Name"                                : "[SEPPmail] - Route incoming/internal Mails to SEPPmail",
     "Comments": "Mails sent from outside the organization and have not been sent through SEPPmail are sent to the appliance for sig/enc processing.",
     "RouteMessageOutboundConnector": "[SEPPmail] ExchangeOnline -> Appliance",
+    "SMPriority": 0,
 
     "Version":
     {

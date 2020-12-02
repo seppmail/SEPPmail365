@@ -197,6 +197,7 @@ namespace SM365
         public AvailableTransportRuleSettings Type {get; private set;}
 
         public int Priority {get; set;}
+        public int SMPriority {get; set;} // used to determine order of SM365 rules
 
         public string Comments {get; set;}
         public string FromScope {get; set;}
