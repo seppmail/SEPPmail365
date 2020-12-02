@@ -27,7 +27,9 @@ namespace SM365
         EncryptedHeaderCleaning = 8,
         DecryptedHeaderCleaning = 16,
         OutgoingHeaderCleaning = 32,
-        All = Inbound | Outbound | Internal | EncryptedHeaderCleaning | DecryptedHeaderCleaning | OutgoingHeaderCleaning
+        SkipSpfIncoming = 64,
+        SkipSpfInternal = 128,
+        All = Inbound | Outbound | Internal | EncryptedHeaderCleaning | DecryptedHeaderCleaning | OutgoingHeaderCleaning | SkipSpfIncoming | SkipSpfInternal
     }
 
     public enum OperationType
@@ -208,6 +210,8 @@ namespace SM365
         public string Mode {get; set;}
         public string SenderAddressLocation {get; set;}
         public string RemoveHeader {get; set;}
+        public string HeaderContainsMessageHeader {get; set;}
+        public List<string> HeaderContainsWords {get; set;}
 
         // This is for splatting
         public Hashtable ToHashtable(OperationType op = OperationType.Create)
@@ -248,6 +252,10 @@ namespace SM365
                 ret["SenderAddressLocation"] = SenderAddressLocation;
             if(!string.IsNullOrEmpty(RemoveHeader))
                 ret["RemoveHeader"] = RemoveHeader;
+            if(!string.IsNullOrEmpty(HeaderContainsMessageHeader))
+                ret["HeaderContainsMessageHeader"] = HeaderContainsMessageHeader;
+            if(HeaderContainsWords != null)
+                ret["HeaderContainsWords"] = HeaderContainsWords;
 
             return ret;
         }
