@@ -156,15 +156,6 @@ function Get-SM365TransportRuleSettings
         $ret.Add($settings)
     }
 
-    if([SM365.AvailableTransportRuleSettings]::Inbound -band $settingsToFetch)
-    {& $addSetting "Inbound.json" "Inbound"}
-
-    if([SM365.AvailableTransportRuleSettings]::Outbound -band $settingsToFetch)
-    {& $addSetting "Outbound.json" "Outbound"}
-
-    if([SM365.AvailableTransportRuleSettings]::Internal -band $settingsToFetch)
-    {& $addSetting "Internal.json" "Internal"}
-
     if([SM365.AvailableTransportRuleSettings]::OutgoingHeaderCleaning -band $settingsToFetch)
     {& $addSetting "X-SM-outgoing-header-cleaning.json" "OutgoingHeaderCleaning"}
 
@@ -174,7 +165,27 @@ function Get-SM365TransportRuleSettings
     if([SM365.AvailableTransportRuleSettings]::EncryptedHeaderCleaning -band $settingsToFetch)
     {& $addSetting "X-SM-encrypted-header-cleaning.json" "EncryptedHeaderCleaning"}
 
-    return $ret
+    if([SM365.AvailableTransportRuleSettings]::SkipSpfIncoming -band $settingsToFetch)
+    {& $addSetting "Skip-SPF-incoming.json" "SkipSpfIncoming"}
+
+    if([SM365.AvailableTransportRuleSettings]::SkipSpfInternal -band $settingsToFetch)
+    {& $addSetting "Skip-SPF-internal.json" "SkipSpfInternal"}
+
+    if([SM365.AvailableTransportRuleSettings]::Inbound -band $settingsToFetch)
+    {& $addSetting "Inbound.json" "Inbound"}
+
+    if([SM365.AvailableTransportRuleSettings]::Outbound -band $settingsToFetch)
+    {& $addSetting "Outbound.json" "Outbound"}
+
+    # Deactivated, because it seems unnecessary
+    # if([SM365.AvailableTransportRuleSettings]::Internal -band $settingsToFetch)
+    # {& $addSetting "Internal.json" "Internal"}
+
+    # Return the array in reverse SMPriority order, so that they can be created with the
+    # same priority, i.e.:
+    # New-TransportRule @param -Priority 3
+    # But via this sorting, an SMPriority 0 rule will actually be at the top (but at priority 3).
+    $ret | Sort-Object -Property SMPriority -Descending
 }
 
 # SIG # Begin signature block
