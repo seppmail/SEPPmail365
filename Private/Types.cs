@@ -8,7 +8,8 @@ namespace SM365
     public enum ConfigVersion
     {
         None,
-        Default
+        Default,
+        Latest = Default
     }
 
     // Where should new transport rules be placed, if there are already existing ones
