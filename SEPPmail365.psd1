@@ -12,7 +12,7 @@
 RootModule = 'SEPPmail365.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.0.2'
+ModuleVersion = '1.1.0'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Desktop')
@@ -84,7 +84,8 @@ FunctionsToExport = @(
     'Remove-SM365Rules'
     'Backup-SM365Connectors'
     'Backup-SM365Rules'
-    'New-SM365ExOReport'
+    'New-SM365ExOReport',
+    'Test-SM365ConnectionStatus'
     )
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
@@ -143,6 +144,12 @@ PrivateData = @{
 18.8.20     0.9.2 Improved error handling, connector output, new CmdLet Remove-SM365Connectors
 
 26.8.20     1.0.0 Fixing final issues and ready to release.
+
+03.12.20    1.1.0 Incoming mails don't land in Junk folders anymore.
+                  Add Set-SM365Connectors and Set-SM365Rules CmdLets to update configuration.
+                  Add Remove-SM365Connectors and Remove-SM365Rules CmdLets.
+
+                  Add detailed documentation (HTML and Markdown) on Github Page.
 '@
 
         # Prerelease string of this module
