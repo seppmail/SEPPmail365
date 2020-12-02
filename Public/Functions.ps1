@@ -456,6 +456,23 @@ function Set-SM365Connectors
         {throw [System.Exception] "No existing SEPPmail inbound connector found"}
         else
         {
+            if($SetDefaults)
+            {
+                # make sure we only add to existing EFSkipIPs, if defaults are requested
+                $existingSMInboundConn.EFSkipIPs | % {
+                    if ($inbound.EFSkipIPs -notcontains $_)
+                    { $inbound.EFSkipIPs.Add($_) }
+                }
+
+                # make sure the appliance itself is registered in EFSkipIPs, if defaults are requested
+                [System.Net.Dns]::GetHostAddresses($existingSMInboundConn.TlsSenderCertificateName) | % {
+                    if ($existingSMInboundConn.EFSkipIPs -notcontains $_.IPAddressToString) {
+                        Write-Verbose "Appliance IP is not in EFSkipIPs - adding..."
+                        $inbound.EFSkipIPs.Add($_.IPAddressToString)
+                    }
+                }
+            }
+
             $param = $inbound.ToHashtable("Update")
             Write-Verbose "Updating SEPPmail Inbound Connector $($param.Name)!"
             if ($PSCmdLet.ShouldProcess($inbound.Name, "Updating Inbound Connector")) {
@@ -671,7 +688,11 @@ function Set-SM365Rules
     (
         [Parameter(Mandatory=$false,
                    HelpMessage='Which configuration version to use')]
-        [SM365.ConfigVersion] $Version = [SM365.ConfigVersion]::Default
+        [SM365.ConfigVersion] $Version = [SM365.ConfigVersion]::Default,
+
+        [Parameter(Mandatory=$false,
+                   HelpMessage='Should missing rules be created')]
+        [switch] $FixMissing
     )
 
     begin
@@ -691,16 +712,29 @@ function Set-SM365Rules
         {
             Get-SM365TransportRuleSettings | %{
                 $setting = $_
-                $parameters = $setting.ToHashtable("Update")
+                $rule = Get-TransportRule $setting.Name -ErrorAction SilentlyContinue
 
-                if ($PSCmdlet.ShouldProcess($setting.Name, "Update transport rule"))
+                if ($rule -and $PSCmdlet.ShouldProcess($setting.Name, "Update transport rule"))
                 {
+                    $parameters = $setting.ToHashtable("Update")
+
                     Write-Debug "Transport rule settings:"
                     $parameters.GetEnumerator() | % {
                         Write-Debug "$($_.Key) = $($_.Value)"
                     }
 
                     Set-TransportRule @parameters
+                }
+                elseif($PSCmdlet.ShouldProcess($setting.Name, "Create missing transport rule"))
+                {
+                    $parameters = $setting.ToHashtable()
+
+                    Write-Debug "Transport rule settings:"
+                    $parameters.GetEnumerator() | % {
+                        Write-Debug "$($_.Key) = $($_.Value)"
+                    }
+
+                    New-TransportRule @parameters
                 }
             }
         }
