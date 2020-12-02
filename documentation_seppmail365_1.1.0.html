@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- 2020-11-27 Fr 15:12 -->
+<!-- 2020-12-02 Mi 17:04 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SEPPmail365 Documentation</title>
@@ -283,35 +283,30 @@ for the JavaScript code in this tag.
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org70f3991">1. Abstract</a></li>
-<li><a href="#orgcff87da">2. Prerequisites</a></li>
-<li><a href="#org1493833">3. Module Installation</a></li>
-<li><a href="#orga2a2c77">4. Preparation</a></li>
-<li><a href="#org9ac8e42">5. Exchange Online Settings</a>
+<li><a href="#orga00dd5d">1. Abstract</a></li>
+<li><a href="#org5cb10f5">2. Prerequisites</a></li>
+<li><a href="#orgd611cd9">3. Module Installation</a></li>
+<li><a href="#org0ec6ba4">4. Preparation</a></li>
+<li><a href="#orgb71bdd2">5. SEPPmail365 CmdLets</a>
 <ul>
-<li><a href="#orgc710bce">5.1. Connectors</a>
-<ul>
-<li><a href="#org16af902">5.1.1. Inbound</a></li>
-<li><a href="#orgc587b85">5.1.2. Outbound</a></li>
+<li><a href="#org23abedb">5.1. Test-SM365ConnectionStatus</a></li>
+<li><a href="#org48cdd84">5.2. New-SM365Connectors</a></li>
+<li><a href="#org35ac163">5.3. Set-SM365Connectors</a></li>
+<li><a href="#orgf42cf65">5.4. Remove-SM365Connectors</a></li>
+<li><a href="#orga9f3bcc">5.5. New-SM365Rules</a></li>
+<li><a href="#org24acbb8">5.6. Set-SM365Rules</a></li>
+<li><a href="#orgf603d2f">5.7. Remove-SM365Rules</a></li>
+<li><a href="#orgfbd8274">5.8. Backup-SM365Connectors</a></li>
+<li><a href="#org6db84f0">5.9. Backup-SM365Rules</a></li>
+<li><a href="#orgbeba2e2">5.10. New-SM365ExOReport</a></li>
 </ul>
 </li>
-<li><a href="#org721bd41">5.2. Transport Rules</a></li>
-</ul>
-</li>
-<li><a href="#org8807ea2">6. SEPPmail365 CmdLets</a>
+<li><a href="#orgd5cb07d">6. Examples</a>
 <ul>
-<li><a href="#orgc97c35e">6.1. New-SM365Connectors</a></li>
-<li><a href="#org9a635c3">6.2. Set-SM365Connectors</a></li>
-<li><a href="#org77be640">6.3. Remove-SM365Connectors</a></li>
-<li><a href="#org7c50f23">6.4. New-SM365Rules</a></li>
-<li><a href="#orgfe947cf">6.5. Set-SM365Rules</a></li>
-<li><a href="#org2c1c103">6.6. Remove-SM365Rules</a></li>
-<li><a href="#org95577ba">6.7. Backup-SM365Connectors</a></li>
-<li><a href="#orga92eb8b">6.8. Backup-SM365Rules</a></li>
-<li><a href="#orgec82fda">6.9. New-SM365ExOReport</a></li>
+<li><a href="#org44e183a">6.1. First Use</a></li>
+<li><a href="#orgc77f30f">6.2. Upgrading from a previous version</a></li>
 </ul>
 </li>
-<li><a href="#org28c5b24">7. Examples</a></li>
 </ul>
 </div>
 </nav>
@@ -508,8 +503,8 @@ document.body.prepend(img);
 <p id="document-version">Module Version: 1.1.0<br>
 <a href="https://www.seppmail.ch">SEPPmail Home Page</a></p>
 
-<div id="outline-container-org70f3991" class="outline-2">
-<h2 id="org70f3991"><span class="section-number-2">1</span> Abstract</h2>
+<div id="outline-container-orga00dd5d" class="outline-2">
+<h2 id="orga00dd5d"><span class="section-number-2">1</span> Abstract</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 The SEPPmail365 PowerShell module helps customers and partners to smoothly integrate<br>
@@ -531,8 +526,8 @@ current state of the environment.<br>
 </div>
 </div>
 
-<div id="outline-container-orgcff87da" class="outline-2">
-<h2 id="orgcff87da"><span class="section-number-2">2</span> Prerequisites</h2>
+<div id="outline-container-org5cb10f5" class="outline-2">
+<h2 id="org5cb10f5"><span class="section-number-2">2</span> Prerequisites</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 The module requires at least PowerShell 5.1 (64bit) and the<br>
@@ -545,8 +540,8 @@ Future versions of the <a href="https://www.powershellgallery.com/packages/Excha
 </div>
 </div>
 
-<div id="outline-container-org1493833" class="outline-2">
-<h2 id="org1493833"><span class="section-number-2">3</span> Module Installation</h2>
+<div id="outline-container-orgd611cd9" class="outline-2">
+<h2 id="orgd611cd9"><span class="section-number-2">3</span> Module Installation</h2>
 <div class="outline-text-2" id="text-3">
 <p>
 Installing the module is as easy as executing:<br>
@@ -570,8 +565,8 @@ execute:<br>
 </div>
 </div>
 
-<div id="outline-container-orga2a2c77" class="outline-2">
-<h2 id="orga2a2c77"><span class="section-number-2">4</span> Preparation</h2>
+<div id="outline-container-org0ec6ba4" class="outline-2">
+<h2 id="org0ec6ba4"><span class="section-number-2">4</span> Preparation</h2>
 <div class="outline-text-2" id="text-4">
 <p>
 Prior to using this module you need to connect to your Exchange Online<br>
@@ -600,143 +595,9 @@ authentication is enabled for your account or not:<br>
 </div>
 </div>
 
-<div id="outline-container-org9ac8e42" class="outline-2">
-<h2 id="org9ac8e42"><span class="section-number-2">5</span> Exchange Online Settings</h2>
+<div id="outline-container-orgb71bdd2" class="outline-2">
+<h2 id="orgb71bdd2"><span class="section-number-2">5</span> SEPPmail365 CmdLets</h2>
 <div class="outline-text-2" id="text-5">
-</div>
-<div id="outline-container-orgc710bce" class="outline-3">
-<h3 id="orgc710bce"><span class="section-number-3">5.1</span> Connectors</h3>
-<div class="outline-text-3" id="text-5-1">
-<p>
-For the setup to work, two connectors have to be created.<br>
-An inbound connector (routing from the SEPPmail appliance(s) to Exchange Online)<br>
-and an outbound connector (routing from Exchange Online to the SEPPmail<br>
-appliance(s))<br>
-</p>
-
-<p>
-Please note, that the terms <i>inbound</i> and <i>outbound</i> are used from an Exchange<br>
-Online point of view, i.e an inbound connector specifies how a connection from<br>
-an external entity is made to Exchange.<br>
-If you're looking at the terms from a mail flow point of view, they are actually<br>
-reversed (i.e. an inbound connector routes outgoing mails).<br>
-</p>
-</div>
-
-<div id="outline-container-org16af902" class="outline-4">
-<h4 id="org16af902"><span class="section-number-4">5.1.1</span> Inbound</h4>
-<div class="outline-text-4" id="text-5-1-1">
-<p>
-Exchange Online CmdLet: <a href="https://docs.microsoft.com/en-us/powershell/module/exchange/new-inboundconnector?view=exchange-ps">New-InboundConnector</a><br>
-SEPPmail CmdLet: <a href="#orgc97c35e">New-SM365Connectors</a><br>
-</p>
-
-<p>
-<b>Parameters in Use:</b><br>
-</p>
-
-<p>
-<code>-AssociatedAcceptedDomains</code><br>
-Restricts sender domains, the connector accepts mails from.<br>
-Set via: <code>-SenderDomains</code><br>
-Default: <code>$null</code><br>
-</p>
-
-<p>
-<code>-SenderDomains</code><br>
-Restricts sender domains, the connector accepts mails from.<br>
-Set via: <code>-SenderDomains</code><br>
-Default: <code>*</code><br>
-</p>
-
-<p>
-<code>-ConnectorSource</code><br>
-Specifies how the connector has been created.<br>
-Set via: &lt;none&gt;<br>
-Default: <code>Default</code> (meaning <i>manually created</i>)<br>
-</p>
-
-<p>
-<code>-ConnectorType</code><br>
-Specifies if the connector handles mails external or internal to your<br>
-organization.<br>
-Set via: &lt;none&gt;<br>
-Default: <code>OnPremises</code><br>
-</p>
-
-<p>
-<code>-EFSkipIPs</code><br>
-IPs for which enhanced filtering should be skipped.<br>
-Set via: <code>-TrustedIPs</code><br>
-Default: <code>$null</code><br>
-</p>
-
-<p>
-<code>-EFSkipLastIP</code><br>
-Automatically skips enhanced filtering the last connecting IP.<br>
-Set to <code>$false</code> if the parameter <code>-TrustedIPs</code> is used.<br>
-Set via: &lt;none&gt;<br>
-Default: <code>$true</code><br>
-</p>
-
-<p>
-<code>-EFUsers</code><br>
-Specifies recipients that enhanced filtering applies to.<br>
-Set via: &lt;none&gt;<br>
-Default: <code>$null</code> (applies to all recipients)<br>
-</p>
-
-<p>
-<code>-RequireTls</code><br>
-TLS transmission is required for this connector.<br>
-Set via: &lt;none&gt;<br>
-Default: <code>$true</code><br>
-</p>
-
-<p>
-<code>-RestrictDomainsToCertificate</code><br>
-Verify the TLS certificate's subject.<br>
-Set via: &lt;none&gt;<br>
-Default: <code>$true</code><br>
-</p>
-
-<p>
-<code>-RestrictDomainsToIPAddresses</code><br>
-Restrict incoming connections to these IP addresses.<br>
-Set via: &lt;none&gt;<br>
-Default: <code>$false</code><br>
-</p>
-
-<p>
-<code>-TlsSenderCertificateName</code><br>
-The subject of the SEPPmail appliance's TLS certificate.<br>
-Set via: <code>-SEPPmailFQDN</code> or <code>-InboundTlsDomain</code><br>
-Default: &lt;none&gt;<br>
-</p>
-
-<p>
-<code>-CloudServicesMailEnabled</code><br>
-Specifies, that this connector is used for hybrid mail flow, thus preserving<br>
-internal Microsoft headers.<br>
-Set via: &lt;none&gt;<br>
-Default: <code>$true</code><br>
-</p>
-</div>
-</div>
-
-<div id="outline-container-orgc587b85" class="outline-4">
-<h4 id="orgc587b85"><span class="section-number-4">5.1.2</span> Outbound</h4>
-</div>
-</div>
-
-<div id="outline-container-org721bd41" class="outline-3">
-<h3 id="org721bd41"><span class="section-number-3">5.2</span> Transport Rules</h3>
-</div>
-</div>
-
-<div id="outline-container-org8807ea2" class="outline-2">
-<h2 id="org8807ea2"><span class="section-number-2">6</span> SEPPmail365 CmdLets</h2>
-<div class="outline-text-2" id="text-6">
 <p>
 Version specific configuration can be requested via the <code>-Version</code> parameter.<br>
 </p>
@@ -748,9 +609,39 @@ All CmdLets support the PowerShell <a href="https://docs.microsoft.com/en-us/pow
 </p>
 </div>
 
-<div id="outline-container-orgc97c35e" class="outline-3">
-<h3 id="orgc97c35e"><span class="section-number-3">6.1</span> New-SM365Connectors</h3>
-<div class="outline-text-3" id="text-6-1">
+<div id="outline-container-org23abedb" class="outline-3">
+<h3 id="org23abedb"><span class="section-number-3">5.1</span> Test-SM365ConnectionStatus</h3>
+<div class="outline-text-3" id="text-5-1">
+<p>
+<b>Synopsis:</b><br>
+Internally used to check whether the user is connected to Exchange Online, and<br>
+trigger the respective login prompt, if it is an interactive session.<br>
+</p>
+
+<p>
+Returns <code>$true/$false</code> depending on whether the user is connected or not, or<br>
+throws an exception if the ExchangeOnlineManagement module could not be found.<br>
+</p>
+
+<p>
+<b>Parameter List:</b><br>
+None<br>
+</p>
+
+<p>
+<b>Examples:</b><br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-powershell"><span class="org-function-name">Test-SM365ConnectionStatus</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org48cdd84" class="outline-3">
+<h3 id="org48cdd84"><span class="section-number-3">5.2</span> New-SM365Connectors</h3>
+<div class="outline-text-3" id="text-5-2">
 <p>
 <b>Synopsis:</b><br>
 Two connectors are required to route mail flow between the SEPPmail appliance<br>
@@ -765,9 +656,8 @@ The FQDN your SEPPmail appliance is reachable under.<br>
 
 <p>
 <code>-TrustedIPs [string[]] (optional)</code><br>
-If multiple SEPPmail appliances are in use, specify their IP addresses here, to<br>
-exempt them from enhanced filtering (corresponds to the parameter <code>-EFSkipIPs</code><br>
-of <a href="https://docs.microsoft.com/en-us/powershell/module/exchange/new-inboundconnector?view=exchange-ps">New-InboundConnector</a>).<br>
+The IP address(es) of your SEPPmail appliance(s). If not provided, the CmdLet<br>
+will attempt to resolve the <code>-SEPPmailFQDN</code> and add the IP addresses automatically.<br>
 </p>
 
 <p>
@@ -784,7 +674,7 @@ External mail domains, the outbound connector will send emails to.<br>
 <code>-TlsDomain [string] (optional)</code><br>
 Subject the SEPPmail appliance's ssl certificate has been issued to.<br>
 Default is to use the SEPPmailFQDN, but in case you're using a wildcard<br>
-certificate you will need this parameter.<br>
+certificate (or the subject differs from the hostname) you will need this parameter.<br>
 This parameter applies to the inbound and outbound connector.<br>
 </p>
 
@@ -833,9 +723,9 @@ want to prepare your environment.<br>
 </div>
 </div>
 
-<div id="outline-container-org9a635c3" class="outline-3">
-<h3 id="org9a635c3"><span class="section-number-3">6.2</span> Set-SM365Connectors</h3>
-<div class="outline-text-3" id="text-6-2">
+<div id="outline-container-org35ac163" class="outline-3">
+<h3 id="org35ac163"><span class="section-number-3">5.3</span> Set-SM365Connectors</h3>
+<div class="outline-text-3" id="text-5-3">
 <p>
 <b>Synopsis:</b><br>
 This CmdLet provides a method of updating the SEPPmail connectors.<br>
@@ -843,50 +733,14 @@ This CmdLet provides a method of updating the SEPPmail connectors.<br>
 
 <p>
 <b>Parameter List:</b><br>
-<code>-SEPPmailFQDN [string] (optional)</code><br>
-The FQDN your SEPPmail appliance is reachable under.<br>
-</p>
-
-<p>
-<code>-TrustedIPs [string[]] (optional)</code><br>
-If multiple SEPPmail appliances are in use, specify their IP addresses here, to<br>
-exempt them from enhanced filtering (corresponds to the parameter <code>-EFSkipIPs</code><br>
-of <a href="https://docs.microsoft.com/en-us/powershell/module/exchange/new-inboundconnector?view=exchange-ps">New-InboundConnector</a>).<br>
-</p>
-
-<p>
-<code>-SenderDomains [string[]] (optional)</code><br>
-Internal mail domains, the inbound connector will take emails from.<br>
-</p>
-
-<p>
-<code>-RecipientDomains [string[]] (optional)</code><br>
-External mail domains, the outbound connector will send emails to.<br>
-</p>
-
-<p>
-<code>-TlsDomain [string] (optional)</code><br>
-Subject the SEPPmail appliance's ssl certificate has been issued to.<br>
-Default is to use the SEPPmailFQDN, but in case you're using a wildcard<br>
-certificate you will need this parameter.<br>
-This parameter applies to the inbound and outbound connector.<br>
-</p>
-
-<p>
-<code>-InboundTlsDomain [string] (optional)</code><br>
-Same as -TlsDomain, but applies only to the inbound connector.<br>
-</p>
-
-<p>
-<code>-OutboundTlsDomain [string] (optional)</code><br>
-Same as -TlsDomain, but applies only to the outbound connector.<br>
+Same as <a href="#org48cdd84">New-SM365Connectors</a>, and additionally:<br>
 </p>
 
 <p>
 <code>-SetDefaults [switch] (optional)</code><br>
 The default behaviour is to only set the provided parameters, but this switch<br>
 causes all other parameters be set to the default values, provided by<br>
-<a href="#orgc97c35e">New-SM365Connectors</a>.<br>
+<a href="#org48cdd84">New-SM365Connectors</a>.<br>
 </p>
 
 <p>
@@ -925,9 +779,9 @@ Sets the connectors to an inactive state.<br>
 </div>
 </div>
 
-<div id="outline-container-org77be640" class="outline-3">
-<h3 id="org77be640"><span class="section-number-3">6.3</span> Remove-SM365Connectors</h3>
-<div class="outline-text-3" id="text-6-3">
+<div id="outline-container-orgf42cf65" class="outline-3">
+<h3 id="orgf42cf65"><span class="section-number-3">5.4</span> Remove-SM365Connectors</h3>
+<div class="outline-text-3" id="text-5-4">
 <p>
 <b>Synopsis:</b><br>
 Removes the SEPPmail inbound and outbound connector.<br>
@@ -958,9 +812,9 @@ No additional parameters.<br>
 </div>
 </div>
 
-<div id="outline-container-org7c50f23" class="outline-3">
-<h3 id="org7c50f23"><span class="section-number-3">6.4</span> New-SM365Rules</h3>
-<div class="outline-text-3" id="text-6-4">
+<div id="outline-container-orga9f3bcc" class="outline-3">
+<h3 id="orga9f3bcc"><span class="section-number-3">5.5</span> New-SM365Rules</h3>
+<div class="outline-text-3" id="text-5-5">
 <p>
 <b>Synopsis:</b><br>
 Creates the required transport rules needed to correctly handle mails from and<br>
@@ -969,6 +823,13 @@ to the SEPPmail appliance.<br>
 
 <p>
 <b>Parameter List:</b><br>
+<code>-PlacementPriority [SM365.PlacementPriority] (optional)</code><br>
+Specifies whether new rules should be put in front or behind existing transport<br>
+rules (if any). If not provided and in an interactive session, the CmdLet will<br>
+ask for this information interactively.<br>
+</p>
+
+<p>
 <code>-Version [ConfigVersion] (optional)</code><br>
 The major version of your SEPPmail appliance. You most likely won't need this<br>
 parameter, but if version specific configuration is required, you will have to<br>
@@ -995,9 +856,9 @@ want to prepare your environment.<br>
 </div>
 </div>
 
-<div id="outline-container-orgfe947cf" class="outline-3">
-<h3 id="orgfe947cf"><span class="section-number-3">6.5</span> Set-SM365Rules</h3>
-<div class="outline-text-3" id="text-6-5">
+<div id="outline-container-org24acbb8" class="outline-3">
+<h3 id="org24acbb8"><span class="section-number-3">5.6</span> Set-SM365Rules</h3>
+<div class="outline-text-3" id="text-5-6">
 <p>
 <b>Synopsis:</b><br>
 Updates the SEPPmail transport rules to the default values, or a specific<br>
@@ -1011,20 +872,26 @@ The major version of your SEPPmail appliance.<br>
 </p>
 
 <p>
+<code>-FixMissing [switch] (optional)</code><br>
+Indicates that missing SEPPmail transport rules should be created with their<br>
+default values.<br>
+</p>
+
+<p>
 <b>Examples:</b><br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-powershell"><span class="org-comment"># update rules to the latest version</span>
-<span class="org-function-name">Set-SM365Rules</span> <span class="org-constant">-Version</span> <span class="org-keyword">Default</span>
+<pre class="src src-powershell"><span class="org-comment"># update rules to the latest version and create missing ones</span>
+<span class="org-function-name">Set-SM365Rules</span> <span class="org-constant">-FixMissing</span>
 </pre>
 </div>
 </div>
 </div>
 
-<div id="outline-container-org2c1c103" class="outline-3">
-<h3 id="org2c1c103"><span class="section-number-3">6.6</span> Remove-SM365Rules</h3>
-<div class="outline-text-3" id="text-6-6">
+<div id="outline-container-orgf603d2f" class="outline-3">
+<h3 id="orgf603d2f"><span class="section-number-3">5.7</span> Remove-SM365Rules</h3>
+<div class="outline-text-3" id="text-5-7">
 <p>
 <b>Synopsis:</b><br>
 Removes the SEPPmail transport rules.<br>
@@ -1047,9 +914,9 @@ The major version of your SEPPmaill appliance.<br>
 </div>
 </div>
 
-<div id="outline-container-org95577ba" class="outline-3">
-<h3 id="org95577ba"><span class="section-number-3">6.7</span> Backup-SM365Connectors</h3>
-<div class="outline-text-3" id="text-6-7">
+<div id="outline-container-orgfbd8274" class="outline-3">
+<h3 id="orgfbd8274"><span class="section-number-3">5.8</span> Backup-SM365Connectors</h3>
+<div class="outline-text-3" id="text-5-8">
 <p>
 <b>Synopsis:</b><br>
 Performs a backup of all connectors found to individual json files for every connector.<br>
@@ -1072,9 +939,9 @@ The folder in which to store the connector information.<br>
 </div>
 </div>
 
-<div id="outline-container-orga92eb8b" class="outline-3">
-<h3 id="orga92eb8b"><span class="section-number-3">6.8</span> Backup-SM365Rules</h3>
-<div class="outline-text-3" id="text-6-8">
+<div id="outline-container-org6db84f0" class="outline-3">
+<h3 id="org6db84f0"><span class="section-number-3">5.9</span> Backup-SM365Rules</h3>
+<div class="outline-text-3" id="text-5-9">
 <p>
 <b>Synopsis:</b><br>
 Performs a backup of all transport rules found to individual json files for<br>
@@ -1098,9 +965,9 @@ The folder in which to store the transport rule information.<br>
 </div>
 </div>
 
-<div id="outline-container-orgec82fda" class="outline-3">
-<h3 id="orgec82fda"><span class="section-number-3">6.9</span> New-SM365ExOReport</h3>
-<div class="outline-text-3" id="text-6-9">
+<div id="outline-container-orgbeba2e2" class="outline-3">
+<h3 id="orgbeba2e2"><span class="section-number-3">5.10</span> New-SM365ExOReport</h3>
+<div class="outline-text-3" id="text-5-10">
 <p>
 <b>Synopsis:</b><br>
 Creates an HTML report about the current Exchange Online environment.<br>
@@ -1124,14 +991,95 @@ Path of the HTML report on disk.<br>
 </div>
 </div>
 
-<div id="outline-container-org28c5b24" class="outline-2">
-<h2 id="org28c5b24"><span class="section-number-2">7</span> Examples</h2>
+<div id="outline-container-orgd5cb07d" class="outline-2">
+<h2 id="orgd5cb07d"><span class="section-number-2">6</span> Examples</h2>
+<div class="outline-text-2" id="text-6">
+</div>
+<div id="outline-container-org44e183a" class="outline-3">
+<h3 id="org44e183a"><span class="section-number-3">6.1</span> First Use</h3>
+<div class="outline-text-3" id="text-6-1">
+<p>
+If you're starting with a clean cloud environment, then you will need to issue<br>
+two commands.<br>
+</p>
+
+<p>
+The first one is to create the required connectors:<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-powershell"><span class="org-variable-name">$seppFqdn</span> = <span class="org-string">"securemail.contoso.com"</span>
+<span class="org-variable-name">$seppIPs</span> = <span class="org-type">[System.Net.Dns]</span>::GetHostAddresses(<span class="org-variable-name">$seppFqdn</span>) | %{<span class="org-builtin">$_</span>.IPAddressToString}
+<span class="org-variable-name">$tlsDomain</span> = <span class="org-variable-name">$seppFqdn</span> <span class="org-comment"># change this if the SSL certificate's subject differs from the hostname</span>
+
+<span class="org-comment"># change this if you're using separate appliances for sending/receiving to/from Exchange Online</span>
+<span class="org-variable-name">$inboundTlsDomain</span> = <span class="org-variable-name">$tlsDomain</span> 
+<span class="org-variable-name">$outboundTlsDomain</span> = <span class="org-variable-name">$tlsDomain</span>
+
+<span class="org-function-name">New-SM365Connectors</span> `
+  <span class="org-constant">-SEPPmailFQDN</span> <span class="org-variable-name">$seppFqdn</span> `
+  <span class="org-constant">-TrustedIPs</span> <span class="org-variable-name">$seppIPs</span> `
+  <span class="org-constant">-InboundTlsDomain</span> <span class="org-variable-name">$inboundTlsDomain</span> `
+  <span class="org-constant">-OutboundTlsDomain</span> <span class="org-variable-name">$outboundTlsDomain</span> `
+  <span class="org-constant">-Verbose</span>
+</pre>
+</div>
+
+<p>
+The second one is to create the required transport rules:<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-powershell"><span class="org-comment"># No more parameters required (:</span>
+<span class="org-function-name">New-SM365Rules</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgc77f30f" class="outline-3">
+<h3 id="orgc77f30f"><span class="section-number-3">6.2</span> Upgrading from a previous version</h3>
+<div class="outline-text-3" id="text-6-2">
+<p>
+Usually it should be enough to upgrade the settings of existing connectors and<br>
+transport rules to the newest version like this:<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-powershell"><span class="org-comment"># This will update the connectors to the latest settings.</span>
+<span class="org-comment"># If you have to change additional settings you can just append parameters as used by New-SM365Connectors</span>
+<span class="org-comment"># The CmdLet will then combine the default and your settings.</span>
+<span class="org-function-name">Set-SM365Connectors</span> <span class="org-constant">-SetDefaults</span> <span class="org-constant">-Verbose</span>
+</pre>
+</div>
+
+<p>
+After that you will have to ugprade the transport rules to the newest version:<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-powershell"><span class="org-comment"># -FixMissing causes non existent rules to be created with default settings</span>
+<span class="org-function-name">Set-SM365Rules</span> <span class="org-constant">-FixMissing</span> <span class="org-constant">-Verbose</span>
+</pre>
+</div>
+
+<p>
+Your environment has now been upgraded to the newest version.<br>
+If you're experiencing problems, or the upgrade doesn't work, you will<br>
+unfortunately have to delete the connectors and rules and create them again.<br>
+</p>
+
+<p>
+If that still doesn't work, please leave us a bug report!<br>
+</p>
+</div>
+</div>
 </div>
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Max Domhardt</p>
 <p class="email">Email: <a href="mailto:domhardt@seppmail.ch">domhardt@seppmail.ch</a></p>
-<p class="date">Created: 2020-11-27 Fr 15:12</p>
+<p class="date">Created: 2020-12-02 Mi 17:04</p>
 </div>
 </body>
 </html>
