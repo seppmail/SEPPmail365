@@ -1,0 +1,18 @@
+{
+    "Name"                  : "[SEPPmail] - Skip SPF check after incoming appliance routing",
+    "Comments"              : "Disables SPF check after an incoming mail has been routed to the SEPPmail appliance.",
+    "SMPriority"            : 3,
+
+    "Version":
+    {
+        "Default":
+        {
+            "HeaderContainsMessageHeader" : "X-SM-Incoming",
+            "HeaderContainsWords"         : "yes",
+            "SetAuditSeverity"            : "DoNotAudit",
+            "Mode"                        : "Enforce",
+            "SenderAddressLocation"       : "Header",
+            "Priority"                    : 0
+        }
+    }
+}
