@@ -200,6 +200,8 @@ namespace SM365
         public int Priority {get; set;}
         public int SMPriority {get; set;} // used to determine order of SM365 rules
 
+        public int? SetSCL {get; set;}
+
         public string Comments {get; set;}
         public string FromScope {get; set;}
         public string SentToScope {get; set;}
@@ -227,6 +229,9 @@ namespace SM365
                 ret["Enabled"] = Enabled; // invalid for set
                 ret["Priority"] = Priority; // changing priority might be dangerous on set
             }
+
+            if(SetSCL.HasValue)
+                ret["SetSCL"] = SetSCL.Value;
 
             if(!string.IsNullOrEmpty(Comments))
                 ret["Comments"] = Comments;

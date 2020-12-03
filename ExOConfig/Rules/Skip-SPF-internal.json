@@ -9,6 +9,7 @@
         {
             "HeaderContainsMessageHeader" : "X-SM-Internal",
             "HeaderContainsWords"         : "yes",
+            "SetSCL"                      : -1,
             "SetAuditSeverity"            : "DoNotAudit",
             "Mode"                        : "Enforce",
             "SenderAddressLocation"       : "Header",
