@@ -12,7 +12,7 @@
 RootModule = 'SEPPmail365.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.1.0'
+ModuleVersion = '1.1.1'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Desktop')
@@ -150,6 +150,8 @@ PrivateData = @{
                   Add Remove-SM365Connectors and Remove-SM365Rules CmdLets.
 
                   Add detailed documentation (HTML and Markdown) on Github Page.
+
+04.12.20    1.1.1 Minor fix - add missing action to new transport rules.
 '@
 
         # Prerelease string of this module
