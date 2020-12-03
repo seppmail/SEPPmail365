@@ -1,16 +1,23 @@
 {
     "Name"                                : "[SEPPmail] - Route incoming/internal Mails to SEPPmail",
-    "Comments"                            : "Mails sent from outside the organization and have not been sent through SEPPmail are sent to the appliance for sig/enc processing.",
-    "FromScope"                           : "NotInOrganization",
-    "SentToScope"                         : "InOrganization",
-    "RouteMessageOutboundConnector"       : "outboundConnName",
-    "ExceptIfHeaderMatchesMessageHeader"  : "X-SM-internal",
-    "ExceptIfHeaderMatchesPatterns"       : "yes",
-    "ExceptIfHeaderContainsMessageHeader" : "X-SM-incoming",
-    "ExceptIfHeaderContainsWords"         : "yes",
-    "Priority"                            : 0,
-    "SetAuditSeverity"                    : "DoNotAudit",
-    "Mode"                                : "Enforce",
-    "SenderAddressLocation"               : "Header",
-    "Enabled"                             : true
+    "Comments": "Mails sent from outside the organization and have not been sent through SEPPmail are sent to the appliance for sig/enc processing.",
+    "RouteMessageOutboundConnector": "[SEPPmail] ExchangeOnline -> Appliance",
+    "SMPriority": 0,
+
+    "Version":
+    {
+        "Default" :
+        {
+            "FromScope": "NotInOrganization",
+            "SentToScope": "InOrganization",
+            "ExceptIfHeaderMatchesMessageHeader": "X-SM-internal",
+            "ExceptIfHeaderMatchesPatterns": "yes",
+            "ExceptIfHeaderContainsMessageHeader": "X-SM-incoming",
+            "ExceptIfHeaderContainsWords": "yes",
+            "Priority": 0,
+            "SetAuditSeverity": "DoNotAudit",
+            "Mode": "Enforce",
+            "SenderAddressLocation": "Header"
+        }
+    }
 }

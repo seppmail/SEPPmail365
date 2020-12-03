@@ -1,18 +1,64 @@
-[CmdLetBinding()]
+# PS5 Enums and Classes are still kinda broken (especially the export).
+# So, in order to achieve widest range compatibility, we use classical C# defined types.
+Add-Type -Path $PSScriptRoot\Types.cs -Verbose:$false -Debug:$false
 
-$ModulePath = $PSScriptRoot
+###############################################################
+# array
+#
+#  Convenience function that creates a strongly typed generic
+#  list if a type is specified, or a generic ArrayList that
+#  is capable of holding any value if none is specified.
+#
+#  Strongly typed lists should be preferred over generic
+#  PowerShell arrays (like @()) because they provide a
+#  performance benefit.
+#
+# Parameters:
+#  -Type [string]
+#    The type that should be stored in the list
+#
+#  -Capacity [int]
+#    Specifies the initial amount of elements the list should
+#    be capable of holding without allocating new memory
+#
+#  -ArgumentList [object[]]
+#    Not implemented
+#
+#  -AsString [switch]
+#    Causes the function to return the string that would be
+#    used to create the object with the New-Object CmdLet
+#
+# Output:
+#    [System.Collections.Generic.List[$Type]]
+#    [System.Collections.ArrayList]
+#    [string]
+#
+#--------------------------------------------------------------
 
-. $ModulePath\Public\Functions.ps1
+Function array
+{
+    Param
+    (
+        [string]   $Type,
+        [int]      $Capacity = 10,
+        [Object[]] $ArgumentList,
+        [switch]   $AsString
+    )
 
-If (!(Get-Module -Name 'tmp_*')) {
-    Write-Warning "It seems you are not connected to Exchange Online. Connect using 'Connect-ExchangeOnline'"
+    if ($AsString)
+    { return "System.Collections.Generic.List[$Type]" }
+
+    if ($Type)
+    { return New-Object System.Collections.Generic.List[$Type]($Capacity) }
+    else
+    { return New-Object System.Collections.ArrayList($Capacity) }
 }
 
 # SIG # Begin signature block
 # MIIL1wYJKoZIhvcNAQcCoIILyDCCC8QCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUu7MmsJztZsDVjk35hteDh2Ly
-# S6uggglAMIIEmTCCA4GgAwIBAgIQcaC3NpXdsa/COyuaGO5UyzANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUr7be1gPY5AXQmuT07zX/UNCj
+# AvSggglAMIIEmTCCA4GgAwIBAgIQcaC3NpXdsa/COyuaGO5UyzANBgkqhkiG9w0B
 # AQsFADCBqTELMAkGA1UEBhMCVVMxFTATBgNVBAoTDHRoYXd0ZSwgSW5jLjEoMCYG
 # A1UECxMfQ2VydGlmaWNhdGlvbiBTZXJ2aWNlcyBEaXZpc2lvbjE4MDYGA1UECxMv
 # KGMpIDIwMDYgdGhhd3RlLCBJbmMuIC0gRm9yIGF1dGhvcml6ZWQgdXNlIG9ubHkx
@@ -66,11 +112,11 @@ If (!(Get-Module -Name 'tmp_*')) {
 # NiBDb2RlIFNpZ25pbmcgQ0ECEF0xOuf5lHR9Mf0X/F6tAjYwCQYFKw4DAhoFAKB4
 # MBgGCisGAQQBgjcCAQwxCjAIoAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQB
 # gjcCAQQwHAYKKwYBBAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkE
-# MRYEFHkDRQLJ5HymPpCPRAK99oSRXyWfMA0GCSqGSIb3DQEBAQUABIIBAI4IKnO+
-# zdeyA7lXge1UPdVitkqkYIVmNk0PpRr3i9NHQCMfLvc9XII2VWDsi6UyUW2GT/pc
-# IX85ANsHzbwPm5QSzkjf9409Cb3N6dLVUvpf4H9jOPTraGHeaBzz+j/2POYBEzIU
-# XRHEg7cIL6lDKXrlF20FVYD5tdYLauVho0Be/4dVlBnXe+9u86U2O15C8yCjq6fg
-# emBkrPS4OXr3GR4XqBD2+cfwIacTwOk9PHA1z5UM4pMlOYev5B1A083i8ZvYxg4b
-# cwgXPMRIC9lu+j7qlWJ3grm2JiE+Sp6xVwdsQih+U9jzFuhQeZaW6LtfD1w4givo
-# 6ici/onVLJsXkk0=
+# MRYEFKuIvlBWLNJW1LGktEvekwmD7IHbMA0GCSqGSIb3DQEBAQUABIIBAC40H33c
+# va4sA2W3yWBRY6x+A8GKqd+/FHrUw90GIWMeRW+P7VGq2Pg/I8VX3ZA449hh+0uB
+# z+PtsYWtDjii2c8dMM2MBVgDRG47Ln40BWKKpLJM/vlhCrftxBM7JsTj+izgrIYx
+# l6mZQWdnTmX8lnySXCz1xaJr5h0ATnpMheWa6U4EkIilcApU3YAKoBuqatsJJZCV
+# S/pTC6ZLxWMrqAtyE30Ap4NEBoya9nrm2xbzHN4hIoy2N71+oKV1BgqylXoyXdYj
+# G16dDBzK3+Od0YY13FLf9qp+XQUCGWewpfFWfkCtmzAZvod4RV2SznEmWlIz+A/O
+# yiaGvzmxXUD4Utw=
 # SIG # End signature block

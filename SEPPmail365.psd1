@@ -12,7 +12,7 @@
 RootModule = 'SEPPmail365.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.0.1'
+ModuleVersion = '1.1.0'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Desktop')
@@ -21,7 +21,7 @@ CompatiblePSEditions = @('Desktop')
 GUID = '485013db-02ab-4bf7-9161-7119e152c297'
 
 # Author of this module
-Author = 'Roman Stadlmair, Max Mueller-Domhardt'
+Author = 'Roman Stadlmair, Max Domhardt'
 
 # Company or vendor of this module
 CompanyName = 'SEPPmail AG'
@@ -77,8 +77,15 @@ RequiredModules = @(
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = @(    
     'New-SM365Connectors'
+    'Set-SM365Connectors'
+    'Remove-SM365Connectors'
     'New-SM365Rules'
-    'New-SM365ExOReport'
+    'Set-SM365Rules'
+    'Remove-SM365Rules'
+    'Backup-SM365Connectors'
+    'Backup-SM365Rules'
+    'New-SM365ExOReport',
+    'Test-SM365ConnectionStatus'
     )
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
@@ -137,6 +144,12 @@ PrivateData = @{
 18.8.20     0.9.2 Improved error handling, connector output, new CmdLet Remove-SM365Connectors
 
 26.8.20     1.0.0 Fixing final issues and ready to release.
+
+03.12.20    1.1.0 Incoming mails don't land in Junk folders anymore.
+                  Add Set-SM365Connectors and Set-SM365Rules CmdLets to update configuration.
+                  Add Remove-SM365Connectors and Remove-SM365Rules CmdLets.
+
+                  Add detailed documentation (HTML and Markdown) on Github Page.
 '@
 
         # Prerelease string of this module
@@ -162,8 +175,8 @@ PrivateData = @{
 # SIG # Begin signature block
 # MIIL1wYJKoZIhvcNAQcCoIILyDCCC8QCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUJyBRUOOTenj6d99PNMXydo8s
-# BXGggglAMIIEmTCCA4GgAwIBAgIQcaC3NpXdsa/COyuaGO5UyzANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUBNMkfiJLyhgqPYCVar+k5y8f
+# 7oqggglAMIIEmTCCA4GgAwIBAgIQcaC3NpXdsa/COyuaGO5UyzANBgkqhkiG9w0B
 # AQsFADCBqTELMAkGA1UEBhMCVVMxFTATBgNVBAoTDHRoYXd0ZSwgSW5jLjEoMCYG
 # A1UECxMfQ2VydGlmaWNhdGlvbiBTZXJ2aWNlcyBEaXZpc2lvbjE4MDYGA1UECxMv
 # KGMpIDIwMDYgdGhhd3RlLCBJbmMuIC0gRm9yIGF1dGhvcml6ZWQgdXNlIG9ubHkx
@@ -217,11 +230,11 @@ PrivateData = @{
 # NiBDb2RlIFNpZ25pbmcgQ0ECEF0xOuf5lHR9Mf0X/F6tAjYwCQYFKw4DAhoFAKB4
 # MBgGCisGAQQBgjcCAQwxCjAIoAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQB
 # gjcCAQQwHAYKKwYBBAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkE
-# MRYEFEtKKnHwiqGsj1AYRF5DMlgNB0kdMA0GCSqGSIb3DQEBAQUABIIBAAirKpWP
-# 7X3GmeghgYUO+wrsWFbhl31ypyUNVcjR81UMtTRNuavyhpGwXdhdwyXknqcQxnCr
-# H7TO6aaBkiDCPfqLFYMP7+6WWEylFcK37ksKCeU6wdEnvAMBmXRaoyf8l4xZr6up
-# njk7JFaiRKLhQPJ+/9Hm9C1A0gOv56sTRzRVi/wvtZwk101A+mh5ssR5vGwYPRTf
-# JKjJvUqw/MPkGTjG2MQuksUxQ/KA8nkICPFqbGuz8F7gYy28CsKkGojsPi3VwDDV
-# vULp3jRJmejoPeswrgViK/jtSPxHxZEn+8mhQviMjY4jeRhiaR2SU9D6b8+t/5M+
-# o9gnLGkVkJUCW0g=
+# MRYEFH1DNb/WpAahQnhF4lt35AxUrOeSMA0GCSqGSIb3DQEBAQUABIIBABlzOsSD
+# tVvAGFSyl3TVWkrPO7FPdXRA1mL8Z+PfOQRXmS5G4ftww50xKQ95Mksg1rrnoCGk
+# M7Xce7dKVqsRlNFnSP/xBc0K5F24zVosVhGvzfuupbADRuKxvejj3xyYkmcoXYVs
+# qeeB7zqltGS/LG8ocbyGdhjyQj24BEKMdaNZgoRAhRTAxKIC2wYwB0aM0QvsVcYr
+# iwvZH+Lo6GgkcaS3ih7knmy6pdJVCMSDERfWC6UBKeqv7YpLQyyXLQsiMgbkhhhD
+# duW54L/P63y4sdau8sMygp9OLltUQQDDcqwYUX7yKrHqhT+OqSoNybtaMHIervDF
+# IOkw2Hd2GwRg5Jw=
 # SIG # End signature block
