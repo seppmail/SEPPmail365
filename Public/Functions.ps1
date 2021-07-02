@@ -1013,8 +1013,8 @@ function New-SM365ExOReport {
 
             # Find out possible Sending Limits for LFT
             Write-Verbose "Collecting Send and Receive limits for SEPPmail LFT configuration"
-            $hN = '<p><h2>Send and Receive limits (for SEPPmail LFT configuration)</h2><p>'
-            $N = Get-TransportConfig |Select-Object MaxSendSize,MaxReceiveSize |Convertto-HTML -Fragment
+            $hP = '<p><h2>Send and Receive limits (for SEPPmail LFT configuration)</h2><p>'
+            $P = Get-TransportConfig |Select-Object MaxSendSize,MaxReceiveSize |Convertto-HTML -Fragment
 
 
             $HeaderLogo = [Convert]::ToBase64String((Get-Content -path $PSScriptRoot\..\HTML\SEPPmailLogo.jpg -encoding byte ))
@@ -1022,7 +1022,7 @@ function New-SM365ExOReport {
 <img src="data:image/jpg;base64,$($HeaderLogo)" style="left:150px alt="Exchange Online System Report">
 "@
             $style = Get-Content $PSScriptRoot\..\HTML\SEPPmailReport.css
-            Convertto-HTML -Body "$LogoHTML $Top $hA $a $hB $b $hC $c $hd $d $e $hF $f $hG $g $hI $i $hJ $j $hK $k $hL $l $hM $m $hN $n $hO $o" -Title "SEPPmail365 Exo Report" -Head $style|Out-File -FilePath $filePath
+            Convertto-HTML -Body "$LogoHTML $Top $hA $a $hB $b $hC $c $hd $d $e $hF $f $hG $g $hI $i $hJ $j $hK $k $hL $l $hM $m $hN $n $hO $o $hP $P" -Title "SEPPmail365 Exo Report" -Head $style|Out-File -FilePath $filePath
 
         }
         catch {
