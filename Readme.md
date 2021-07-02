@@ -25,7 +25,7 @@
 
 </div>
 
-<p id="document-version">Module Version: 1.1.0<br>
+<p id="document-version">Module Version: 1.1.1<br>
 <a href="https://www.seppmail.ch">SEPPmail Home Page</a></p>
 
 
