@@ -12,7 +12,7 @@
 RootModule = 'SEPPmail365.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.1.1'
+ModuleVersion = '1.1.2'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Desktop')
@@ -152,6 +152,8 @@ PrivateData = @{
                   Add detailed documentation (HTML and Markdown) on Github Page.
 
 04.12.20    1.1.1 Minor fix - add missing action to new transport rules.
+
+05.07.21    1.1.2 Minor fix - include transport rules in New-SM365ExOReport
 '@
 
         # Prerelease string of this module
@@ -177,8 +179,8 @@ PrivateData = @{
 # SIG # Begin signature block
 # MIIL1wYJKoZIhvcNAQcCoIILyDCCC8QCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUMSJRFbBKY4qjb3jLKEoPklJM
-# c/SggglAMIIEmTCCA4GgAwIBAgIQcaC3NpXdsa/COyuaGO5UyzANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUSU+C1k8/smU+z4PElJnH1L5W
+# FEqggglAMIIEmTCCA4GgAwIBAgIQcaC3NpXdsa/COyuaGO5UyzANBgkqhkiG9w0B
 # AQsFADCBqTELMAkGA1UEBhMCVVMxFTATBgNVBAoTDHRoYXd0ZSwgSW5jLjEoMCYG
 # A1UECxMfQ2VydGlmaWNhdGlvbiBTZXJ2aWNlcyBEaXZpc2lvbjE4MDYGA1UECxMv
 # KGMpIDIwMDYgdGhhd3RlLCBJbmMuIC0gRm9yIGF1dGhvcml6ZWQgdXNlIG9ubHkx
@@ -232,11 +234,11 @@ PrivateData = @{
 # NiBDb2RlIFNpZ25pbmcgQ0ECEF0xOuf5lHR9Mf0X/F6tAjYwCQYFKw4DAhoFAKB4
 # MBgGCisGAQQBgjcCAQwxCjAIoAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQB
 # gjcCAQQwHAYKKwYBBAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkE
-# MRYEFMv7m/+iHQmvnDFFyRGIWYFQlgOPMA0GCSqGSIb3DQEBAQUABIIBACIwBtIn
-# LQb6cec6yW70BWNDRTGgCXIrdtNOOkHx1Aaz3IwF51mQnSbKsH6j8BBF9MfbA/do
-# ZcZa12HToOvRc9wCxuRJIK8SADZf88KcY0urhr9JsfrU9yZFWwmgBQyeKazafUus
-# tMmbiksV07/z88bb0/gtdCRSFUBaC4PNxAW/33/rrdpzF6hcAuGwZqvfgUiAS9Aa
-# uK4cNsRE0gIOiEN71y19TVG6M/Y+XTy2ZPE/Yr+ZAAH6TwMfLhnVo/saGOjFt1uU
-# LyJdqzFtdsmuSfi7vQogyui7dYaf1pncqRV4KVXIWIPmGVKlbPbcRgFd7nQBUDxn
-# 8/3I5t+yi7P97CU=
+# MRYEFE2JQv5VasdjqSH8A4Q+nXmwk5VFMA0GCSqGSIb3DQEBAQUABIIBAGSL/kDn
+# vi159nNACqSTR3AQ4+kMo4ZgC44Y9G0E8tKQJHRk5rBs3sYrlayDsLjhS1fwfdqH
+# cxkxYiM4spSFJJvgcodLzgLvw9VF1pqeDKNHfadC9gCJUvTnhabVuFG99K3hoc9d
+# zyvtbknfY1Sb1mYQ4AJ6Qt5uzeGdNZXqxHPQ7geAxCQhoV35eQ3skWBodOMcKeYh
+# FgycTxb16LxAhWurHt4GRY64cMoTVwl8ibvpJc5nwmpcHyEHnDy7v9B+guq4Bosy
+# MdoOcsteIiglGTeqw2XwfFQPftDmyeFiMyzF0Rz+wOndK3QrQtwJK9TAhlDHDX4O
+# 3rkSg5Woc5RWDZ8=
 # SIG # End signature block
