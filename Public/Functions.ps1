@@ -1013,8 +1013,8 @@ function New-SM365ExOReport {
 
             # Find out possible Sending Limits for LFT
             Write-Verbose "Collecting Send and Receive limits for SEPPmail LFT configuration"
-            $hN = '<p><h2>Send and Receive limits (for SEPPmail LFT configuration)</h2><p>'
-            $N = Get-TransportConfig |Select-Object MaxSendSize,MaxReceiveSize |Convertto-HTML -Fragment
+            $hP = '<p><h2>Send and Receive limits (for SEPPmail LFT configuration)</h2><p>'
+            $P = Get-TransportConfig |Select-Object MaxSendSize,MaxReceiveSize |Convertto-HTML -Fragment
 
 
             $HeaderLogo = [Convert]::ToBase64String((Get-Content -path $PSScriptRoot\..\HTML\SEPPmailLogo.jpg -encoding byte ))
@@ -1022,7 +1022,7 @@ function New-SM365ExOReport {
 <img src="data:image/jpg;base64,$($HeaderLogo)" style="left:150px alt="Exchange Online System Report">
 "@
             $style = Get-Content $PSScriptRoot\..\HTML\SEPPmailReport.css
-            Convertto-HTML -Body "$LogoHTML $Top $hA $a $hB $b $hC $c $hd $d $e $hF $f $hG $g $hI $i $hJ $j $hK $k $hL $l $hM $m $hN $n $hO $o" -Title "SEPPmail365 Exo Report" -Head $style|Out-File -FilePath $filePath
+            Convertto-HTML -Body "$LogoHTML $Top $hA $a $hB $b $hC $c $hd $d $e $hF $f $hG $g $hI $i $hJ $j $hK $k $hL $l $hM $m $hN $n $hO $o $hP $P" -Title "SEPPmail365 Exo Report" -Head $style|Out-File -FilePath $filePath
 
         }
         catch {
@@ -1035,8 +1035,8 @@ function New-SM365ExOReport {
 # SIG # Begin signature block
 # MIIL1wYJKoZIhvcNAQcCoIILyDCCC8QCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUlgEyxgMpCNYr/cnHtUYDiOnY
-# SEaggglAMIIEmTCCA4GgAwIBAgIQcaC3NpXdsa/COyuaGO5UyzANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUjSpK0tO+zQVpJLG/mAtJm4/E
+# tLGggglAMIIEmTCCA4GgAwIBAgIQcaC3NpXdsa/COyuaGO5UyzANBgkqhkiG9w0B
 # AQsFADCBqTELMAkGA1UEBhMCVVMxFTATBgNVBAoTDHRoYXd0ZSwgSW5jLjEoMCYG
 # A1UECxMfQ2VydGlmaWNhdGlvbiBTZXJ2aWNlcyBEaXZpc2lvbjE4MDYGA1UECxMv
 # KGMpIDIwMDYgdGhhd3RlLCBJbmMuIC0gRm9yIGF1dGhvcml6ZWQgdXNlIG9ubHkx
@@ -1090,11 +1090,11 @@ function New-SM365ExOReport {
 # NiBDb2RlIFNpZ25pbmcgQ0ECEF0xOuf5lHR9Mf0X/F6tAjYwCQYFKw4DAhoFAKB4
 # MBgGCisGAQQBgjcCAQwxCjAIoAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQB
 # gjcCAQQwHAYKKwYBBAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkE
-# MRYEFHwDUG6DCm8sx+gx2WorXm5eTuwUMA0GCSqGSIb3DQEBAQUABIIBABaa3pQ3
-# pT63Nmg9yzjf/I/j5ZXSNsMeE2mcJzhUA5uvMGlwH3jfyAJs7YTfhME5HTlqpj46
-# lMIj1YDVn1lQmTqd5riyenDSttsr6IY9bzR+eynSpYRcAWBTbwZyR3uc4L5ImQds
-# kBsm5Zr7lnmn0F+VLsBQvmJDN7tyIBsDEyNFHkCbYFXaNffXm3NjmT8sZ6NIT8LR
-# jkCdNZxMThlX6/mezUtAzEabOLxQZZDnylR/E5RANCzseKntq9OEw5EoiYMoKxLi
-# 0weWYHNpc6l/d0lZWgog1YdsuWW+NTQYK/HifR8WBYHCL80hf+0Gp0icYmwabPUm
-# qUbj9rD/puD32+U=
+# MRYEFB6ww6gJWZ2nmm38FP+Adeqtzxm2MA0GCSqGSIb3DQEBAQUABIIBADF9FiTi
+# 2aJiZyJrOLxcquFwy1wO74npfUl3kxXEV2mLgEaMFKRPuPodJ+sTnTPSIOmO5dhE
+# WeCpxeY8nLYxkHAVmv1mihBHvndM6WFhJXHLhoJq5T1k56I5aM/1HBvCgpzfSk00
+# ixtz2n/bbJSe348ZJ196ezfQisrUFEyVZjkGv+S0dVNdGUtYyhF76DN5i4Hu1VUT
+# 1qU/84rmpkciMmpl81AwUfXG22MQYSF1MaSYx/hFQxIJrH1htfd9wYJAu4acGgj8
+# xrodiJ3BhUm/4SYEwPB/BBjMgmpyusWonD/O1A064WmgezOvjznPAVmdllFSw5yR
+# TeOPsbq7s7BW3Gg=
 # SIG # End signature block
