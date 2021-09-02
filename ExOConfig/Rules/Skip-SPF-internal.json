@@ -14,6 +14,18 @@
             "Mode"                        : "Enforce",
             "SenderAddressLocation"       : "Header",
             "Priority"                    : 0
+            "Enabled"                     : true
+        },
+        "WithSpf":
+        {
+            "HeaderContainsMessageHeader": "X-SM-Internal",
+            "HeaderContainsWords": "yes",
+            "SetSCL": -1,
+            "SetAuditSeverity": "DoNotAudit",
+            "Mode": "Enforce",
+            "SenderAddressLocation": "Header",
+            "Priority": 0
+            "Enabled": false
         }
     }
 }

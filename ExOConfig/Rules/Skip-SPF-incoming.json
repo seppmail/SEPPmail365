@@ -13,7 +13,19 @@
             "SetAuditSeverity"            : "DoNotAudit",
             "Mode"                        : "Enforce",
             "SenderAddressLocation"       : "Header",
-            "Priority"                    : 0
+            "Priority"                    : 0,
+            "Enabled"                     : true
+        },
+        "WithSpf":
+        {
+            "HeaderContainsMessageHeader": "X-SM-Incoming",
+            "HeaderContainsWords": "yes",
+            "SetSCL": -1,
+            "SetAuditSeverity": "DoNotAudit",
+            "Mode": "Enforce",
+            "SenderAddressLocation": "Header",
+            "Priority": 0,
+            "Enabled": false
         }
     }
 }
