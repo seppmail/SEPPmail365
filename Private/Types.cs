@@ -9,6 +9,7 @@ namespace SM365
     {
         None,
         Default,
+        WithSpf,
         Latest = Default
     }
 
@@ -195,6 +196,7 @@ namespace SM365
         public string Name {get; private set;}
         public ConfigVersion Version {get; private set;}
         public bool Enabled {get; set;}
+        public bool Skip {get; set;}
         public AvailableTransportRuleSettings Type {get; private set;}
 
         public int Priority {get; set;}
