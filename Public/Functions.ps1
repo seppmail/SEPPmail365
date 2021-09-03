@@ -993,15 +993,15 @@ function New-SM365ExOReport {
 
             Write-Verbose "InboundConnectors"
             $hL = '<p><h2>Inbound Connectors</h2><p>'
-            $L = Get-InboundConnector |Select-Object Identity,OrganizationalUnitRootInternal,TlsSenderCertificateName,ConnectorType,ConnectorSource,EFSkipLastIP,EFUsers,IsValid|Convertto-HTML -Fragment
+            $L = Get-InboundConnector |Select-Object Identity,Enabled,OrganizationalUnitRootInternal,TlsSenderCertificateName,ConnectorType,ConnectorSource,EFSkipLastIP,EFUsers,IsValid|Convertto-HTML -Fragment
 
             Write-Verbose "OutboundConnectors"
             $hM = '<p><h2>Outbound Connectors</h2><p>'
-            $M = Get-OutboundConnector|Select-Object Identity,TlsDomain,OriginatingServer,TlsSettings,ConnectorType,ConnectorSource,EFSkipLastIP,EFUsers,IsValid|Convertto-HTML -Fragment
+            $M = Get-OutboundConnector|Select-Object Identity,Enabled,TlsDomain,OriginatingServer,TlsSettings,ConnectorType,ConnectorSource,EFSkipLastIP,EFUsers,IsValid|Convertto-HTML -Fragment
 
             Write-Verbose "TransportRules"
             $hN = '<p><h2>Existing Transport Rules</h2><p>'
-            $N = Get-TransportRule | select-object Name,IsValid,Priority,FromScope,SentToScope,Comments |Convertto-HTML -Fragment
+            $N = Get-TransportRule | select-object Name,Enabled,IsValid,Priority,FromScope,SentToScope,Comments |Convertto-HTML -Fragment
 
             # Get MX Record Report for each domain
             $hO = '<p><h2>MX Record for each Domain</h2><p>'
