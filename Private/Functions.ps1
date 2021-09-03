@@ -68,7 +68,8 @@ function Set-SM365PropertiesFromConfigJson
     }
 
     # Set the version specific properties, except if none has been requested
-    if ($Version -ne [SM365.ConfigVersion]::None) {
+    if ($Version -ne [SM365.ConfigVersion]::None)
+    {
         $json.Version.$Version.psobject.properties | % {
             $InputObject.$($_.Name) = $_.Value
         }
