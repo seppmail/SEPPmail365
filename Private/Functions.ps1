@@ -61,6 +61,12 @@ function Set-SM365PropertiesFromConfigJson
         [SM365.ConfigVersion] $Version
     )
 
+    # use the defaults if the requested version is not supplied (for overriding specific aspects only)
+    if(!$json.Version.$Version)
+    {
+        $Version = [SM365.ConfigVersion]::Default
+    }
+
     # Set all properties that aren't version specific
     $json.psobject.properties | % {
         if ($_.Name -notin @("Version", "Name"))
