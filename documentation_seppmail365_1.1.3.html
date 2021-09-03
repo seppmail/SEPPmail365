@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- 2020-12-02 Mi 17:04 -->
+<!-- 2021-09-02 Do 17:16 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SEPPmail365 Documentation</title>
@@ -41,7 +41,7 @@
   }
   pre.src {
     position: relative;
-    overflow: visible;
+    overflow: auto;
     padding-top: 1.2em;
   }
   pre.src:before {
@@ -53,7 +53,7 @@
     padding: 3px;
     border: 1px solid black;
   }
-  pre.src:hover:before { display: inline;}
+  pre.src:hover:before { display: inline; margin-top: 14px;}
   /* Languages per Org manual */
   pre.src-asymptote:before { content: 'Asymptote'; }
   pre.src-awk:before { content: 'Awk'; }
@@ -223,56 +223,31 @@ body {font-family: "Arial";}
 .title, .outline-2 > h2 {color: #a8b105;}
 h3, h4, h5, h6 {color: #a8b105;}
 #table-of-contents a {color: white;}
-#corporate-logo {position: absolute; width: 450px; right: 0px;}
+#corporate-logo {position: absolute; width: 165px; right: 0px;}
 #corporate-logo img {width: 450px;}
 a {color: #a8b105; text-decoration: underline;}
 </style>
 <link rel="icon" type="image/png" href=" data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuM4zml1AAAAJuSURBVEhL3ZVLbxJRGIb5R/W20Jj4A0zcl/sdKRIbXTQG05iKjQWTumlpuyLUlO4adOXCcNFE0ymXBFoYoukwNDLa4VoC5Tr4kTMSOh0DM2BifPMs5hy+mSec78wZSe93Op0OhmFe767b7fH53hIEwTAM+9sEYQXlcnlpyS6TKcxmy/z8I5VKA+zt+drtNioQnb6g1Wo5HE65XLmz4y0WS9VqNZvNLi4+UyrV0WgU1YlOX5DJZDQa3dqaq9vtollIPp/XavULC0/Ysdj0BfF4HBbk8PAITQ2yvu5Sq7WVSoUdiwor0OkMmQyJpgbxeLZBTNM0OxYVCUVRwWAIligSicL1cDY2NqENyWSqVCoxTOe8las3yTHIdpkG+3gQzM7KRrK6+rrZLnz5ds+fnBmDK3juOcOw7eQK5uYeWCxWo/H+8KRAwUwgdf341AV/mkcALYW9Hw6HpVL5YFKoAAgkrxL0Zq/HcAW1Wg20sVhsQgEQTN3IFt6wApvt6f4+BsCBAQJ4seHY8PsDJpNZtAAI4bdYgdP5qt+RiykWi1brw0kEACuw219Q1A8AHXCNRgOu0+k09Hw6AoVCZTCYgHq9DoJ4PGE0mvR6I+rEFAQDpthkBFewvPxyZcUBPR+enKbgMnCmwo5qtunPX+9ybh4HCdqdfwLDDkiS7DJNPGcPpK5xbh4Hyc/K+5HglMinAxLOeCRH320nBS8vEULFKQYEC6jyu/5LyBc4RDnFgGDBwbE0cfKYF95dIFgglGku0XDOzhOoXrCAzLsvfSN5OD37gOoFC0L4zU/pOyP5iN9G9f9eD4TyHwgIeusvQm/9AhAHOlCG/iuIAAAAAElFTkSuQmCC">
 <script type="text/javascript">
-/*
-@licstart  The following is the entire license notice for the
-JavaScript code in this tag.
-
-Copyright (C) 2012-2020 Free Software Foundation, Inc.
-
-The JavaScript code in this tag is free software: you can
-redistribute it and/or modify it under the terms of the GNU
-General Public License (GNU GPL) as published by the Free Software
-Foundation, either version 3 of the License, or (at your option)
-any later version.  The code is distributed WITHOUT ANY WARRANTY;
-without even the implied warranty of MERCHANTABILITY or FITNESS
-FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
-
-As additional permission under GNU GPL version 3 section 7, you
-may distribute non-source (e.g., minimized or compacted) forms of
-that code without the copy of the GNU GPL normally required by
-section 4, provided you include this license notice and a URL
-through which recipients can access the Corresponding Source.
-
-
-@licend  The above is the entire license notice
-for the JavaScript code in this tag.
-*/
+// @license magnet:?xt=urn:btih:1f739d935676111cfff4b4693e3816e664797050&amp;dn=gpl-3.0.txt GPL-v3-or-Later
 <!--/*--><![CDATA[/*><!--*/
- function CodeHighlightOn(elem, id)
- {
-   var target = document.getElementById(id);
-   if(null != target) {
-     elem.cacheClassElem = elem.className;
-     elem.cacheClassTarget = target.className;
-     target.className = "code-highlighted";
-     elem.className   = "code-highlighted";
-   }
- }
- function CodeHighlightOff(elem, id)
- {
-   var target = document.getElementById(id);
-   if(elem.cacheClassElem)
-     elem.className = elem.cacheClassElem;
-   if(elem.cacheClassTarget)
-     target.className = elem.cacheClassTarget;
- }
-/*]]>*///-->
+     function CodeHighlightOn(elem, id)
+     {
+       var target = document.getElementById(id);
+       if(null != target) {
+         elem.classList.add("code-highlighted");
+         target.classList.add("code-highlighted");
+       }
+     }
+     function CodeHighlightOff(elem, id)
+     {
+       var target = document.getElementById(id);
+       if(null != target) {
+         elem.classList.remove("code-highlighted");
+         target.classList.remove("code-highlighted");
+     }
+    /*]]>*///-->
+// @license-end
 </script>
 </head>
 <body>
@@ -283,28 +258,28 @@ for the JavaScript code in this tag.
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orga00dd5d">1. Abstract</a></li>
-<li><a href="#org5cb10f5">2. Prerequisites</a></li>
-<li><a href="#orgd611cd9">3. Module Installation</a></li>
-<li><a href="#org0ec6ba4">4. Preparation</a></li>
-<li><a href="#orgb71bdd2">5. SEPPmail365 CmdLets</a>
+<li><a href="#org64e8f70">1. Abstract</a></li>
+<li><a href="#org990fe2c">2. Prerequisites</a></li>
+<li><a href="#org3a0b7ed">3. Module Installation</a></li>
+<li><a href="#orgcd48c3e">4. Preparation</a></li>
+<li><a href="#org23287bb">5. SEPPmail365 CmdLets</a>
 <ul>
-<li><a href="#org23abedb">5.1. Test-SM365ConnectionStatus</a></li>
-<li><a href="#org48cdd84">5.2. New-SM365Connectors</a></li>
-<li><a href="#org35ac163">5.3. Set-SM365Connectors</a></li>
-<li><a href="#orgf42cf65">5.4. Remove-SM365Connectors</a></li>
-<li><a href="#orga9f3bcc">5.5. New-SM365Rules</a></li>
-<li><a href="#org24acbb8">5.6. Set-SM365Rules</a></li>
-<li><a href="#orgf603d2f">5.7. Remove-SM365Rules</a></li>
-<li><a href="#orgfbd8274">5.8. Backup-SM365Connectors</a></li>
-<li><a href="#org6db84f0">5.9. Backup-SM365Rules</a></li>
-<li><a href="#orgbeba2e2">5.10. New-SM365ExOReport</a></li>
+<li><a href="#orga2ce3d5">5.1. Test-SM365ConnectionStatus</a></li>
+<li><a href="#org87a92d5">5.2. New-SM365Connectors</a></li>
+<li><a href="#org81e6f02">5.3. Set-SM365Connectors</a></li>
+<li><a href="#org73798dd">5.4. Remove-SM365Connectors</a></li>
+<li><a href="#orga90beb3">5.5. New-SM365Rules</a></li>
+<li><a href="#org50f150b">5.6. Set-SM365Rules</a></li>
+<li><a href="#orgb92d8cf">5.7. Remove-SM365Rules</a></li>
+<li><a href="#orga643122">5.8. Backup-SM365Connectors</a></li>
+<li><a href="#org347142b">5.9. Backup-SM365Rules</a></li>
+<li><a href="#orgf0c0ca9">5.10. New-SM365ExOReport</a></li>
 </ul>
 </li>
-<li><a href="#orgd5cb07d">6. Examples</a>
+<li><a href="#org0ef5319">6. Examples</a>
 <ul>
-<li><a href="#org44e183a">6.1. First Use</a></li>
-<li><a href="#orgc77f30f">6.2. Upgrading from a previous version</a></li>
+<li><a href="#org3fc7e27">6.1. First Use</a></li>
+<li><a href="#org9029d76">6.2. Upgrading from a previous version</a></li>
 </ul>
 </li>
 </ul>
@@ -500,11 +475,11 @@ img.alt = "SEPPmail Logo"
 document.body.prepend(img);
 </script>
 
-<p id="document-version">Module Version: 1.1.0<br>
+<p id="document-version">Module Version: 1.1.3<br>
 <a href="https://www.seppmail.ch">SEPPmail Home Page</a></p>
 
-<div id="outline-container-orga00dd5d" class="outline-2">
-<h2 id="orga00dd5d"><span class="section-number-2">1</span> Abstract</h2>
+<div id="outline-container-org64e8f70" class="outline-2">
+<h2 id="org64e8f70"><span class="section-number-2">1</span> Abstract</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 The SEPPmail365 PowerShell module helps customers and partners to smoothly integrate<br>
@@ -523,11 +498,34 @@ This module provides means to create and update default connectors, rules, and<b
 backing up existing configuration, as well as generating a report about the<br>
 current state of the environment.<br>
 </p>
+
+<p>
+<b>GENERAL NOTE:</b><br>
+Please note that Exchange Online is a relatively fast paced environment and<br>
+subject to change. In pratice that means that a working setup can suddenly stop<br>
+behaving correctly, as soon as the cloud infrastructure has been updated.<br>
+This may affect you and thus will require a certain amount of patience.<br>
+We try to adapt to these changes ASAP, but can't guarantee that this module will<br>
+be up to date immediately after Microsoft has deployed new changes.<br>
+</p>
+
+<p>
+<b>A NOTE ON SPAM:</b><br>
+As per the previous note you might experience spam after deploying the default<br>
+set of transport rules.<br>
+If that is the case please try to switch the transport rules to the version<br>
+<code>WithSpf</code> as follows:<br>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-powershell"><span class="org-function-name">Set-SM365Rules</span> <span class="org-constant">-Version</span> WithSpf
+</pre>
+</div>
 </div>
 </div>
 
-<div id="outline-container-org5cb10f5" class="outline-2">
-<h2 id="org5cb10f5"><span class="section-number-2">2</span> Prerequisites</h2>
+<div id="outline-container-org990fe2c" class="outline-2">
+<h2 id="org990fe2c"><span class="section-number-2">2</span> Prerequisites</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 The module requires at least PowerShell 5.1 (64bit) and the<br>
@@ -540,8 +538,8 @@ Future versions of the <a href="https://www.powershellgallery.com/packages/Excha
 </div>
 </div>
 
-<div id="outline-container-orgd611cd9" class="outline-2">
-<h2 id="orgd611cd9"><span class="section-number-2">3</span> Module Installation</h2>
+<div id="outline-container-org3a0b7ed" class="outline-2">
+<h2 id="org3a0b7ed"><span class="section-number-2">3</span> Module Installation</h2>
 <div class="outline-text-2" id="text-3">
 <p>
 Installing the module is as easy as executing:<br>
@@ -565,8 +563,8 @@ execute:<br>
 </div>
 </div>
 
-<div id="outline-container-org0ec6ba4" class="outline-2">
-<h2 id="org0ec6ba4"><span class="section-number-2">4</span> Preparation</h2>
+<div id="outline-container-orgcd48c3e" class="outline-2">
+<h2 id="orgcd48c3e"><span class="section-number-2">4</span> Preparation</h2>
 <div class="outline-text-2" id="text-4">
 <p>
 Prior to using this module you need to connect to your Exchange Online<br>
@@ -595,8 +593,8 @@ authentication is enabled for your account or not:<br>
 </div>
 </div>
 
-<div id="outline-container-orgb71bdd2" class="outline-2">
-<h2 id="orgb71bdd2"><span class="section-number-2">5</span> SEPPmail365 CmdLets</h2>
+<div id="outline-container-org23287bb" class="outline-2">
+<h2 id="org23287bb"><span class="section-number-2">5</span> SEPPmail365 CmdLets</h2>
 <div class="outline-text-2" id="text-5">
 <p>
 Version specific configuration can be requested via the <code>-Version</code> parameter.<br>
@@ -609,8 +607,8 @@ All CmdLets support the PowerShell <a href="https://docs.microsoft.com/en-us/pow
 </p>
 </div>
 
-<div id="outline-container-org23abedb" class="outline-3">
-<h3 id="org23abedb"><span class="section-number-3">5.1</span> Test-SM365ConnectionStatus</h3>
+<div id="outline-container-orga2ce3d5" class="outline-3">
+<h3 id="orga2ce3d5"><span class="section-number-3">5.1</span> Test-SM365ConnectionStatus</h3>
 <div class="outline-text-3" id="text-5-1">
 <p>
 <b>Synopsis:</b><br>
@@ -639,8 +637,8 @@ None<br>
 </div>
 </div>
 
-<div id="outline-container-org48cdd84" class="outline-3">
-<h3 id="org48cdd84"><span class="section-number-3">5.2</span> New-SM365Connectors</h3>
+<div id="outline-container-org87a92d5" class="outline-3">
+<h3 id="org87a92d5"><span class="section-number-3">5.2</span> New-SM365Connectors</h3>
 <div class="outline-text-3" id="text-5-2">
 <p>
 <b>Synopsis:</b><br>
@@ -716,15 +714,15 @@ want to prepare your environment.<br>
 </div>
 
 <div class="org-src-container">
-<pre class="src src-powershell"><span class="org-comment"># Create the new connectors in an inactive state</span>
+<pre class="src src-powershell"><span class="org-comment-delimiter"># </span><span class="org-comment">Create the new connectors in an inactive state</span>
 <span class="org-function-name">New-SM365Connectors</span> <span class="org-constant">-SEPPmailFQDN</span> <span class="org-string">"seppmail.contoso.com"</span> -Enabled:<span class="org-builtin">$false</span>
 </pre>
 </div>
 </div>
 </div>
 
-<div id="outline-container-org35ac163" class="outline-3">
-<h3 id="org35ac163"><span class="section-number-3">5.3</span> Set-SM365Connectors</h3>
+<div id="outline-container-org81e6f02" class="outline-3">
+<h3 id="org81e6f02"><span class="section-number-3">5.3</span> Set-SM365Connectors</h3>
 <div class="outline-text-3" id="text-5-3">
 <p>
 <b>Synopsis:</b><br>
@@ -733,14 +731,14 @@ This CmdLet provides a method of updating the SEPPmail connectors.<br>
 
 <p>
 <b>Parameter List:</b><br>
-Same as <a href="#org48cdd84">New-SM365Connectors</a>, and additionally:<br>
+Same as <a href="#org87a92d5">New-SM365Connectors</a>, and additionally:<br>
 </p>
 
 <p>
 <code>-SetDefaults [switch] (optional)</code><br>
 The default behaviour is to only set the provided parameters, but this switch<br>
 causes all other parameters be set to the default values, provided by<br>
-<a href="#org48cdd84">New-SM365Connectors</a>.<br>
+<a href="#org87a92d5">New-SM365Connectors</a>.<br>
 </p>
 
 <p>
@@ -760,27 +758,27 @@ Sets the connectors to an inactive state.<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-powershell"><span class="org-comment"># update smart host information</span>
+<pre class="src src-powershell"><span class="org-comment-delimiter"># </span><span class="org-comment">update smart host information</span>
 <span class="org-function-name">Set-SM365Connectors</span> <span class="org-constant">-SEPPmailFQDN</span> <span class="org-string">"seppmail.contoso.com"</span>
 </pre>
 </div>
 
 <div class="org-src-container">
-<pre class="src src-powershell"><span class="org-comment"># only update tls domain for the inbound connector</span>
+<pre class="src src-powershell"><span class="org-comment-delimiter"># </span><span class="org-comment">only update tls domain for the inbound connector</span>
 <span class="org-function-name">Set-SM365Connectors</span> <span class="org-constant">-InboundTlsDomain</span> <span class="org-string">"*.contoso.com"</span>
 </pre>
 </div>
 
 <div class="org-src-container">
-<pre class="src src-powershell"><span class="org-comment"># set everything else back to default values</span>
+<pre class="src src-powershell"><span class="org-comment-delimiter"># </span><span class="org-comment">set everything else back to default values</span>
 <span class="org-function-name">Set-SM365Connectors</span> <span class="org-constant">-SetDefaults</span>
 </pre>
 </div>
 </div>
 </div>
 
-<div id="outline-container-orgf42cf65" class="outline-3">
-<h3 id="orgf42cf65"><span class="section-number-3">5.4</span> Remove-SM365Connectors</h3>
+<div id="outline-container-org73798dd" class="outline-3">
+<h3 id="org73798dd"><span class="section-number-3">5.4</span> Remove-SM365Connectors</h3>
 <div class="outline-text-3" id="text-5-4">
 <p>
 <b>Synopsis:</b><br>
@@ -799,21 +797,21 @@ No additional parameters.<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-powershell"><span class="org-comment"># see which connectors would be deleted</span>
+<pre class="src src-powershell"><span class="org-comment-delimiter"># </span><span class="org-comment">see which connectors would be deleted</span>
 <span class="org-function-name">Remove-SM365Connectors</span> <span class="org-constant">-Whatif</span>
 </pre>
 </div>
 
 <div class="org-src-container">
-<pre class="src src-powershell"><span class="org-comment"># request confirmation before every deletion</span>
+<pre class="src src-powershell"><span class="org-comment-delimiter"># </span><span class="org-comment">request confirmation before every deletion</span>
 <span class="org-function-name">Remove-SM365Connectors</span> <span class="org-constant">-Confirm</span>
 </pre>
 </div>
 </div>
 </div>
 
-<div id="outline-container-orga9f3bcc" class="outline-3">
-<h3 id="orga9f3bcc"><span class="section-number-3">5.5</span> New-SM365Rules</h3>
+<div id="outline-container-orga90beb3" class="outline-3">
+<h3 id="orga90beb3"><span class="section-number-3">5.5</span> New-SM365Rules</h3>
 <div class="outline-text-3" id="text-5-5">
 <p>
 <b>Synopsis:</b><br>
@@ -849,15 +847,15 @@ want to prepare your environment.<br>
 </div>
 
 <div class="org-src-container">
-<pre class="src src-powershell"><span class="org-comment"># Create the transport rules in an inactive state</span>
+<pre class="src src-powershell"><span class="org-comment-delimiter"># </span><span class="org-comment">Create the transport rules in an inactive state</span>
 <span class="org-function-name">New-SM365Rules</span> -Enabled:<span class="org-builtin">$false</span>
 </pre>
 </div>
 </div>
 </div>
 
-<div id="outline-container-org24acbb8" class="outline-3">
-<h3 id="org24acbb8"><span class="section-number-3">5.6</span> Set-SM365Rules</h3>
+<div id="outline-container-org50f150b" class="outline-3">
+<h3 id="org50f150b"><span class="section-number-3">5.6</span> Set-SM365Rules</h3>
 <div class="outline-text-3" id="text-5-6">
 <p>
 <b>Synopsis:</b><br>
@@ -882,15 +880,15 @@ default values.<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-powershell"><span class="org-comment"># update rules to the latest version and create missing ones</span>
+<pre class="src src-powershell"><span class="org-comment-delimiter"># </span><span class="org-comment">update rules to the latest version and create missing ones</span>
 <span class="org-function-name">Set-SM365Rules</span> <span class="org-constant">-FixMissing</span>
 </pre>
 </div>
 </div>
 </div>
 
-<div id="outline-container-orgf603d2f" class="outline-3">
-<h3 id="orgf603d2f"><span class="section-number-3">5.7</span> Remove-SM365Rules</h3>
+<div id="outline-container-orgb92d8cf" class="outline-3">
+<h3 id="orgb92d8cf"><span class="section-number-3">5.7</span> Remove-SM365Rules</h3>
 <div class="outline-text-3" id="text-5-7">
 <p>
 <b>Synopsis:</b><br>
@@ -914,8 +912,8 @@ The major version of your SEPPmaill appliance.<br>
 </div>
 </div>
 
-<div id="outline-container-orgfbd8274" class="outline-3">
-<h3 id="orgfbd8274"><span class="section-number-3">5.8</span> Backup-SM365Connectors</h3>
+<div id="outline-container-orga643122" class="outline-3">
+<h3 id="orga643122"><span class="section-number-3">5.8</span> Backup-SM365Connectors</h3>
 <div class="outline-text-3" id="text-5-8">
 <p>
 <b>Synopsis:</b><br>
@@ -939,8 +937,8 @@ The folder in which to store the connector information.<br>
 </div>
 </div>
 
-<div id="outline-container-org6db84f0" class="outline-3">
-<h3 id="org6db84f0"><span class="section-number-3">5.9</span> Backup-SM365Rules</h3>
+<div id="outline-container-org347142b" class="outline-3">
+<h3 id="org347142b"><span class="section-number-3">5.9</span> Backup-SM365Rules</h3>
 <div class="outline-text-3" id="text-5-9">
 <p>
 <b>Synopsis:</b><br>
@@ -965,8 +963,8 @@ The folder in which to store the transport rule information.<br>
 </div>
 </div>
 
-<div id="outline-container-orgbeba2e2" class="outline-3">
-<h3 id="orgbeba2e2"><span class="section-number-3">5.10</span> New-SM365ExOReport</h3>
+<div id="outline-container-orgf0c0ca9" class="outline-3">
+<h3 id="orgf0c0ca9"><span class="section-number-3">5.10</span> New-SM365ExOReport</h3>
 <div class="outline-text-3" id="text-5-10">
 <p>
 <b>Synopsis:</b><br>
@@ -991,12 +989,12 @@ Path of the HTML report on disk.<br>
 </div>
 </div>
 
-<div id="outline-container-orgd5cb07d" class="outline-2">
-<h2 id="orgd5cb07d"><span class="section-number-2">6</span> Examples</h2>
+<div id="outline-container-org0ef5319" class="outline-2">
+<h2 id="org0ef5319"><span class="section-number-2">6</span> Examples</h2>
 <div class="outline-text-2" id="text-6">
 </div>
-<div id="outline-container-org44e183a" class="outline-3">
-<h3 id="org44e183a"><span class="section-number-3">6.1</span> First Use</h3>
+<div id="outline-container-org3fc7e27" class="outline-3">
+<h3 id="org3fc7e27"><span class="section-number-3">6.1</span> First Use</h3>
 <div class="outline-text-3" id="text-6-1">
 <p>
 If you're starting with a clean cloud environment, then you will need to issue<br>
@@ -1012,7 +1010,7 @@ The first one is to create the required connectors:<br>
 <span class="org-variable-name">$seppIPs</span> = <span class="org-type">[System.Net.Dns]</span>::GetHostAddresses(<span class="org-variable-name">$seppFqdn</span>) | %{<span class="org-builtin">$_</span>.IPAddressToString}
 <span class="org-variable-name">$tlsDomain</span> = <span class="org-variable-name">$seppFqdn</span> <span class="org-comment"># change this if the SSL certificate's subject differs from the hostname</span>
 
-<span class="org-comment"># change this if you're using separate appliances for sending/receiving to/from Exchange Online</span>
+<span class="org-comment-delimiter"># </span><span class="org-comment">change this if you're using separate appliances for sending/receiving to/from Exchange Online</span>
 <span class="org-variable-name">$inboundTlsDomain</span> = <span class="org-variable-name">$tlsDomain</span> 
 <span class="org-variable-name">$outboundTlsDomain</span> = <span class="org-variable-name">$tlsDomain</span>
 
@@ -1030,25 +1028,36 @@ The second one is to create the required transport rules:<br>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-powershell"><span class="org-comment"># No more parameters required (:</span>
+<pre class="src src-powershell"><span class="org-comment-delimiter"># </span><span class="org-comment">No more parameters required (:</span>
 <span class="org-function-name">New-SM365Rules</span>
 </pre>
 </div>
 </div>
 </div>
 
-<div id="outline-container-orgc77f30f" class="outline-3">
-<h3 id="orgc77f30f"><span class="section-number-3">6.2</span> Upgrading from a previous version</h3>
+<div id="outline-container-org9029d76" class="outline-3">
+<h3 id="org9029d76"><span class="section-number-3">6.2</span> Upgrading from a previous version</h3>
 <div class="outline-text-3" id="text-6-2">
 <p>
 Usually it should be enough to upgrade the settings of existing connectors and<br>
 transport rules to the newest version like this:<br>
 </p>
 
+<p>
+<b>Note:</b><br>
+Depending on your DNS settings, it might be necessary to add the external IP<br>
+address of your appliance, as seen by Exchange Online, to the parameter<br>
+<code>-TrustedIPs</code>.<br>
+The CmdLet will automatically try to resolve the FQDN of your appliance, but<br>
+depending on whether this yields an internal or external IP address, SPF checks<br>
+might still fail, because Exchange Online doesn't know about the correct IP<br>
+address.<br>
+</p>
+
 <div class="org-src-container">
-<pre class="src src-powershell"><span class="org-comment"># This will update the connectors to the latest settings.</span>
-<span class="org-comment"># If you have to change additional settings you can just append parameters as used by New-SM365Connectors</span>
-<span class="org-comment"># The CmdLet will then combine the default and your settings.</span>
+<pre class="src src-powershell"><span class="org-comment-delimiter"># </span><span class="org-comment">This will update the connectors to the latest settings.</span>
+<span class="org-comment-delimiter"># </span><span class="org-comment">If you have to change additional settings you can just append parameters as used by New-SM365Connectors</span>
+<span class="org-comment-delimiter"># </span><span class="org-comment">The CmdLet will then combine the default and your settings.</span>
 <span class="org-function-name">Set-SM365Connectors</span> <span class="org-constant">-SetDefaults</span> <span class="org-constant">-Verbose</span>
 </pre>
 </div>
@@ -1058,7 +1067,7 @@ After that you will have to ugprade the transport rules to the newest version:<b
 </p>
 
 <div class="org-src-container">
-<pre class="src src-powershell"><span class="org-comment"># -FixMissing causes non existent rules to be created with default settings</span>
+<pre class="src src-powershell"><span class="org-comment-delimiter"># </span><span class="org-comment">-FixMissing causes non existent rules to be created with default settings</span>
 <span class="org-function-name">Set-SM365Rules</span> <span class="org-constant">-FixMissing</span> <span class="org-constant">-Verbose</span>
 </pre>
 </div>
@@ -1079,7 +1088,7 @@ If that still doesn't work, please leave us a bug report!<br>
 <div id="postamble" class="status">
 <p class="author">Author: Max Domhardt</p>
 <p class="email">Email: <a href="mailto:domhardt@seppmail.ch">domhardt@seppmail.ch</a></p>
-<p class="date">Created: 2020-12-02 Mi 17:04</p>
+<p class="date">Created: 2021-09-02 Do 17:16</p>
 </div>
 </body>
 </html>

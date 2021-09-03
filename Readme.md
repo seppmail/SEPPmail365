@@ -1,35 +1,27 @@
-- [Abstract](#org2ce1299)
-- [Prerequisites](#org366a24d)
-- [Module Installation](#org8c41d6e)
-- [Preparation](#org5b0c0f3)
-- [SEPPmail365 CmdLets](#org1eccb49)
-  - [Test-SM365ConnectionStatus](#org47a4dc2)
-  - [New-SM365Connectors](#orge56668c)
-  - [Set-SM365Connectors](#org34e14cf)
-  - [Remove-SM365Connectors](#org9dd211b)
-  - [New-SM365Rules](#orgf45aad4)
-  - [Set-SM365Rules](#orgd0f8e82)
-  - [Remove-SM365Rules](#orgfd026db)
-  - [Backup-SM365Connectors](#org3113d08)
-  - [Backup-SM365Rules](#org589703a)
-  - [New-SM365ExOReport](#orgd72aa9e)
-- [Examples](#org563c4b4)
-  - [First Use](#orgc3d6f99)
-  - [Upgrading from a previous version](#org66d9411)
+- [Abstract](#orgeaf4ba8)
+- [Prerequisites](#org8f4a707)
+- [Module Installation](#org88ae7e3)
+- [Preparation](#orgdd7c058)
+- [SEPPmail365 CmdLets](#org003f0ef)
+  - [Test-SM365ConnectionStatus](#orgf8badef)
+  - [New-SM365Connectors](#orgb92507f)
+  - [Set-SM365Connectors](#org98c55e6)
+  - [Remove-SM365Connectors](#org65d7b60)
+  - [New-SM365Rules](#org3980fbe)
+  - [Set-SM365Rules](#orgf4ad813)
+  - [Remove-SM365Rules](#org22b1f28)
+  - [Backup-SM365Connectors](#orgd3308b0)
+  - [Backup-SM365Rules](#orgdb40348)
+  - [New-SM365ExOReport](#org6f463cb)
+- [Examples](#org6dc166f)
+  - [First Use](#org0d16067)
+  - [Upgrading from a previous version](#org6e80204)
 
-<div class="html">
-
-</div>
-
-<div class="html">
-
-</div>
-
-<p id="document-version">Module Version: 1.1.0<br>
+<p id="document-version">Module Version: 1.1.3<br>
 <a href="https://www.seppmail.ch">SEPPmail Home Page</a></p>
 
 
-<a id="org2ce1299"></a>
+<a id="orgeaf4ba8"></a>
 
 # Abstract
 
@@ -45,8 +37,26 @@ This module provides means to create and update default connectors, rules, and
 backing up existing configuration, as well as generating a report about the  
 current state of the environment.  
 
+**GENERAL NOTE:**  
+Please note that Exchange Online is a relatively fast paced environment and  
+subject to change. In pratice that means that a working setup can suddenly stop  
+behaving correctly, as soon as the cloud infrastructure has been updated.  
+This may affect you and thus will require a certain amount of patience.  
+We try to adapt to these changes ASAP, but can't guarantee that this module will  
+be up to date immediately after Microsoft has deployed new changes.  
 
-<a id="org366a24d"></a>
+**A NOTE ON SPAM:**  
+As per the previous note you might experience spam after deploying the default  
+set of transport rules.  
+If that is the case please try to switch the transport rules to the version  
+`WithSpf` as follows:  
+
+```powershell
+Set-SM365Rules -Version WithSpf
+```
+
+
+<a id="org8f4a707"></a>
 
 # Prerequisites
 
@@ -56,7 +66,7 @@ The module requires at least PowerShell 5.1 (64bit) and the
 Future versions of the [ExchangeOnlineManagement](https://www.powershellgallery.com/packages/ExchangeOnlineManagement/1.0.1) module should also work.  
 
 
-<a id="org8c41d6e"></a>
+<a id="org88ae7e3"></a>
 
 # Module Installation
 
@@ -75,7 +85,7 @@ Import-Module "C:\path\to\module\SEPPmail365.psd1"
 ```
 
 
-<a id="org5b0c0f3"></a>
+<a id="orgdd7c058"></a>
 
 # Preparation
 
@@ -99,7 +109,7 @@ Connect-ExchangeOnline -UserPrincipalName frank@contoso.com -ShowProgress $true
 ```
 
 
-<a id="org1eccb49"></a>
+<a id="org003f0ef"></a>
 
 # SEPPmail365 CmdLets
 
@@ -110,7 +120,7 @@ All CmdLets support the PowerShell [common parameters](https://docs.microsoft.co
 `-Verbose`, etc.  
 
 
-<a id="org47a4dc2"></a>
+<a id="orgf8badef"></a>
 
 ## Test-SM365ConnectionStatus
 
@@ -131,7 +141,7 @@ Test-SM365ConnectionStatus
 ```
 
 
-<a id="orge56668c"></a>
+<a id="orgb92507f"></a>
 
 ## New-SM365Connectors
 
@@ -190,7 +200,7 @@ New-SM365Connectors -SEPPmailFQDN "seppmail.contoso.com" -Enabled:$false
 ```
 
 
-<a id="org34e14cf"></a>
+<a id="org98c55e6"></a>
 
 ## Set-SM365Connectors
 
@@ -198,12 +208,12 @@ New-SM365Connectors -SEPPmailFQDN "seppmail.contoso.com" -Enabled:$false
 This CmdLet provides a method of updating the SEPPmail connectors.  
 
 **Parameter List:**  
-Same as [New-SM365Connectors](#orge56668c), and additionally:  
+Same as [New-SM365Connectors](#orgb92507f), and additionally:  
 
 `-SetDefaults [switch] (optional)`  
 The default behaviour is to only set the provided parameters, but this switch  
 causes all other parameters be set to the default values, provided by  
-[New-SM365Connectors](#orge56668c).  
+[New-SM365Connectors](#orgb92507f).  
 
 `-Version [ConfigVersion] (optional)`  
 The major version of your SEPPmail appliance. You most likely won't need this  
@@ -231,7 +241,7 @@ Set-SM365Connectors -SetDefaults
 ```
 
 
-<a id="org9dd211b"></a>
+<a id="org65d7b60"></a>
 
 ## Remove-SM365Connectors
 
@@ -256,7 +266,7 @@ Remove-SM365Connectors -Confirm
 ```
 
 
-<a id="orgf45aad4"></a>
+<a id="org3980fbe"></a>
 
 ## New-SM365Rules
 
@@ -290,7 +300,7 @@ New-SM365Rules -Enabled:$false
 ```
 
 
-<a id="orgd0f8e82"></a>
+<a id="orgf4ad813"></a>
 
 ## Set-SM365Rules
 
@@ -314,7 +324,7 @@ Set-SM365Rules -FixMissing
 ```
 
 
-<a id="orgfd026db"></a>
+<a id="org22b1f28"></a>
 
 ## Remove-SM365Rules
 
@@ -332,7 +342,7 @@ Remove-SM365Rules -Whatif
 ```
 
 
-<a id="org3113d08"></a>
+<a id="orgd3308b0"></a>
 
 ## Backup-SM365Connectors
 
@@ -350,7 +360,7 @@ Backup-SM365Connectors -OutFolder C:\Temp
 ```
 
 
-<a id="org589703a"></a>
+<a id="orgdb40348"></a>
 
 ## Backup-SM365Rules
 
@@ -369,7 +379,7 @@ Backup-SM365Rules -OutFolder C:\Temp
 ```
 
 
-<a id="orgd72aa9e"></a>
+<a id="org6f463cb"></a>
 
 ## New-SM365ExOReport
 
@@ -387,12 +397,12 @@ New-SM365ExOReport -FilePath C:\Temp\ExOReport.html
 ```
 
 
-<a id="org563c4b4"></a>
+<a id="org6dc166f"></a>
 
 # Examples
 
 
-<a id="orgc3d6f99"></a>
+<a id="org0d16067"></a>
 
 ## First Use
 
@@ -426,12 +436,21 @@ New-SM365Rules
 ```
 
 
-<a id="org66d9411"></a>
+<a id="org6e80204"></a>
 
 ## Upgrading from a previous version
 
 Usually it should be enough to upgrade the settings of existing connectors and  
 transport rules to the newest version like this:  
+
+**Note:**  
+Depending on your DNS settings, it might be necessary to add the external IP  
+address of your appliance, as seen by Exchange Online, to the parameter  
+`-TrustedIPs`.  
+The CmdLet will automatically try to resolve the FQDN of your appliance, but  
+depending on whether this yields an internal or external IP address, SPF checks  
+might still fail, because Exchange Online doesn't know about the correct IP  
+address.  
 
 ```powershell
 # This will update the connectors to the latest settings.
