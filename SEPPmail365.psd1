@@ -12,7 +12,7 @@
 RootModule = 'SEPPmail365.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.1.2'
+ModuleVersion = '1.1.3'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Desktop')
@@ -154,6 +154,8 @@ PrivateData = @{
 04.12.20    1.1.1 Minor fix - add missing action to new transport rules.
 
 05.07.21    1.1.2 Minor fix - include transport rules in New-SM365ExOReport
+
+09.09.21    1.1.3 Minor update - add new config version that disables rules which set the SCL to -1
 '@
 
         # Prerelease string of this module
