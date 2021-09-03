@@ -724,6 +724,17 @@ function Set-SM365Rules
                     }
 
                     Set-TransportRule @parameters
+
+                    if(!$setting.Enabled -and $rule.Enabled)
+                    {
+                        Write-Verbose "Disabling rule $($rule.name)..."
+                        $rule | Disable-TransportRule -Confirm:$false
+                    }
+                    elsif($setting.Enabled -and !$rule.Enabled)
+                    {
+                        Write-Verbose "Activating rule $($rule.name)..."
+                        $rule | Enable-TransportRule -Confirm:$false
+                    }
                 }
                 elseif($PSCmdlet.ShouldProcess($setting.Name, "Create missing transport rule"))
                 {
