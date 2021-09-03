@@ -67,6 +67,11 @@ function Set-SM365PropertiesFromConfigJson
         $Version = [SM365.ConfigVersion]::Default
     }
 
+    if($json.Version.$Version.Skip)
+    {
+        return
+    }
+
     # Set all properties that aren't version specific
     $json.psobject.properties | % {
         if ($_.Name -notin @("Version", "Name"))
@@ -163,7 +168,8 @@ function Get-SM365TransportRuleSettings
 
         Set-SM365PropertiesFromConfigJson $settings -Json $json -Version $Version
 
-        $ret.Add($settings)
+        if(!$settings.skip)
+        {$ret.Add($settings)}
     }
 
     if([SM365.AvailableTransportRuleSettings]::OutgoingHeaderCleaning -band $settingsToFetch)
