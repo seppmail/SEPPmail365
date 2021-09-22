@@ -710,7 +710,7 @@ function Set-SM365Rules
     {
         try
         {
-            Get-SM365TransportRuleSettings | %{
+            Get-SM365TransportRuleSettings -Version $Version | %{
                 $setting = $_
                 $rule = Get-TransportRule $setting.Name -ErrorAction SilentlyContinue
 
@@ -725,12 +725,12 @@ function Set-SM365Rules
 
                     Set-TransportRule @parameters
 
-                    if(!$setting.Enabled -and $rule.Enabled)
+                    if(!$setting.Enabled -and $rule.State -eq "Enabled")
                     {
                         Write-Verbose "Disabling rule $($rule.name)..."
                         $rule | Disable-TransportRule -Confirm:$false
                     }
-                    elsif($setting.Enabled -and !$rule.Enabled)
+                    elseif($setting.Enabled -and $rule.State -ne "Enabled")
                     {
                         Write-Verbose "Activating rule $($rule.name)..."
                         $rule | Enable-TransportRule -Confirm:$false
