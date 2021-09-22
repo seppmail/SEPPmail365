@@ -13,7 +13,7 @@
             "SetAuditSeverity"            : "DoNotAudit",
             "Mode"                        : "Enforce",
             "SenderAddressLocation"       : "Header",
-            "Priority"                    : 0
+            "Priority"                    : 0,
             "Enabled"                     : true
         },
         "WithSpf":
@@ -24,7 +24,7 @@
             "SetAuditSeverity": "DoNotAudit",
             "Mode": "Enforce",
             "SenderAddressLocation": "Header",
-            "Priority": 0
+            "Priority": 0,
             "Enabled": false
         }
     }
