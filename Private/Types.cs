@@ -73,6 +73,7 @@ namespace SM365
         public string ConnectorSource {get; set;}
         public string ConnectorType {get; set;}
         public string TlsSenderCertificateName {get; set;}
+        public bool Skip {get; set;}
 
         public bool? EFSkipLastIP  {get; set;}
         public bool? RequireTls {get; set;}
@@ -137,6 +138,7 @@ namespace SM365
 
         public string Name {get; private set;}
         public ConfigVersion Version {get; private set;}
+        public bool Skip {get; set;}
 
         public string Comment {get; set;}
         public string ConnectorSource {get; set;}
