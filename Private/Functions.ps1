@@ -67,8 +67,10 @@ function Set-SM365PropertiesFromConfigJson
         $Version = [SM365.ConfigVersion]::Default
     }
 
-    if($json.Version.$Version.Skip)
+    # skip if skipping requested or the default version isn't available either
+    if($json.Version.$Version.Skip -or !$json.Version.$version)
     {
+        $InputObject.Skip = $true;
         return
     }
 
