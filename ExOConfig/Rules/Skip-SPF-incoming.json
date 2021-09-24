@@ -1,6 +1,6 @@
 {
     "Name"                  : "[SEPPmail] - Skip SPF check after incoming appliance routing",
-    "Comments"              : "Disables SPF check after an incoming mail has been routed to the SEPPmail appliance.",
+    "Comments"              : "Not necessary if SEPPmail Appliance is int the Anst-SPAM Whitelist. OFF by default. Disables SPF check after an incoming mail has been routed to the SEPPmail appliance.",
     "SMPriority"            : 3,
 
     "Version":
@@ -14,18 +14,18 @@
             "Mode"                        : "Enforce",
             "SenderAddressLocation"       : "Header",
             "Priority"                    : 0,
-            "Enabled"                     : true
+            "Enabled"                     : false
         },
-        "WithSpf":
+        "SkipSpf":
         {
-            "HeaderContainsMessageHeader": "X-SM-Incoming",
-            "HeaderContainsWords": "yes",
-            "SetSCL": -1,
-            "SetAuditSeverity": "DoNotAudit",
-            "Mode": "Enforce",
-            "SenderAddressLocation": "Header",
-            "Priority": 0,
-            "Enabled": false
+            "HeaderContainsMessageHeader" : "X-SM-Incoming",
+            "HeaderContainsWords"         :"yes",
+            "SetSCL"                      : -1,
+            "SetAuditSeverity"            : "DoNotAudit",
+            "Mode"                        : "Enforce",
+            "SenderAddressLocation"       : "Header",
+            "Priority"                    : 0,
+            "Enabled"                     : true
         }
     }
 }

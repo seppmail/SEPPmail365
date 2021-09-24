@@ -37,7 +37,7 @@ function New-SM365Connectors
 
         [Parameter(
              Mandatory = $false,
-             HelpMessage = 'IP addresses or ranges of the SEPPmail appliances'
+             HelpMessage = 'IP address or IP address-ranges of the SEPPmail appliances'
          )]
         [string[]] $TrustedIPs,
 
@@ -165,6 +165,24 @@ function New-SM365Connectors
         if($RecipientDomains)
         {
             $outbound.RecipientDomains = $RecipientDomains
+        }
+
+        Write-Verbose "Trying to add SEPPmail Appliance to Whitelist in 'Hosted Connection Filter Policy'"
+
+        Write-Verbose "Collecting existing WhiteList"
+        $hcfp = Get-HostedConnectionFilterPolicy
+        $existingAllowList = $hcfp.IPAllowList
+        Write-verbose "Adding SEPPmail Appliance to Policy $($hcfp.Id)"
+        if ($existingAllowList) {
+                $existingAllowlist = $hcfp.IPAllowlist
+                $FinalIPList = ($existingAllowList + $TrustedIP)|sort-object -Unique
+        }
+        else {
+            $FinalIPList = $TrustedIP
+        }
+        Write-verbose "Adding IPaddress list with content $finalIPList to Policy $($hcfp.Id)"
+        if ($FinalIPList) {
+            Set-HostedConnectionFilterPolicy -Identity $hcfp.Id -IPAllowList $finalIPList
         }
 
         Write-Verbose "Read existing SEPPmail Inbound Connector"

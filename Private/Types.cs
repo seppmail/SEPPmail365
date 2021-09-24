@@ -9,7 +9,7 @@ namespace SM365
     {
         None,
         Default,
-        WithSpf,
+        SkipSpf,
         Latest = Default
     }
 

@@ -45,16 +45,32 @@ This may affect you and thus will require a certain amount of patience.
 We try to adapt to these changes ASAP, but can't guarantee that this module will  
 be up to date immediately after Microsoft has deployed new changes.  
 
-**A NOTE ON SPAM:**  
-As per the previous note you might experience spam after deploying the default  
-set of transport rules.  
-If that is the case please try to switch the transport rules to the version  
-`WithSpf` as follows:  
+**September 2021 - A NOTE ON SPAM:**  
+Exchange Online allows it now to add IP Addresses in a Whitelist, that makes our previous
+SPF Rules unneccesary. By default we now ....
+
+***In new installations***
+
+- The PS-Module adds the **SEPPmail Appliance** IP address to the **whitelist** in the "Hosted Connection Filter (Default)" policy. This tells Exchange online, that everything coming from SEPPmail is trusted (as it was scanned by M365 Defenders already). This policy is - as far as we investigated available for Exchange Online Plans 1 and 2 (and hopefully its successors).
+
+- The SPF Mailflow-rules which we used so far as a workaround to avoid SPAM are deactiveted in the "Default" Configuration by default.
+
+- Inbound and Outbound Connectors are configured as before
+
+***In existing installations***
+
+- The PS-Module adds the **SEPPmail Appliance** IP address to the **whitelist** in the "Hosted Connection Filter (Default)" policy. This tells Exchange online, that everything coming from SEPPmail is trusted (as it was scanned by M365 Defenders already). This policy should be available for Exchange Online Plans 1 and 2 (and hopefully its successors).
+
+- The SPF Mailflow-rules which we used so far as a workaround to avoid SPAM are deactiveted.
+
+- Inbound and Outbound Connectors are configured as before
+
+If you have an Exchange Online configuration which doesnt have the "Hosted Connection Filter (Default)" please try to switch the transport rules to the version  
+`SkipSpf` as follows:  
 
 ```powershell
-Set-SM365Rules -Version WithSpf
+Set-SM365Rules -Version SkipSpf
 ```
-
 
 <a id="org8f4a707"></a>
 

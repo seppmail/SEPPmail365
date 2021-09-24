@@ -14,18 +14,18 @@
             "Mode"                        : "Enforce",
             "SenderAddressLocation"       : "Header",
             "Priority"                    : 0,
-            "Enabled"                     : true
+            "Enabled"                     : false
         },
-        "WithSpf":
+        "SkipSpf":
         {
-            "HeaderContainsMessageHeader": "X-SM-Internal",
-            "HeaderContainsWords": "yes",
-            "SetSCL": -1,
-            "SetAuditSeverity": "DoNotAudit",
-            "Mode": "Enforce",
-            "SenderAddressLocation": "Header",
-            "Priority": 0,
-            "Enabled": false
+            "HeaderContainsMessageHeader" : "X-SM-Internal",
+            "HeaderContainsWords"         : "yes",
+            "SetSCL"                      : -1,
+            "SetAuditSeverity"            : "DoNotAudit",
+            "Mode"                        : "Enforce",
+            "SenderAddressLocation"       : "Header",
+            "Priority"                    : 0,
+            "Enabled"                     : true
         }
     }
 }
