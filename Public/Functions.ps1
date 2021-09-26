@@ -34,13 +34,7 @@ function New-SM365Connectors
         [ValidatePattern("^(?!:\/\/)(?=.{1,255}$)((.{1,63}\.){1,127}(?![0-9]*$)[a-z0-9-]+\.?)$")]
         [Alias("FQDN")]
         [String] $SEPPmailFQDN,
-<#
-        [Parameter(
-             Mandatory = $false,
-             HelpMessage = 'IP address or IP address-ranges of the SEPPmail appliances'
-         )]
-        [string[]] $TrustedIPs,
-#>
+
         [Parameter(
              Mandatory = $false,
              HelpMessage = 'Internal Mail Domains, the connector will take E-Mails from'
@@ -70,6 +64,12 @@ function New-SM365Connectors
             HelpMessage = 'The subject of the SEPPmail SSL certificate for the outbound connector'
         )]
         [string] $OutboundTlsDomain,
+
+        [Parameter(
+            Mandatory = $false,
+            HelpMessage = 'IP addresses or ranges of the SEPPmail appliances'
+        )]
+        [string[]] $TrustedIPs,
 
         [Parameter(
              Mandatory = $false,
@@ -146,16 +146,12 @@ function New-SM365Connectors
         $inbound = Get-SM365InboundConnectorSettings -Version $Version
         $inbound.TlsSenderCertificateName = $InboundTlsDomain
         $inbound.Enabled = $Enabled
-
-        #if (!$TrustedIPs)
-        #{
         
         # Getting SEPPmail IP Address(es) for EFSkipIP´s and Anti-SPAM Whitelist
         Write-Verbose "No IPs provided - trying to resolve $SEPPmailFQDN"
         [string[]] $ips = [System.Net.Dns]::GetHostAddresses($SEPPmailFQDN) | ForEach-Object { $_.IPAddressToString }
         Write-Verbose "Found following IP addresses: $ips"
         $inbound.EFSkipIPs.AddRange($ips)
-        #}
 
         if($SenderDomains -and !($SenderDomains -eq '*'))
         {
@@ -448,6 +444,10 @@ function Set-SM365Connectors
         $inbound.Enabled = $Enabled
         $outbound.Enabled = $Enabled
 
+        # Getting SEPPmail IP Address(es) for Anti-SPAM Whitelist
+        Write-Verbose "No IPs provided - trying to resolve $SEPPmailFQDN"
+        [string[]] $ips = [System.Net.Dns]::GetHostAddresses($SEPPmailFQDN) | ForEach-Object { $_.IPAddressToString }
+
         if($TrustedIPs)
         {
             $inbound.EFSkipIPs.AddRange($TrustedIPs)
@@ -468,6 +468,24 @@ function Set-SM365Connectors
         if($PSBoundParameters.ContainsKey("RecipientDomains"))
         {$outbound.RecipientDomains = $RecipientDomains}
 
+        if ($version -ne 'SkipSpf')
+        {
+            Write-Verbose "Trying to add SEPPmail Appliance to Whitelist in 'Hosted Connection Filter Policy'"
+            Write-Verbose "Collecting existing WhiteList"
+            $hcfp = Get-HostedConnectionFilterPolicy
+            [string[]]$existingAllowList = $hcfp.IPAllowList
+            Write-verbose "Adding SEPPmail Appliance to Policy $($hcfp.Id)"
+            if ($existingAllowList) {
+                    $FinalIPList = ($existingAllowList + $IPs)|sort-object -Unique
+            }
+            else {
+                $FinalIPList = $IPs
+            }
+            Write-verbose "Adding IPaddress list with content $finalIPList to Policy $($hcfp.Id)"
+            if ($FinalIPList) {
+                Set-HostedConnectionFilterPolicy -Identity $hcfp.Id -IPAllowList $finalIPList
+            }
+        }
 
         Write-Verbose "Read existing SEPPmail Inbound Connector"
         $existingSMInboundConn = Get-InboundConnector $inbound.Name -ErrorAction SilentlyContinue
@@ -658,7 +676,7 @@ function New-SM365Rules
 
             if($createRules)
             {
-                Get-SM365TransportRuleSettings -Version $Version | %{
+                Get-SM365TransportRuleSettings -Version $Version | Foreach-Object {
                     $setting = $_
 
                     $setting.Priority = $placementPrio
