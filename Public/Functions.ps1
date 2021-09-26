@@ -1046,7 +1046,13 @@ function New-SM365ExOReport {
             $P = Get-TransportConfig |Select-Object MaxSendSize,MaxReceiveSize |Convertto-HTML -Fragment
 
 
-            $HeaderLogo = [Convert]::ToBase64String((Get-Content -path $PSScriptRoot\..\HTML\SEPPmailLogo.jpg -encoding byte ))
+            if ($psversiontable.PSedition -eq 'Desktop') {
+                $HeaderLogo = [Convert]::ToBase64String((Get-Content -path $PSScriptRoot\..\HTML\SEPPmailLogo.jpg -encoding byte ))
+            } else {
+                $HeaderLogo = [Convert]::ToBase64String((Get-Content -path $PSScriptRoot\..\HTML\SEPPmailLogo.jpg -AsByteStream))
+            }
+
+
             $LogoHTML = @"
 <img src="data:image/jpg;base64,$($HeaderLogo)" style="left:150px alt="Exchange Online System Report">
 "@
