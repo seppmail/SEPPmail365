@@ -989,8 +989,9 @@ function New-SM365ExOReport {
     {
         if (!(Test-SM365ConnectionStatus))
         { throw [System.Exception] "You're not connected to Exchange Online - please connect prior to using this CmdLet" }
-
-        Write-Information "Connected to Exchange Organization `"$Script:ExODefaultDomain`"" -InformationAction Continue
+        else {
+            Write-Information "Connected to Exchange Organization `"$Script:ExODefaultDomain`"" -InformationAction Continue
+        }
     }
 
     process
@@ -1000,70 +1001,105 @@ function New-SM365ExOReport {
                 #"Whatis is $Whatif and `$pscmdlet.ShouldProcess is $($pscmdlet.ShouldProcess) "
                 #For later Use
             }
-            $Top = "<p><h1>Exchange Online Report</h1><p>"
+            $mv = Get-module SEPPmail365 |select-object -expandproperty version
+            $Top = "<p><h1>Exchange Online Report created with SEPPmail365 Module version $mv</h1><p>"
             Write-Verbose "Collecting Accepted Domains"
-            $hA = '<p><h2>Accepted Domains</h2><p>'
+            $hSplitLine =     '<p><h2>----------------------------------------------------------------------------------------------</h2><p>'
+            #region General infos
+            $hGeneral =        '<p><h2>General Exchange Online and Subscription Information</h2><p>'
+            
+            $hA = '<p><h3>Accepted Domains</h3><p>'
             $A = Get-AcceptedDomain |select-object Domainname,DomainType,Default,EmailOnly,ExternallyManaged,OutboundOnly|Convertto-HTML -Fragment
-            Write-Verbose "Collecting Audit Log and Dkim Settings"
-            $hB = '<p><h2>Audit Log Settings</h2><p>'
-            $B = Get-AdminAuditLogConfig |Select-Object Name,AdminAuditLogEnabled,LogLevel,AdminAuditLogAgeLimit |Convertto-HTML -Fragment
 
-            $hC = '<p><h2>DKIM Settings</h2><p>'
-            $C = Get-DkimSigningConfig|Select-Object Domain,Status|Convertto-HTML -Fragment
-
-            Write-Verbose "Collecting Phishing and Malware Policies"
-            $hD = '<p><h2>Phishing and Malware Policies</h2><p>'
-            $D = Get-AntiPhishPolicy|Select-Object Identity,isDefault,IsValid|Convertto-HTML -Fragment
-            $E = Get-MalwareFilterPolicy|Select-Object Identity,Action,IsDefault|Convertto-HTML -Fragment
-
-            Write-Verbose "ATP Information"
-            $hF = '<p><h2>ATP Information</h2><p>'
-            $F = Get-ATPTotalTrafficReport|Select-Object Organization,Eventtype,Messagecount|Convertto-HTML -Fragment
-
-            Write-Verbose "Get-HybridMailflow"
-            $hG = '<p><h2>Hybrid Mailflow Information</h2><p>'
-            $G = Get-HybridMailflow|Convertto-HTML -Fragment
-
-            #Write-Verbose " Get-HybridMailflowDatacenterIPs"
-            #Get-HybridMailflowDatacenterIPs|Select-Object -ExpandProperty DatacenterIPs|Format-Table
-            #$H = Get-IntraOrganizationConfiguration|Select-Object OnlineTargetAddress,OnPremiseTargetAddresses,IsValid|Convertto-HTML -Fragment
-
-            Write-Verbose "Get-IntraorgConnector"
-            $hI = '<p><h2>Intra Org Connector Settings</h2><p>'
-            $I = Get-IntraOrganizationConnector|Select-Object Identity,TargetAddressDomains,DiscoveryEndpoint,IsValid|Convertto-HTML -Fragment
-
-            Write-Verbose "Get-MigrationConfig"
-            $hJ = '<p><h2>Migration Configuration Settings</h2><p>'
-            $J = Get-MigrationConfig|Select-Object Identity,Features,IsValid|Convertto-HTML -Fragment
-
-            Write-Verbose "Get-MigrationStatistics"
-            $hK = '<p><h2>Migration Statistics</h2><p>'
-            $K = Get-MigrationStatistics|Select-Object Identity,Totalcount,FinalizedCount,MigrationType,IsValid|Convertto-HTML -Fragment
-
-            Write-Verbose "InboundConnectors"
-            $hL = '<p><h2>Inbound Connectors</h2><p>'
-            $L = Get-InboundConnector |Select-Object Identity,Enabled,OrganizationalUnitRootInternal,TlsSenderCertificateName,ConnectorType,ConnectorSource,EFSkipLastIP,EFUsers,IsValid|Convertto-HTML -Fragment
-
-            Write-Verbose "OutboundConnectors"
-            $hM = '<p><h2>Outbound Connectors</h2><p>'
-            $M = Get-OutboundConnector|Select-Object Identity,Enabled,TlsDomain,OriginatingServer,TlsSettings,ConnectorType,ConnectorSource,EFSkipLastIP,EFUsers,IsValid|Convertto-HTML -Fragment
-
-            Write-Verbose "TransportRules"
-            $hN = '<p><h2>Existing Transport Rules</h2><p>'
-            $N = Get-TransportRule | select-object Name,Enabled,IsValid,Priority,FromScope,SentToScope,Comments |Convertto-HTML -Fragment
-
-            # Get MX Record Report for each domain
-            $hO = '<p><h2>MX Record for each Domain</h2><p>'
-            $O = $Null
-            $oTemp = Get-AcceptedDomain
-            Foreach ($AcceptedDomain in $oTemp.DomainName) {
-                $O += (Get-MxRecordReport -Domain $AcceptedDomain|Select-Object -Unique|Select-Object HighestPriorityMailhost,HighestPriorityMailhostIpAddress,Domain|Convertto-HTML -Fragment)
-            }
+            # Find out Office Configuration
+            Write-Verbose "Collecting M365 Configuration"
+            $hB = '<p><h3>ExO Configuration Details</h3><p>'
+            $B = Get-OrganizationConfig |Select-Object DisplayName,ExchangeVersion,AllowedMailboxRegions,DefaultMailboxRegion|Convertto-HTML -Fragment
 
             # Find out possible Sending Limits for LFT
             Write-Verbose "Collecting Send and Receive limits for SEPPmail LFT configuration"
-            $hP = '<p><h2>Send and Receive limits (for SEPPmail LFT configuration)</h2><p>'
+            $hP = '<p><h3>Send and Receive limits (for SEPPmail LFT configuration)</h3><p>'
             $P = Get-TransportConfig |Select-Object MaxSendSize,MaxReceiveSize |Convertto-HTML -Fragment
+
+            # Find out possible Office Message Encryption Settings
+            Write-Verbose "Collecting Office Message Encryption Settings"
+            $hP = '<p><h3>Office Message Encryption Settings</h3><p>'
+            $P = Get-OMEConfiguration|Convertto-HTML -Fragment
+            
+            # Get MX Record Report for each domain
+            $hO = '<p><h3>MX Record for each Domain</h3><p>'
+            $O = $Null
+            $oTemp = Get-AcceptedDomain
+            Foreach ($AcceptedDomain in $oTemp.DomainName) {
+                    $O += (Get-MxRecordReport -Domain $AcceptedDomain|Select-Object -Unique|Select-Object HighestPriorityMailhost,HighestPriorityMailhostIpAddress,Domain|Convertto-HTML -Fragment)
+            }
+
+            #endregion
+            
+            #region Security 
+            $hSecurity = '<p><h2>Security related Information</h2><p>'
+            $hC = '<p><h3>DKIM Settings</h3><p>'
+            $C = Get-DkimSigningConfig|Select-Object Domain,Enabled,Status,Selector1CNAME,Selector2CNAME |Convertto-HTML -Fragment
+            
+            Write-Verbose "Collecting Phishing and Malware Policies"
+            $hD = '<p><h3>Anti Phishing Policies</h3><p>'
+            $D = Get-AntiPhishPolicy|Select-Object Identity,isDefault,IsValid,AuthenticationFailAction|Convertto-HTML -Fragment
+            
+            $hE = '<p><h3>Anti Malware Policies</h3><p>'
+            $E = Get-MalwareFilterPolicy|Select-Object Identity,Action,IsDefault,Filetypes|Convertto-HTML -Fragment
+
+            $hk = '<p><h3>Content Filter Policy</h3><p>'
+            $k= Get-HostedContentFilterPolicy|Convertto-HTML -Fragment
+
+            Write-Verbose "Blocked Sender Addresses"
+            $hH = '<p><h3>Show Senders which are locked due to outbound SPAM</h3><p>'
+            $BlockedSenders = Get-BlockedSenderAddress
+            if ($BlockedSenders -eq $null) {
+                $hResult = '--- no blocked senders ---'
+            } else {
+                $hResult = $BlockedSenders
+            } 
+            $h = New-object -type PSobject -property @{Result = $hResult} |Convertto-HTML -Fragment
+            
+            Write-Verbose "Get Outbound SPAM Filter Policy"
+            $hJ = '<p><h3>Outbound SPAM Filter Policy</h3><p>'
+            $J = Get-HostedOutboundSpamFilterPolicy|Select-Object Name,IsDefault,Enabled,ActionWhenThresholdReached|Convertto-HTML -Fragment
+            
+            Write-Verbose "Get Filter Policy"
+            $hJ1 = '<p><h3>SPAM Filter Policy</h3><p>'
+            $J1 = Get-HostedConnectionFilterPolicy|select Name,IsDefault,Enabled,IPAllowList,IPBlockList|Convertto-HTML -Fragment
+            #endregion Security
+
+            #region other connectors
+            $hOtherConn = '<p><h2>Hybrid and other Connectors</h2><p>'
+            Write-Verbose "Get-HybridMailflow"
+            $hG = '<p><h3>Hybrid Mailflow Information</h3><p>'
+            
+            $G = Get-HybridMailflow|Convertto-HTML -Fragment
+
+            Write-Verbose "Get-IntraorgConnector"
+            $hI = '<p><h3>Intra Org Connector Settings</h3><p>'
+            $I = Get-IntraOrganizationConnector|Select-Object Identity,TargetAddressDomains,DiscoveryEndpoint,IsValid|Convertto-HTML -Fragment
+            #endregion
+
+            #region connectors
+            $hConnectors = '<p><h2>Existing Exchange Connectors</h2><p>'
+            
+            Write-Verbose "InboundConnectors"
+            $hL = '<p><h3>Inbound Connectors</h3><p>'
+            $L = Get-InboundConnector |Select-Object Identity,Enabled,SenderDomains,OrganizationalUnitRootInternal,TlsSenderCertificateName,IsValid|Convertto-HTML -Fragment
+            
+            Write-Verbose "OutboundConnectors"
+            $hM = '<p><h3>Outbound Connectors</h3><p>'
+            $M = Get-OutboundConnector|Select-Object Identity,Enabled,SmartHosts,TlsDomain,TlsSettings,RecipientDomains,OriginatingServer,IsValid|Convertto-HTML -Fragment
+            #endregion connectors
+            
+            #region mailflow rules
+            $hTransPortRules = '<p><h2>Existing Mailflow Rules</h2><p>'
+            Write-Verbose "TransportRules"
+            $hN = '<p><h3>Existing Transport Rules</h3><p>'
+            $N = Get-TransportRule | select-object Name,State,Mode,Priority,FromScope,SentToScope |Convertto-HTML -Fragment
+            #endregion transport rules
 
 
             if ($psversiontable.PSedition -eq 'Desktop') {
@@ -1077,7 +1113,12 @@ function New-SM365ExOReport {
 <img src="data:image/jpg;base64,$($HeaderLogo)" style="left:150px alt="Exchange Online System Report">
 "@
             $style = Get-Content $PSScriptRoot\..\HTML\SEPPmailReport.css
-            Convertto-HTML -Body "$LogoHTML $Top $hA $a $hB $b $hC $c $hd $d $e $hF $f $hG $g $hI $i $hJ $j $hK $k $hL $l $hM $m $hN $n $hO $o $hP $P" -Title "SEPPmail365 Exo Report" -Head $style|Out-File -FilePath $filePath
+            Convertto-HTML -Body "$LogoHTML $Top `
+                   $hSplitLine $hGeneral $hSplitLine $hA $a $hB $b $hP $P $hO $o`
+                  $hSplitLine $hSecurity $hSplitLine $hC $c $hd $d $hE $e $hK $k $hH $h $hJ $j $hJ1 $J1 `
+                 $hSplitLine $hOtherConn $hSplitLine $hG $g $hI $i `
+                $hSplitLine $hConnectors $hSplitLine $hL $l $hM $m `
+            $hSplitLine $hTransPortRules $hSplitLine $hN $n " -Title "SEPPmail365 Exo Report" -Head $style|Out-File -FilePath $filePath
 
         }
         catch {
