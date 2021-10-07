@@ -992,6 +992,22 @@ function New-SM365ExOReport {
         else {
             Write-Information "Connected to Exchange Organization `"$Script:ExODefaultDomain`"" -InformationAction Continue
         }
+        Write-verbose 'Defining Function fo read Exo Data and return an info Message in HTML even if nothing is retrieved'
+        function Get-ExoHTMLData {
+            param (
+                [Parameter(
+                      Mandatory = $true,
+                    HelpMessage = 'Enter Cmdlte to ')]
+                [string]$ExoCmd
+            )
+            $rawData = Invoke-Expression -Command $exoCmd
+            if ($null -eq $rawData) {
+                $ExoHTMLData = New-object -type PSobject -property @{Result = '--- no information available ---'}|Convertto-HTML -Fragment
+            } else {
+                $ExoHTMLData = $rawData|Convertto-HTML -Fragment
+            } 
+            return $ExoHTMLData    
+        }
     }
 
     process
@@ -1002,29 +1018,32 @@ function New-SM365ExOReport {
                 #For later Use
             }
             $mv = Get-module SEPPmail365 |select-object -expandproperty version
-            $Top = "<p><h1>Exchange Online Report created with SEPPmail365 Module version $mv</h1><p>"
+            $Top = "<p><h1>Exchange Online Report created with SEPPmail365 Module</h1><p>"
+            $now = Get-Date
+            $RepCreationDateTime = "<p><body>Report created: $now</body><p>"
+            $moduleVersion = "<p><body>Module Version: $mv</body><p>"
+
             Write-Verbose "Collecting Accepted Domains"
-            $hSplitLine =     '<p><h2>----------------------------------------------------------------------------------------------</h2><p>'
+            $hSplitLine = '<p><h2>---------------------------------------------------------------------------------------------------------------------------</h2><p>'
             #region General infos
-            $hGeneral =        '<p><h2>General Exchange Online and Subscription Information</h2><p>'
+            $hGeneral =  '<p><h2>General Exchange Online and Subscription Information</h2><p>'
             
             $hA = '<p><h3>Accepted Domains</h3><p>'
-            $A = Get-AcceptedDomain |select-object Domainname,DomainType,Default,EmailOnly,ExternallyManaged,OutboundOnly|Convertto-HTML -Fragment
-
+            $A = Get-ExoHTMLData -ExoCmd 'Get-AcceptedDomain |select-object Domainname,DomainType,Default,EmailOnly,ExternallyManaged,OutboundOnly‘
             # Find out Office Configuration
             Write-Verbose "Collecting M365 Configuration"
             $hB = '<p><h3>ExO Configuration Details</h3><p>'
-            $B = Get-OrganizationConfig |Select-Object DisplayName,ExchangeVersion,AllowedMailboxRegions,DefaultMailboxRegion|Convertto-HTML -Fragment
+            $B = Get-ExoHTMLData -ExoCmd 'Get-OrganizationConfig |Select-Object DisplayName,ExchangeVersion,AllowedMailboxRegions,DefaultMailboxRegion'
 
             # Find out possible Sending Limits for LFT
             Write-Verbose "Collecting Send and Receive limits for SEPPmail LFT configuration"
             $hP = '<p><h3>Send and Receive limits (for SEPPmail LFT configuration)</h3><p>'
-            $P = Get-TransportConfig |Select-Object MaxSendSize,MaxReceiveSize |Convertto-HTML -Fragment
+            $P = Get-ExoHTMLData -ExoCmd  'Get-TransportConfig |Select-Object MaxSendSize,MaxReceiveSize'
 
             # Find out possible Office Message Encryption Settings
             Write-Verbose "Collecting Office Message Encryption Settings"
             $hP = '<p><h3>Office Message Encryption Settings</h3><p>'
-            $P = Get-OMEConfiguration|Convertto-HTML -Fragment
+            $P = Get-ExoHTMLData -ExoCmd 'Get-OMEConfiguration'
             
             # Get MX Record Report for each domain
             $hO = '<p><h3>MX Record for each Domain</h3><p>'
@@ -1039,47 +1058,40 @@ function New-SM365ExOReport {
             #region Security 
             $hSecurity = '<p><h2>Security related Information</h2><p>'
             $hC = '<p><h3>DKIM Settings</h3><p>'
-            $C = Get-DkimSigningConfig|Select-Object Domain,Enabled,Status,Selector1CNAME,Selector2CNAME |Convertto-HTML -Fragment
+            $C = Get-ExoHTMLData -ExoCmd 'Get-DkimSigningConfig|Select-Object Domain,Enabled,Status,Selector1CNAME,Selector2CNAME'
             
             Write-Verbose "Collecting Phishing and Malware Policies"
             $hD = '<p><h3>Anti Phishing Policies</h3><p>'
-            $D = Get-AntiPhishPolicy|Select-Object Identity,isDefault,IsValid,AuthenticationFailAction|Convertto-HTML -Fragment
+            $D = Get-ExoHTMLData -ExoCmd 'Get-AntiPhishPolicy|Select-Object Identity,isDefault,IsValid,AuthenticationFailAction'
             
             $hE = '<p><h3>Anti Malware Policies</h3><p>'
-            $E = Get-MalwareFilterPolicy|Select-Object Identity,Action,IsDefault,Filetypes|Convertto-HTML -Fragment
+            $E = Get-ExoHTMLData -ExoCmd 'Get-MalwareFilterPolicy|Select-Object Identity,Action,IsDefault,Filetypes'
 
             $hk = '<p><h3>Content Filter Policy</h3><p>'
-            $k= Get-HostedContentFilterPolicy|Convertto-HTML -Fragment
+            $k= Get-ExoHTMLData -ExoCmd 'Get-HostedContentFilterPolicy'
 
             Write-Verbose "Blocked Sender Addresses"
             $hH = '<p><h3>Show Senders which are locked due to outbound SPAM</h3><p>'
-            $BlockedSenders = Get-BlockedSenderAddress
-            if ($BlockedSenders -eq $null) {
-                $hResult = '--- no blocked senders ---'
-            } else {
-                $hResult = $BlockedSenders
-            } 
-            $h = New-object -type PSobject -property @{Result = $hResult} |Convertto-HTML -Fragment
+            $h = Get-ExoHTMLData -ExoCmd 'Get-BlockedSenderAddress'
             
             Write-Verbose "Get Outbound SPAM Filter Policy"
             $hJ = '<p><h3>Outbound SPAM Filter Policy</h3><p>'
-            $J = Get-HostedOutboundSpamFilterPolicy|Select-Object Name,IsDefault,Enabled,ActionWhenThresholdReached|Convertto-HTML -Fragment
+            $J = Get-ExoHTMLData -ExoCmd 'Get-HostedOutboundSpamFilterPolicy|Select-Object Name,IsDefault,Enabled,ActionWhenThresholdReached'
             
             Write-Verbose "Get Filter Policy"
             $hJ1 = '<p><h3>SPAM Filter Policy</h3><p>'
-            $J1 = Get-HostedConnectionFilterPolicy|select Name,IsDefault,Enabled,IPAllowList,IPBlockList|Convertto-HTML -Fragment
+            $J1 = Get-ExoHTMLData -ExoCmd 'Get-HostedConnectionFilterPolicy|select-Object Name,IsDefault,Enabled,IPAllowList,IPBlockList'
             #endregion Security
 
             #region other connectors
             $hOtherConn = '<p><h2>Hybrid and other Connectors</h2><p>'
             Write-Verbose "Get-HybridMailflow"
             $hG = '<p><h3>Hybrid Mailflow Information</h3><p>'
-            
-            $G = Get-HybridMailflow|Convertto-HTML -Fragment
+            $g = Get-ExoHTMLData -ExoCmd 'Get-HybridMailflow'
 
             Write-Verbose "Get-IntraorgConnector"
             $hI = '<p><h3>Intra Org Connector Settings</h3><p>'
-            $I = Get-IntraOrganizationConnector|Select-Object Identity,TargetAddressDomains,DiscoveryEndpoint,IsValid|Convertto-HTML -Fragment
+            $I = Get-ExoHTMLData -ExoCmd 'Get-IntraOrganizationConnector|Select-Object Identity,TargetAddressDomains,DiscoveryEndpoint,IsValid'
             #endregion
 
             #region connectors
@@ -1087,18 +1099,18 @@ function New-SM365ExOReport {
             
             Write-Verbose "InboundConnectors"
             $hL = '<p><h3>Inbound Connectors</h3><p>'
-            $L = Get-InboundConnector |Select-Object Identity,Enabled,SenderDomains,OrganizationalUnitRootInternal,TlsSenderCertificateName,IsValid|Convertto-HTML -Fragment
+            $L = Get-ExoHTMLData -ExoCmd 'Get-InboundConnector |Select-Object Identity,Enabled,SenderDomains,OrganizationalUnitRootInternal,TlsSenderCertificateName,IsValid'
             
             Write-Verbose "OutboundConnectors"
             $hM = '<p><h3>Outbound Connectors</h3><p>'
-            $M = Get-OutboundConnector|Select-Object Identity,Enabled,SmartHosts,TlsDomain,TlsSettings,RecipientDomains,OriginatingServer,IsValid|Convertto-HTML -Fragment
+            $M = Get-ExoHTMLData -ExoCmd 'Get-OutboundConnector|Select-Object Identity,Enabled,SmartHosts,TlsDomain,TlsSettings,RecipientDomains,OriginatingServer,IsValid'
             #endregion connectors
             
             #region mailflow rules
             $hTransPortRules = '<p><h2>Existing Mailflow Rules</h2><p>'
             Write-Verbose "TransportRules"
             $hN = '<p><h3>Existing Transport Rules</h3><p>'
-            $N = Get-TransportRule | select-object Name,State,Mode,Priority,FromScope,SentToScope |Convertto-HTML -Fragment
+            $N = Get-ExoHTMLData -ExoCmd 'Get-TransportRule | select-object Name,State,Mode,Priority,FromScope,SentToScope'
             #endregion transport rules
 
 
@@ -1112,13 +1124,15 @@ function New-SM365ExOReport {
             $LogoHTML = @"
 <img src="data:image/jpg;base64,$($HeaderLogo)" style="left:150px alt="Exchange Online System Report">
 "@
+
+            $hEndOfReport = '<p><h2>--- End of Report ---</h2><p>'
             $style = Get-Content $PSScriptRoot\..\HTML\SEPPmailReport.css
-            Convertto-HTML -Body "$LogoHTML $Top `
+            Convertto-HTML -Body "$LogoHTML $Top $RepCreationDatetime $moduleVersion`
                    $hSplitLine $hGeneral $hSplitLine $hA $a $hB $b $hP $P $hO $o`
                   $hSplitLine $hSecurity $hSplitLine $hC $c $hd $d $hE $e $hK $k $hH $h $hJ $j $hJ1 $J1 `
                  $hSplitLine $hOtherConn $hSplitLine $hG $g $hI $i `
                 $hSplitLine $hConnectors $hSplitLine $hL $l $hM $m `
-            $hSplitLine $hTransPortRules $hSplitLine $hN $n " -Title "SEPPmail365 Exo Report" -Head $style|Out-File -FilePath $filePath
+            $hSplitLine $hTransPortRules $hSplitLine $hN $n $hEndofReport " -Title "SEPPmail365 Exo Report" -Head $style|Out-File -FilePath $filePath
 
         }
         catch {
