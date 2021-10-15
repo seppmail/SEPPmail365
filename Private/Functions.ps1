@@ -136,7 +136,6 @@ function Get-SM365OutboundConnectorSettings
     return $ret
 }
 
-
 function Get-SM365TransportRuleSettings
 {
     [CmdLetBinding()]

@@ -2,7 +2,16 @@
 
 $ModulePath = $PSScriptRoot
 
-. $ModulePath\Public\Functions.ps1
+$InteractiveSession = [System.Environment]::UserInteractive
+
+. "$PSScriptRoot\..\Private\Functions.ps1"
+Write-Verbose 'Request terminating errors by default'
+$PSDefaultParameterValues['*:ErrorAction'] = [System.Management.Automation.ActionPreference]::Stop
+
+Write-Verbose 'Loading Module Files'
+. $ModulePath\Public\Common.ps1
+. $ModulePath\Public\Rules.ps1
+. $ModulePath\Public\Connectors.ps1
 
 If (!(Get-Module -Name 'tmp_*')) {
     Write-Warning "It seems you are not connected to Exchange Online. Connect using 'Connect-ExchangeOnline'"
