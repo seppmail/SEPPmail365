@@ -8,8 +8,8 @@ namespace SM365
     public enum ConfigVersion
     {
         None,
-        Default,
-        SkipSpf,
+        Dec20, // Initial config when module was released
+        Default, // Updated COnfig with IP Whitelisting of SEPPmail in Defender
         Latest = Default
     }
 

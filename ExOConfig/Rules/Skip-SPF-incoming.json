@@ -5,7 +5,7 @@
 
     "Version":
     {
-        "SkipSpf":
+        "Default":
         {
             "HeaderContainsMessageHeader" : "X-SM-Incoming",
             "HeaderContainsWords"         : "yes",
@@ -15,7 +15,7 @@
             "SenderAddressLocation"       : "Header",
             "Priority"                    : 0
         },
-        "Default":
+        "Dec20":
         {
             "HeaderContainsMessageHeader" : "X-SM-Incoming",
             "HeaderContainsWords"         : "yes",
