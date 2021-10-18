@@ -247,7 +247,7 @@ function Remove-SM365Rules {
                   )]
     param
     (
-
+        
     )
 
     if (!(Test-SM365ConnectionStatus))
@@ -255,7 +255,7 @@ function Remove-SM365Rules {
 
     Write-Information "Connected to Exchange Organization `"$Script:ExODefaultDomain`"" -InformationAction Continue
 
-    $settings = Get-SM365TransportRuleSettings -Version "None"
+    $settings = Get-SM365TransportRuleSettings -Version "Latest"
     foreach($setting in $settings)
     {
         if($PSCmdlet.ShouldProcess($setting.Name, "Remove transport rule"))

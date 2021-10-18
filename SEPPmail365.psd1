@@ -12,16 +12,16 @@
 RootModule = 'SEPPmail365.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.1.3'
+ModuleVersion = '1.2.0'
 
 # Supported PSEditions
-CompatiblePSEditions = @('Desktop')
+CompatiblePSEditions = @('Desktop','Core')
 
 # ID used to uniquely identify this module
 GUID = '485013db-02ab-4bf7-9161-7119e152c297'
 
 # Author of this module
-Author = 'Roman Stadlmair, Max Domhardt'
+Author = 'SEPPmail Dev-Team'
 
 # Company or vendor of this module
 CompanyName = 'SEPPmail AG'
@@ -54,7 +54,7 @@ ProcessorArchitecture = 'Amd64'
 RequiredModules = @(
     @{
         ModuleName = 'ExchangeOnlineManagement'
-        ModuleVersion = '1.0.1'
+        ModuleVersion = '2.0.3'
         GUID = 'B5ECED50-AFA4-455B-847A-D8FB64140A22'
     }
 )
@@ -76,16 +76,16 @@ RequiredModules = @(
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = @(    
-    'New-SM365Connectors'
-    'Set-SM365Connectors'
+       'New-SM365Connectors'
+       'Set-SM365Connectors'
     'Remove-SM365Connectors'
-    'New-SM365Rules'
-    'Set-SM365Rules'
-    'Remove-SM365Rules'
     'Backup-SM365Connectors'
+       'New-SM365Rules'
+       'Set-SM365Rules'
+    'Remove-SM365Rules'
     'Backup-SM365Rules'
-    'New-SM365ExOReport',
-    'Test-SM365ConnectionStatus'
+       'New-SM365ExOReport',
+      'Test-SM365ConnectionStatus'
     )
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
@@ -117,6 +117,7 @@ PrivateData = @{
                 'ExchangeOnline',
                 'Microsoft365',
                 'PSEdition_Desktop',
+                'PSEdition_Core',
                 'Office365')
 
         # A URL to the license for this module.
@@ -156,10 +157,16 @@ PrivateData = @{
 05.07.21    1.1.2 Minor fix - include transport rules in New-SM365ExOReport
 
 09.09.21    1.1.3 Minor update - add new config version that disables rules which set the SCL to -1
+
+31.10.21    1.2.0 New whitelist filter policy,
+                  Tighter report
+                  Evolution-step config versions
+                  Connectors without domain limitation
+                  Renamed rules - which make clearer what they actually do
 '@
 
         # Prerelease string of this module
-        # Prerelease = ''
+        Prerelease = 'beta1'
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         # RequireLicenseAcceptance = $false

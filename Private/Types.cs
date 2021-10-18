@@ -9,8 +9,8 @@ namespace SM365
     {
         None,
         Dec20, // Initial config when module was released
-        Default, // Updated COnfig with IP Whitelisting of SEPPmail in Defender
-        Latest = Default
+        Oct21, // Updated COnfig with IP Whitelisting of SEPPmail in Defender
+        Latest = Oct21
     }
 
     // Where should new transport rules be placed, if there are already existing ones

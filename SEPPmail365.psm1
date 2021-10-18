@@ -4,11 +4,11 @@ $ModulePath = $PSScriptRoot
 
 $InteractiveSession = [System.Environment]::UserInteractive
 
-. "$PSScriptRoot\..\Private\Functions.ps1"
 Write-Verbose 'Request terminating errors by default'
 $PSDefaultParameterValues['*:ErrorAction'] = [System.Management.Automation.ActionPreference]::Stop
 
 Write-Verbose 'Loading Module Files'
+. $ModulePath\Private\PrivateFunctions.ps1
 . $ModulePath\Public\Common.ps1
 . $ModulePath\Public\Rules.ps1
 . $ModulePath\Public\Connectors.ps1

@@ -4,7 +4,16 @@
 
     "Version":
     {
-        "Default":
+        "Dec20":
+        {
+            "ConnectorSource"          : "Default",
+            "ConnectorType"            : "OnPremises",
+            "IsTransportRuleScoped"    : true,
+            "TlsSettings"              : "DomainValidation",
+            "UseMXRecord"              : false,
+            "CloudServicesMailEnabled" : true
+        },
+        "Oct21":
         {
             "ConnectorSource"          : "Default",
             "ConnectorType"            : "OnPremises",

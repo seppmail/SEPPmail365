@@ -29,39 +29,42 @@ function New-SM365Connectors
         [Alias("FQDN")]
         [String] $SEPPmailFQDN,
 
+        <# issue 26
         [Parameter(
              Mandatory = $false,
              HelpMessage = 'Internal Mail Domains, the connector will take E-Mails from'
          )]
         [string[]] $SenderDomains,
+        
 
         [Parameter(
              Mandatory = $false,
              HelpMessage = 'External Mail Domains, the connector will send E-Mails to'
          )]
         [string[]] $RecipientDomains,
+        #>
 
         [Parameter(
             Mandatory = $false,
-            HelpMessage = 'The subject of the SEPPmail SSL certificate (used for both in- and outbound connectors)'
+            HelpMessage = 'The subject of the SEPPmail SSL certificate (used for both in- and outbound connectors) if different from SEPPmailFQDN'
         )]
         [string] $TlsDomain,
 
         [Parameter(
              Mandatory = $false,
-             HelpMessage = 'The subject of the SEPPmail SSL certificate for the inbound connector'
+             HelpMessage = 'The subject of the SEPPmail SSL certificate for the inbound connector if different from SEPPmailFQDN/TlsDomain'
          )]
         [string] $InboundTlsDomain,
 
         [Parameter(
             Mandatory = $false,
-            HelpMessage = 'The subject of the SEPPmail SSL certificate for the outbound connector'
+            HelpMessage = 'The subject of the SEPPmail SSL certificate for the outbound connector if different from SEPPmailFQDN/TlsDomain'
         )]
         [string] $OutboundTlsDomain,
 
         [Parameter(
             Mandatory = $false,
-            HelpMessage = 'IP addresses or ranges of the SEPPmail appliances'
+            HelpMessage = 'IP addresses or ranges of the SEPPmail appliance(s) if different of SEPPmailFQDN'
         )]
         [string[]] $TrustedIPs,
 
@@ -69,13 +72,13 @@ function New-SM365Connectors
              Mandatory = $false,
              HelpMessage = 'Which configuration version to use'
          )]
-        [SM365.ConfigVersion] $Version = [SM365.ConfigVersion]::Default,
+        [SM365.ConfigVersion] $Version = [SM365.ConfigVersion]::Latest,
 
         [Parameter(
              Mandatory = $false,
              HelpMessage = 'Should the connectors be created active or inactive'
          )]
-        [switch] $Enabled = $true
+        [switch]$Enabled = $true
     )
 
     begin
@@ -132,33 +135,15 @@ function New-SM365Connectors
 
     process
     {
-        $outbound = Get-SM365OutboundConnectorSettings -Version $Version
-        $outbound.SmartHosts = $SEPPmailFQDN
-        $outbound.TlsDomain = $OutboundTlsDomain
-        $outbound.Enabled = $Enabled
-
-        $inbound = Get-SM365InboundConnectorSettings -Version $Version
-        $inbound.TlsSenderCertificateName = $InboundTlsDomain
-        $inbound.Enabled = $Enabled
-        
-        # Getting SEPPmail IP Address(es) for EFSkipIP´s and Anti-SPAM Whitelist
-        Write-Verbose "No IPs provided - trying to resolve $SEPPmailFQDN"
-        [string[]] $ips = [System.Net.Dns]::GetHostAddresses($SEPPmailFQDN) | ForEach-Object { $_.IPAddressToString }
-        Write-Verbose "Found following IP addresses: $ips"
-        $inbound.EFSkipIPs.AddRange($ips)
-
-        if($SenderDomains -and !($SenderDomains -eq '*'))
-        {
-            $inbound.AssociatedAcceptedDomains = $SenderDomains
-            $inbound.SenderDomains = $SenderDomains
-        }
-
+        <# Issue #31
         if($RecipientDomains)
         {
             $outbound.RecipientDomains = $RecipientDomains
         }
+        #>
 
-        if ($version -ne 'SkipSpf')
+        #Region - Hosted Connection Filter Policy Whitelist
+        if ($version -eq 'Oct21')
         {
             Write-Verbose "Trying to add SEPPmail Appliance to Whitelist in 'Hosted Connection Filter Policy'"
             Write-Verbose "Collecting existing WhiteList"
@@ -176,6 +161,28 @@ function New-SM365Connectors
                 Set-HostedConnectionFilterPolicy -Identity $hcfp.Id -IPAllowList $finalIPList
             }
         }
+        #endRegion - Hosted Connection Filter Policy WhiteList
+
+        #region - Inbound Connector
+        $inbound = Get-SM365InboundConnectorSettings -Version $Version
+        $inbound.TlsSenderCertificateName = $InboundTlsDomain
+        $inbound.Enabled = $Enabled
+
+        Write-Verbose "Getting SEPPmail IP Address(es) of $SEPPmailFQDN for EFSkipIP´s and Anti-SPAM Whitelist"
+        try {
+            [string[]] $ips = [System.Net.Dns]::GetHostAddresses($SEPPmailFQDN) | ForEach-Object { $_.IPAddressToString }
+        }
+        catch {
+            Write-Error "$SEPPmailFQDN could not be resolved, check Hostname and try again. See error $error[0].Exception.ErrorRecord"
+        }
+        Write-Verbose "Found following IP addresses: $ips"
+        $inbound.EFSkipIPs.AddRange($ips)
+
+        Write-verbose 'Setting -AssociatedAcceptedDomains to * to allow all inbound domains'
+        #$inbound.AssociatedAcceptedDomains = '*'
+
+        Write-Verbose 'Setting -Senderdomains to * ???? Why do we need this ?'
+        $inbound.SenderDomains = '*'
 
         Write-Verbose "Read existing SEPPmail Inbound Connector"
         $existingSMInboundConn = $allInboundConnectors | Where-Object Name -EQ $inbound.Name
@@ -232,7 +239,7 @@ function New-SM365Connectors
             if ($PSCmdLet.ShouldProcess($($param.Name), 'Creating Inbound Connector'))
             {
                 Write-Debug "Inbound Connector settings:"
-                $param.GetEnumerator() | % {
+                $param.GetEnumerator() | Foreach-Object {
                     Write-Debug "$($_.Key) = $($_.Value)"
                 }
                 New-InboundConnector @param | Out-Null
@@ -241,12 +248,19 @@ function New-SM365Connectors
                 {throw $error[0]}
             }
         }
+        #endRegion - Outbound Connector
+
+        #region - Outbound Connector
+        $outbound = Get-SM365OutboundConnectorSettings -Version $Version
+        $outbound.SmartHosts = $SEPPmailFQDN
+        $outbound.TlsDomain = $OutboundTlsDomain
+        $outbound.Enabled = $Enabled
 
         Write-Verbose "Read existing SEPPmail outbound connector"
         $existingSMOutboundConn = $allOutboundConnectors | Where-Object Name -EQ $outbound.Name
 
         # only $false if the user says so interactively
-        [bool] $createOutbound = $true
+        
         if ($existingSMOutboundConn)
         {
             Write-Warning "Found existing SEPPmail outbound connector with name: `"$($existingSMOutboundConn.Name)`" created on `"$($existingSMOutboundConn.WhenCreated)`" pointing to SEPPmail `"$($existingSMOutboundConn.TlsDomain)`" "
@@ -307,6 +321,7 @@ function New-SM365Connectors
                 {throw $error[0]}
             }
         }
+        #endregion - Outbound Connector
     }
 
     end
