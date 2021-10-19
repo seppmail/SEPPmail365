@@ -60,10 +60,21 @@ Future versions of the [ExchangeOnlineManagement](https://www.powershellgallery.
 
 # Module Installation
 
+## Installation on Windows 
+
 Installing the module is as easy as executing:  
 
 ```powershell
 Install-Module "SEPPmail365"
+```
+
+## Installation on macOS and Linux
+
+In addition to the main module you need to add PSWSMan which adds WAMan client libraries to linux and macOS for remote connectivity to Exchange Online.
+
+```powershell
+Install-Module PSWSMan
+sudo pwsh -Command 'Install-WSMan'
 ```
 
 If you want to use the newest version, that might not be production ready  
@@ -73,6 +84,8 @@ execute:
 ```powershell
 Import-Module "C:\path\to\module\SEPPmail365.psd1"
 ```
+
+
 
 
 <a id="org5b0c0f3"></a>
