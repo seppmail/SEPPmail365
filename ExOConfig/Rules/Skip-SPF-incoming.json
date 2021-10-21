@@ -1,6 +1,6 @@
 {
     "Name"                  : "[SEPPmail] - Skip SPF check after incoming appliance routing",
-    "Comments"              : "Not necessary if SEPPmail Appliance is int the Anst-SPAM Whitelist. OFF by default. Disables SPF check after an incoming mail has been routed to the SEPPmail appliance.",
+    "Comments"              : "Not necessary if SEPPmail Appliance is in the Anti-SPAM Whitelist. OFF by default. Disables SPF check after an incoming mail has been routed to the SEPPmail appliance.",
     "SMPriority"            : 3,
 
     "Version":
