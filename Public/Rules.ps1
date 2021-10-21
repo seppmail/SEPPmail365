@@ -13,6 +13,10 @@
                    HelpMessage='Which configuration version to use')]
         [SM365.ConfigVersion] $Version = [SM365.ConfigVersion]::Default,
 
+        [Parameter(Mandatory=$false,
+                   HelpMessage='Additional config options to activate')]
+        [SM365.ConfigVersion[]] $Options,
+
         [Parameter(
             Mandatory = $false,
             HelpMessage = 'Should the rules be created active or inactive'
@@ -111,7 +115,7 @@
 
             if($createRules)
             {
-                Get-SM365TransportRuleSettings -Version $Version | Foreach-Object {
+                Get-SM365TransportRuleSettings -Version $Version -Options $Options | Foreach-Object {
                     $setting = $_
 
                     $setting.Priority = $placementPrio
@@ -164,6 +168,10 @@ function Set-SM365Rules
         [SM365.ConfigVersion] $Version = [SM365.ConfigVersion]::Default,
 
         [Parameter(Mandatory=$false,
+                   HelpMessage='Additional config options to activate')]
+        [SM365.ConfigVersion[]] $Options,
+
+        [Parameter(Mandatory=$false,
                    HelpMessage='Should missing rules be created')]
         [switch] $FixMissing
     )
@@ -183,11 +191,15 @@ function Set-SM365Rules
     {
         try
         {
-            Get-SM365TransportRuleSettings -Version $Version | %{
+            Get-SM365TransportRuleSettings -Version $Version -Options $Options -IncludeSkipped | %{
                 $setting = $_
                 $rule = Get-TransportRule $setting.Name -ErrorAction SilentlyContinue
 
-                if ($rule -and $PSCmdlet.ShouldProcess($setting.Name, "Update transport rule"))
+                if($rule -and $setting.Skip -and $PSCmdlet.ShouldProcess($setting.Name, "Delete transport rule"))
+                {
+                    $rule | Remove-TransportRule -Confirm:$false
+                }
+                elseif ($rule -and $PSCmdlet.ShouldProcess($setting.Name, "Update transport rule"))
                 {
                     $parameters = $setting.ToHashtable("Update")
 
