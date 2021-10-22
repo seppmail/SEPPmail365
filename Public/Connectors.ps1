@@ -78,7 +78,7 @@ function New-SM365Connectors
              Mandatory=$false,
              HelpMessage='Additional config options to activate'
          )]
-        [SM365.ConfigVersion[]] $Options,
+        [SM365.ConfigVersion[]] $Option,
 
         [Parameter(
              Mandatory = $false,
@@ -170,7 +170,7 @@ function New-SM365Connectors
         #endRegion - Hosted Connection Filter Policy WhiteList
 
         #region - Inbound Connector
-        $inbound = Get-SM365InboundConnectorSettings -Version $Version -Options $Options
+        $inbound = Get-SM365InboundConnectorSettings -Version $Version Option $Option
         $inbound.TlsSenderCertificateName = $InboundTlsDomain
         $inbound.Enabled = $Enabled
 
@@ -258,7 +258,7 @@ function New-SM365Connectors
         #endRegion - Outbound Connector
 
         #region - Outbound Connector
-        $outbound = Get-SM365OutboundConnectorSettings -Version $Version -Options $Options
+        $outbound = Get-SM365OutboundConnectorSettings -Version $Version Option $Option
         $outbound.SmartHosts = $SEPPmailFQDN
         $outbound.TlsDomain = $OutboundTlsDomain
         $outbound.Enabled = $Enabled
@@ -417,7 +417,7 @@ function Set-SM365Connectors
              Mandatory=$false,
              HelpMessage='Additional config options to activate'
          )]
-        [SM365.ConfigVersion[]] $Options,
+        [SM365.ConfigVersion[]] $Option,
 
         [Parameter(
             Mandatory = $false,
@@ -454,14 +454,14 @@ function Set-SM365Connectors
             if($Version -eq "None")
             {throw [System.Exception] "-SetDefaults but no -Version specified - this won't work!"}
 
-            $inbound = Get-SM365InboundConnectorSettings -Version $Version -Options $Options
-            $outbound = Get-SM365OutboundConnectorSettings -Version $Version -Options $Options
+            $inbound = Get-SM365InboundConnectorSettings -Version $Version -Option $Option
+            $outbound = Get-SM365OutboundConnectorSettings -Version $Version -Option $Option
         }
         # don't think this is necessary anymore
         #else
         #{
-        #    $inbound = Get-SM365InboundConnectorSettings -Version "None" -Options $Options
-        #    $outbound = Get-SM365OutboundConnectorSettings -Version "None" -Options $Options
+        #    $inbound = Get-SM365InboundConnectorSettings -Version "None" -Option $Option
+        #    $outbound = Get-SM365OutboundConnectorSettings -Version "None" -Option $Option
         #}
 
         $inbound.Enabled = $Enabled

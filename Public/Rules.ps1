@@ -15,7 +15,7 @@
 
         [Parameter(Mandatory=$false,
                    HelpMessage='Additional config options to activate')]
-        [SM365.ConfigVersion[]] $Options,
+        [SM365.ConfigVersion[]] $Option,
 
         [Parameter(
             Mandatory = $false,
@@ -115,7 +115,7 @@
 
             if($createRules)
             {
-                Get-SM365TransportRuleSettings -Version $Version -Options $Options | Foreach-Object {
+                Get-SM365TransportRuleSettings -Version $Version -Option $Option | Foreach-Object {
                     $setting = $_
 
                     $setting.Priority = $placementPrio
@@ -126,7 +126,7 @@
                         $param = $setting.ToHashtable()
 
                         Write-Debug "Transport rule settings:"
-                        $param.GetEnumerator() | % {
+                        $param.GetEnumerator() | Foreach-Object {
                             Write-Debug "$($_.Key) = $($_.Value)"
                         }
 
@@ -169,7 +169,7 @@ function Set-SM365Rules
 
         [Parameter(Mandatory=$false,
                    HelpMessage='Additional config options to activate')]
-        [SM365.ConfigVersion[]] $Options,
+        [SM365.ConfigVersion[]] $Option,
 
         [Parameter(Mandatory=$false,
                    HelpMessage='Should missing rules be created')]
@@ -191,7 +191,7 @@ function Set-SM365Rules
     {
         try
         {
-            Get-SM365TransportRuleSettings -Version $Version -Options $Options -IncludeSkipped | %{
+            Get-SM365TransportRuleSettings -Version $Version -Option $Option -IncludeSkipped | Foreach-Object{
                 $setting = $_
                 $rule = Get-TransportRule $setting.Name -ErrorAction SilentlyContinue
 
@@ -204,7 +204,7 @@ function Set-SM365Rules
                     $parameters = $setting.ToHashtable("Update")
 
                     Write-Debug "Transport rule settings:"
-                    $parameters.GetEnumerator() | % {
+                    $parameters.GetEnumerator() | Foreach-Object {
                         Write-Debug "$($_.Key) = $($_.Value)"
                     }
 
@@ -226,7 +226,7 @@ function Set-SM365Rules
                     $parameters = $setting.ToHashtable()
 
                     Write-Debug "Transport rule settings:"
-                    $parameters.GetEnumerator() | % {
+                    $parameters.GetEnumerator() | Foreach-Object {
                         Write-Debug "$($_.Key) = $($_.Value)"
                     }
 
@@ -315,7 +315,7 @@ function Backup-SM365Rules
         if(!(Test-Path $OutFolder))
         {New-Item $OutFolder -ItemType Directory}
 
-        Get-TransportRule | %{
+        Get-TransportRule | Foreach-Object{
             $n = $_.Name
             $n = $n -replace "[\[\]*\\/?:><`"]"
 
