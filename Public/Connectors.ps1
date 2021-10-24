@@ -16,75 +16,139 @@ function New-SM365Connectors
 {
     [CmdletBinding(
          SupportsShouldProcess = $true,
-         ConfirmImpact = 'Medium'
+         ConfirmImpact = 'Medium',
+         DefaultParameterSet = 'FQDN'
      )]
 
     param
     (
+        #region FQDN
+        [Parameter(
+            Mandatory = $true,
+            HelpMessage = 'FQDN of the SEPPmail Appliance',
+            ParameterSetName = 'FQDN',
+            Position = 0
+        )]
+        [Parameter(
+           Mandatory = $true,
+           HelpMessage = 'FQDN of the SEPPmail Appliance',
+           ParameterSetName = 'CommonTlsDomain',
+           Position = 0
+        )]
         [Parameter(
              Mandatory = $true,
-             HelpMessage = 'FQDN of the SEPPmail Appliance'
-         )]
+             HelpMessage = 'FQDN of the SEPPmail Appliance',
+             ParameterSetName = 'DualTlsDomain',
+             Position = 0
+        )]
         [ValidatePattern("^(?!:\/\/)(?=.{1,255}$)((.{1,63}\.){1,127}(?![0-9]*$)[a-z0-9-]+\.?)$")]
         [Alias("FQDN")]
         [String] $SEPPmailFQDN,
+        #endregion FQDN
 
-        <# issue 26
-        [Parameter(
-             Mandatory = $false,
-             HelpMessage = 'Internal Mail Domains, the connector will take E-Mails from'
-         )]
-        [string[]] $SenderDomains,
-        
-
-        [Parameter(
-             Mandatory = $false,
-             HelpMessage = 'External Mail Domains, the connector will send E-Mails to'
-         )]
-        [string[]] $RecipientDomains,
-        #>
-
+        #region CommonTls
         [Parameter(
             Mandatory = $false,
-            HelpMessage = 'The subject of the SEPPmail SSL certificate (used for both in- and outbound connectors) if different from SEPPmailFQDN'
+            HelpMessage = 'If different from SEPPmailFQDN, subject of the SEPPmail SSL certificate (used for both in- and outbound connectors)',
+            ParameterSetName = 'FQDN',
+            Position = 1
         )]
+        [Parameter(
+            Mandatory = $false,
+            HelpMessage = 'If different from SEPPmailFQDN, subject of the SEPPmail SSL certificate (used for both in- and outbound connectors)',
+            ParameterSetName = 'CommonTls',
+            Position = 1
+        )]
+        [ValidatePattern("^(?!:\/\/)(?=.{1,255}$)((.{1,63}\.){1,127}(?![0-9]*$)[a-z0-9-]+\.?)$")]
+        [Alias("Tls")]
         [string] $TlsDomain,
+        #endregion CommonTls
 
+        #region DualTls
         [Parameter(
-             Mandatory = $false,
-             HelpMessage = 'The subject of the SEPPmail SSL certificate for the inbound connector if different from SEPPmailFQDN/TlsDomain'
-         )]
-        [string] $InboundTlsDomain,
+            Mandatory = $false,
+            HelpMessage = 'If different from SEPPmailFQDN/TLSDomain, subject of the SEPPmail SSL certificate for the inbound connector',
+            ParameterSetName = 'DualTls',
+            Position = 1
+            )]
+         [ValidatePattern("^(?!:\/\/)(?=.{1,255}$)((.{1,63}\.){1,127}(?![0-9]*$)[a-z0-9-]+\.?)$")]
+         [string] $InboundTlsDomain,
 
         [Parameter(
             Mandatory = $false,
-            HelpMessage = 'The subject of the SEPPmail SSL certificate for the outbound connector if different from SEPPmailFQDN/TlsDomain'
+            HelpMessage = 'If different from SEPPmailFQDN/TLSDomain, subject of the SEPPmail SSL certificate for the outbound connector',
+            ParameterSetName = 'DualTls',
+            Position = 1
         )]
+        [ValidatePattern("^(?!:\/\/)(?=.{1,255}$)((.{1,63}\.){1,127}(?![0-9]*$)[a-z0-9-]+\.?)$")]
         [string] $OutboundTlsDomain,
+        #endregion DualTls
 
+        #region Version
         [Parameter(
             Mandatory = $false,
-            HelpMessage = 'IP addresses or ranges of the SEPPmail appliance(s) if different of SEPPmailFQDN'
+            HelpMessage = 'Which configuration version to use',
+            ParameterSetname = 'FQDN',
+            Position = 2
         )]
-        [string[]] $TrustedIPs,
-
         [Parameter(
-             Mandatory = $false,
-             HelpMessage = 'Which configuration version to use'
-         )]
-        [SM365.ConfigVersion] $Version = [SM365.ConfigVersion]::Latest,
-
+            Mandatory = $false,
+            HelpMessage = 'Which configuration version to use',
+            ParameterSetname = 'CommonTls',
+            Position = 2
+        )]
         [Parameter(
-             Mandatory=$false,
-             HelpMessage='Additional config options to activate'
+            Mandatory = $false,
+            HelpMessage = 'Which configuration version to use',
+            ParameterSetname = 'DualTls',
+            Position = 2
          )]
+       [SM365.ConfigVersion] $Version = [SM365.ConfigVersion]::Latest,
+        #endregion Version
+
+        #region Option
+        [Parameter(
+            Mandatory=$false,
+            HelpMessage='Additional config options to activate',
+            ParameterSetname = 'FQDN',
+            Position = 3
+        )]
+        [Parameter(
+            Mandatory=$false,
+            HelpMessage='Additional config options to activate',
+            ParameterSetname = 'CommonTls',
+            Position = 3
+        )]
+        [Parameter(
+            Mandatory=$false,
+            HelpMessage='Additional config options to activate',
+            ParameterSetname = 'DualTls',
+            Position = 3
+        )]
         [SM365.ConfigVersion[]] $Option,
+        #endregion Option
 
+        #region Disabled
         [Parameter(
-             Mandatory = $false,
-             HelpMessage = 'Should the connectors be created active or inactive'
-         )]
-        [switch]$Enabled = $true
+            Mandatory = $false,
+            HelpMessage = 'Should the connectors be created active or inactive',
+            ParameterSetName = 'FQDN',
+            Position = 4
+        )]
+        [Parameter(
+            Mandatory = $false,
+            HelpMessage = 'Should the connectors be created active or inactive',
+            ParameterSetName = 'CommonTls',
+            Position = 4
+        )]
+        [Parameter(
+            Mandatory = $false,
+            HelpMessage = 'Should the connectors be created active or inactive',
+            ParameterSetName = 'DualTls',
+            Position = 4
+        )]
+        [switch]$Disabled
+        #endregion Disabled
     )
 
     begin
@@ -94,7 +158,11 @@ function New-SM365Connectors
 
         Write-Information "Connected to Exchange Organization `"$Script:ExODefaultDomain`"" -InformationAction Continue
 
-        # provide defaults for parameters, if not specified
+        # Getting SEPPmail IP Address(es) for Anti-SPAM Whitelist and other steps of the connector command
+        Write-Verbose "Resolving $SEPPmailFQDN to IP Addresses"
+        [string[]]$smFqdnIps = [System.Net.Dns]::GetHostAddresses($SEPPmailFQDN).IPAddressToString
+
+        Write-Verbose "Provide defaults for TlsDomains, if not specified"
         if(!$TlsDomain)
         {$TlsDomain = $SEPPmailFQDN}
 
@@ -104,6 +172,7 @@ function New-SM365Connectors
         if(!$OutboundTlsDomain)
         {$OutboundTlsDomain = $TlsDomain}
 
+        Write-Verbose "Collecting existing connectors"
         $allInboundConnectors = Get-InboundConnector
         $allOutboundConnectors = Get-OutboundConnector
 
@@ -141,14 +210,7 @@ function New-SM365Connectors
 
     process
     {
-        <# Issue #31
-        if($RecipientDomains)
-        {
-            $outbound.RecipientDomains = $RecipientDomains
-        }
-        #>
-
-        #Region - Hosted Connection Filter Policy Whitelist
+        #Region - Add SMFQDN to hosted Connection Filter Policy Whitelist
         if ($version -eq 'Oct21')
         {
             Write-Verbose "Trying to add SEPPmail Appliance to Whitelist in 'Hosted Connection Filter Policy'"
@@ -172,24 +234,14 @@ function New-SM365Connectors
         #region - Inbound Connector
         $inbound = Get-SM365InboundConnectorSettings -Version $Version Option $Option
         $inbound.TlsSenderCertificateName = $InboundTlsDomain
-        $inbound.Enabled = $Enabled
-
-        Write-Verbose "Getting SEPPmail IP Address(es) of $SEPPmailFQDN for EFSkipIP´s and Anti-SPAM Whitelist"
-        try {
-            [string[]] $ips = [System.Net.Dns]::GetHostAddresses($SEPPmailFQDN) | ForEach-Object { $_.IPAddressToString }
+        
+        Write-verbose "if -disabled switch is used, the connector stays deactivated"
+        if ($disabled) {
+            $inbound.Enabled = $false
         }
-        catch {
-            Write-Error "$SEPPmailFQDN could not be resolved, check Hostname and try again. See error $error[0].Exception.ErrorRecord"
-        }
-        Write-Verbose "Found following IP addresses: $ips"
-        $inbound.EFSkipIPs.AddRange($ips)
 
-        Write-verbose 'Setting -AssociatedAcceptedDomains to * to allow all inbound domains'
-        #$inbound.AssociatedAcceptedDomains = '*'
-
-        # Not needed I'd say
-        #Write-Verbose 'Setting -Senderdomains to * ???? Why do we need this ?'
-        #$inbound.SenderDomains = '*'
+        Write-Verbose "Setting SEPPmail IP Address(es) $smFqdnIps for EFSkipIP´s and Anti-SPAM Whitelist"
+        $inbound.EFSkipIPs.AddRange($smFqdnIps)
 
         Write-Verbose "Read existing SEPPmail Inbound Connector"
         $existingSMInboundConn = $allInboundConnectors | Where-Object Name -EQ $inbound.Name
@@ -255,17 +307,20 @@ function New-SM365Connectors
                 {throw $error[0]}
             }
         }
-        #endRegion - Outbound Connector
+        #endRegion InboundConnector
 
-        #region - Outbound Connector
+        #region OutboundConnector
         $outbound = Get-SM365OutboundConnectorSettings -Version $Version Option $Option
         $outbound.SmartHosts = $SEPPmailFQDN
         $outbound.TlsDomain = $OutboundTlsDomain
-        $outbound.Enabled = $Enabled
+        
+        Write-verbose "if -disabled switch is used, the connector stays deactivated"
+        if ($Disabled) {
+            $outbound.Enabled = $false
+        }
 
         Write-Verbose "Read existing SEPPmail outbound connector"
         $existingSMOutboundConn = $allOutboundConnectors | Where-Object Name -EQ $outbound.Name
-
         # only $false if the user says so interactively
         
         if ($existingSMOutboundConn)
@@ -318,7 +373,7 @@ function New-SM365Connectors
             if ($PSCmdLet.ShouldProcess($($param.Name), 'Creating Outbound Connector'))
             {
                 Write-Debug "Outbound Connector settings:"
-                $param.GetEnumerator() | %{
+                $param.GetEnumerator() | ForEach-Object{
                     Write-Debug "$($_.Key) = $($_.Value)"
                 }
 
@@ -328,7 +383,7 @@ function New-SM365Connectors
                 {throw $error[0]}
             }
         }
-        #endregion - Outbound Connector
+        #endregion OutboundConnector
     }
 
     end
@@ -469,7 +524,7 @@ function Set-SM365Connectors
 
         # Getting SEPPmail IP Address(es) for Anti-SPAM Whitelist
         Write-Verbose "No IPs provided - trying to resolve $SEPPmailFQDN"
-        [string[]] $ips = [System.Net.Dns]::GetHostAddresses($SEPPmailFQDN) | ForEach-Object { $_.IPAddressToString }
+        [string[]] $smFqdnIps = [System.Net.Dns]::GetHostAddresses($SEPPmailFQDN) | ForEach-Object { $_.IPAddressToString }
 
         if($TrustedIPs)
         {
