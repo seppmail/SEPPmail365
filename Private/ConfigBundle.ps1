@@ -1,9 +1,12 @@
 # This file defines config bundles, i.e. a named combination of
-# a config version and options
+# a config version and options for convenience.
 
 # Specified in the same way as versions and options are specified already
 # e.g. New-SM365Setup -Config "NoSkipSpf"
-# in which case the actual ConfigBundleSettings object has to be looked up via it's id.
+# in which case the actual ConfigBundleSettings object has to be looked up via Get-ConfigBundle.
+
+# The above call basically will be translated to this equivalent
+# New-SM365Setup -Version DaVersion -Option NoSkipSpf
 
 $Script:ConfigBundles = @{}
 
