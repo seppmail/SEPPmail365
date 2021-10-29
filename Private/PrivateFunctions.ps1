@@ -63,10 +63,10 @@ function Set-SM365PropertiesFromConfigJson
     )
 
     # use the latest if the requested version is not supplied (for overriding specific aspects only)
-    if(!$json.Version.$Version)
-    {
-        $Version = [SM365.ConfigVersion]::Latest
-    }
+    #if(!$json.Version.$Version)
+    #{
+    #    $Version = [SM365.ConfigVersion]::Latest
+    #}
 
     # skip if the requested version isn't available
     if(!$json.Version.$version)
