@@ -15,7 +15,7 @@
 
         [Parameter(Mandatory=$false,
                    HelpMessage='Additional config options to activate')]
-        [SM365.ConfigVersion[]] $Option,
+        [SM365.ConfigOption[]] $Option,
 
         [Parameter(
             Mandatory = $false,
@@ -169,7 +169,7 @@ function Set-SM365Rules
 
         [Parameter(Mandatory=$false,
                    HelpMessage='Additional config options to activate')]
-        [SM365.ConfigVersion[]] $Option,
+        [SM365.ConfigOption[]] $Option,
 
         [Parameter(Mandatory=$false,
                    HelpMessage='Should missing rules be created')]

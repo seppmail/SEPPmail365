@@ -125,7 +125,7 @@ function New-SM365Connectors
             ParameterSetname = 'DualTls',
             Position = 3
         )]
-        [SM365.ConfigVersion[]] $Option,
+        [SM365.ConfigOption[]] $Option,
         #endregion Option
 
         #region Disabled
@@ -472,7 +472,7 @@ function Set-SM365Connectors
              Mandatory=$false,
              HelpMessage='Additional config options to activate'
          )]
-        [SM365.ConfigVersion[]] $Option,
+        [SM365.ConfigOption[]] $Option,
 
         [Parameter(
             Mandatory = $false,

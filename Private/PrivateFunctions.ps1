@@ -58,8 +58,8 @@ function Set-SM365PropertiesFromConfigJson
     (
         [psobject] $InputObject,
         [psobject] $Json,
-        [SM365.ConfigVersion] $Version,
-        [SM365.ConfigVersion[]] $Options
+        [SM365.ConfigVersion] $Version = [SM365.ConfigVersion]::None,
+        [SM365.ConfigOption[]] $Option
     )
 
     # use the latest if the requested version is not supplied (for overriding specific aspects only)
@@ -96,9 +96,9 @@ function Set-SM365PropertiesFromConfigJson
         }
     }
 
-    if($Options)
+    if($Option)
     {
-        $Options | ?{$json.Version.$_} | %{
+        $Option | ?{$json.Option.$_} | %{
             $Json.Version.$_.psobject.properties | %{
                 $InputObject.$($_.Name) = $_.Value
             }
@@ -115,7 +115,7 @@ function Get-SM365InboundConnectorSettings
     Param
     (
         [SM365.ConfigVersion] $Version = [SM365.ConfigVersion]::Latest,
-        [SM365.ConfigVersion[]] $Options
+        [SM365.ConfigOption[]] $Option
     )
 
     if($Version -ne "None")
@@ -127,7 +127,7 @@ function Get-SM365InboundConnectorSettings
 
     $ret = [SM365.InboundConnectorSettings]::new($json.Name, $Version)
 
-    Set-SM365PropertiesFromConfigJson $ret -Json $json -Version $Version -Options $Options
+    Set-SM365PropertiesFromConfigJson $ret -Json $json -Version $Version -Option $Option
 
     return $ret
 }
@@ -138,7 +138,7 @@ function Get-SM365OutboundConnectorSettings
     Param
     (
         [SM365.ConfigVersion] $Version = [SM365.ConfigVersion]::Latest,
-        [SM365.ConfigVersion[]] $Options
+        [SM365.ConfigOptions[]] $Option
     )
 
     if($Version -ne "None")
@@ -150,7 +150,7 @@ function Get-SM365OutboundConnectorSettings
 
     $ret = [SM365.OutboundConnectorSettings]::new($json.Name, $Version)
 
-    Set-SM365PropertiesFromConfigJson $ret -Json $json -Version $Version -Options $Options
+    Set-SM365PropertiesFromConfigJson $ret -Json $json -Version $Version -Option $Option
 
     return $ret
 }
@@ -161,7 +161,7 @@ function Get-SM365TransportRuleSettings
     Param
     (
         [SM365.ConfigVersion] $Version = [SM365.ConfigVersion]::Latest,
-        [SM365.ConfigVersion[]] $Options,
+        [SM365.ConfigOption[]] $Option,
         [SM365.AvailableTransportRuleSettings[]] $Settings =[SM365.AvailableTransportRuleSettings]::All,
         [switch] $IncludeSkipped
     )
@@ -188,7 +188,7 @@ function Get-SM365TransportRuleSettings
 
         $settings = [SM365.TransportRuleSettings]::new($json.Name, $Version, $Type)
 
-        Set-SM365PropertiesFromConfigJson $settings -Json $json -Version $Version -Options $Options
+        Set-SM365PropertiesFromConfigJson $settings -Json $json -Version $Version -Option $Option
 
         if(!$settings.Skip -or ($settings.Skip -and $IncludeSkipped))
         {$ret.Add($settings)}

@@ -13,6 +13,12 @@ namespace SM365
         Latest = Oct21
     }
 
+    // Specifies options to be used by cmdlets
+    public enum ConfigOption
+    {
+        None
+    }
+
     // Where should new transport rules be placed, if there are already existing ones
     public enum PlacementPriority
     {
