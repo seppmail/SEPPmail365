@@ -19,6 +19,11 @@ namespace SM365
         None
     }
 
+    public enum ConfigBundle
+    {
+        None
+    }
+
     // Where should new transport rules be placed, if there are already existing ones
     public enum PlacementPriority
     {
@@ -59,6 +64,25 @@ namespace SM365
 
         public static ulong Check(ulong no, int pos)
         {return (no>>pos) & 1;}
+    }
+
+    public class ConfigBundleSettings
+    {
+        public ConfigBundleSettings()
+        {
+            Option = new List<ConfigOption>();
+        }
+
+        public ConfigBundleSettings(ConfigBundle id, ConfigVersion version, List<ConfigOption> option)
+        {
+            Id = id;
+            Version = version;
+            Option = option;
+        }
+
+        public ConfigBundle Id {get; set;}
+        public ConfigVersion Version {get; set;}
+        public List<ConfigOption> Option {get; set;}
     }
 
     // We only provide these classes for static typing and to prevent misspells in configuration variables.
