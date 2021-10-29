@@ -15,8 +15,8 @@
         { throw [System.Exception] "You're not connected to Exchange Online - please connect prior to using this CmdLet" }
         else {
             Write-Information "Connected to Exchange Organization `"$Script:ExODefaultDomain`"" -InformationAction Continue
-        }
         Write-verbose 'Defining Function fo read Exo Data and return an info Message in HTML even if nothing is retrieved'
+        }
         function Get-ExoHTMLData {
             param (
                 [Parameter(
@@ -53,7 +53,7 @@
             $hGeneral =  '<p><h2>General Exchange Online and Subscription Information</h2><p>'
             
             $hA = '<p><h3>Accepted Domains</h3><p>'
-            $A = Get-ExoHTMLData -ExoCmd 'Get-AcceptedDomain |select-object Domainname,DomainType,Default,EmailOnly,ExternallyManaged,OutboundOnly‘
+            $A = Get-ExoHTMLData -ExoCmd 'Get-AcceptedDomain |select-object Domainname,DomainType,Default,EmailOnly,ExternallyManaged,OutboundOnly'
             # Find out Office Configuration
             Write-Verbose "Collecting M365 Configuration"
             $hB = '<p><h3>ExO Configuration Details</h3><p>'
