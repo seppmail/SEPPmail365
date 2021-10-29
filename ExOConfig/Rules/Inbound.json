@@ -8,16 +8,16 @@
     {
         "Oct21" :
         {
-            "FromScope": "NotInOrganization",
-            "SentToScope": "InOrganization",
-            "ExceptIfHeaderMatchesMessageHeader": "X-SM-internal",
-            "ExceptIfHeaderMatchesPatterns": "yes",
-            "ExceptIfHeaderContainsMessageHeader": "X-SM-incoming",
-            "ExceptIfHeaderContainsWords": "yes",
-            "Priority": 0,
-            "SetAuditSeverity": "DoNotAudit",
-            "Mode": "Enforce",
-            "SenderAddressLocation": "Header"
+            "FromScope":                            "NotInOrganization",
+            "SentToScope":                          "InOrganization",
+            "ExceptIfHeaderMatchesMessageHeader":   "X-SM-internal",
+            "ExceptIfHeaderMatchesPatterns":        "yes",
+            "ExceptIfHeaderContainsMessageHeader":  "X-SM-incoming",
+            "ExceptIfHeaderContainsWords":          "yes",
+            "Priority":                             0,
+            "SetAuditSeverity":                     "DoNotAudit",
+            "Mode":                                 "Enforce",
+            "SenderAddressLocation":                "Header"
         }
     }
 }
