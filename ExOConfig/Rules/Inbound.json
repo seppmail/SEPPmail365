@@ -19,5 +19,10 @@
             "Mode":                                 "Enforce",
             "SenderAddressLocation":                "Header"
         }
+    },
+    "Option":
+    {
+        "AntiSpamWhiteList":
+        {}
     }
 }

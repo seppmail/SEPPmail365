@@ -18,7 +18,7 @@
     },
     "Option":
     {
-        "DisableRule":
+        "DisabledSPFIncoming":
         {
             "Enabled"                     : false
         }

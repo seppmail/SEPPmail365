@@ -18,7 +18,7 @@
     },
     "Option":
     {
-        "Disabled":
+        "DisabledSPFInternal":
         {
             "Enabled"                     : false
         }

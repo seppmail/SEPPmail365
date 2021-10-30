@@ -69,37 +69,32 @@ function Set-SM365PropertiesFromConfigJson
     #}
 
     # skip if the requested version isn't available
-    if(!$json.Version.$version)
-    {
+    if(!$json.Version.$version) {
         $InputObject.Skip = $true;
     }
 
     # Set all properties that aren't version specific
-    $json.psobject.properties | % {
+    $json.psobject.properties | Foreach-Object {
         if ($_.Name -notin @("Version", "Name"))
         { $InputObject.$($_.Name) = $_.Value }
     }
 
     # Default version actually acts as default properties now
-    if($json.Version["Default"])
-    {
-        $json.Version["Default"].psobject.properties | %{
+    if($json.Version["Default"]){
+        $json.Version["Default"].psobject.properties | Foreach-Object 
             $InputObject.$($_.Name) = $_.Value
-        }
     }
 
     # Set the version specific properties, except if none has been requested
-    if ($Version -ne [SM365.ConfigVersion]::None)
-    {
-        $json.Version.$Version.psobject.properties | % {
+    if ($Version -ne [SM365.ConfigVersion]::None) {
+        $json.Version.$Version.psobject.properties | Foreach-Object {
             $InputObject.$($_.Name) = $_.Value
         }
     }
 
-    if($Option)
-    {
-        $Option | ?{$json.Option.$_} | %{
-            $Json.Version.$_.psobject.properties | %{
+    if($Option) {
+        $Option | Where-Object {$json.Option.$_} | Foreach-Object{
+            $Json.Version.$_.psobject.properties | Foreach-Object{
                 $InputObject.$($_.Name) = $_.Value
             }
         }

@@ -8,15 +8,16 @@ namespace SM365
     public enum ConfigVersion
     {
         None,
-        Dec20, // Initial config when module was released
-        Oct21, // Updated COnfig with IP Whitelisting of SEPPmail in Defender
-        Latest = Oct21
+        Default, // Initial config when module was released
+        Latest = Default
     }
 
     // Specifies options to be used by cmdlets
     public enum ConfigOption
     {
-        None
+        None,
+        DisabledSPFIncoming,
+        DisabledSPFInternal
     }
 
     public enum ConfigBundle
