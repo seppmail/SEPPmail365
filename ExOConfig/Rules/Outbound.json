@@ -6,7 +6,7 @@
 
     "Version":
     {
-        "Oct21":
+        "Default":
         {
             "FromScope"                           : "InOrganization",
             "SentToScope"                         : "NotInOrganization",
