@@ -53,7 +53,7 @@
             $hGeneral =  '<p><h2>General Exchange Online and Subscription Information</h2><p>'
             
             $hA = '<p><h3>Accepted Domains</h3><p>'
-            $A = Get-ExoHTMLData -ExoCmd 'Get-AcceptedDomain |select-object Domainname,DomainType,Default,EmailOnly,ExternallyManaged,OutboundOnly'
+            $A = Get-ExoHTMLData -ExoCmd 'Get-AcceptedDomain |select-object Domainname,DomainType,Default,EmailOnly,ExternallyManaged,OutboundOnly|Sort-Object -Descending Default '
             # Find out Office Configuration
             Write-Verbose "Collecting M365 Configuration"
             $hB = '<p><h3>ExO Configuration Details</h3><p>'
@@ -67,7 +67,7 @@
             # Find out possible Office Message Encryption Settings
             Write-Verbose "Collecting Office Message Encryption Settings"
             $hP = '<p><h3>Office Message Encryption Settings</h3><p>'
-            $P = Get-ExoHTMLData -ExoCmd 'Get-OMEConfiguration'
+            $P = Get-ExoHTMLData -ExoCmd 'Get-OMEConfiguration|Select-Object PSComputerName,RunspaceId,PSShowComputerName,TemplateName,OTPEnabled,SocialIdSignIn,ExternalMailExpiryInterval,Identity,IsValid'
             
             # Get MX Record Report for each domain
             $hO = '<p><h3>MX Record for each Domain</h3><p>'
@@ -82,7 +82,7 @@
             #region Security 
             $hSecurity = '<p><h2>Security related Information</h2><p>'
             $hC = '<p><h3>DKIM Settings</h3><p>'
-            $C = Get-ExoHTMLData -ExoCmd 'Get-DkimSigningConfig|Select-Object Domain,Enabled,Status,Selector1CNAME,Selector2CNAME'
+            $C = Get-ExoHTMLData -ExoCmd 'Get-DkimSigningConfig|Select-Object Domain,Enabled,Status,Selector1CNAME,Selector2CNAME|sort-object Enabled -Descending'
             
             Write-Verbose "Collecting Phishing and Malware Policies"
             $hD = '<p><h3>Anti Phishing Policies</h3><p>'
