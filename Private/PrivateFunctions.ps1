@@ -74,8 +74,13 @@ function Set-SM365PropertiesFromConfigJson
     }
 
     # Set all properties that aren't version specific
+<<<<<<< HEAD
     $json.psobject.properties | Foreach-Object {
         if ($_.Name -notin @("Version", "Name"))
+=======
+    $json.psobject.properties | % {
+        if ($_.Name -notin @("Version", "Name", "Option"))
+>>>>>>> e791cbe910beb0bd252ede4bc94b8fd74e79f36a
         { $InputObject.$($_.Name) = $_.Value }
     }
 
@@ -92,9 +97,16 @@ function Set-SM365PropertiesFromConfigJson
         }
     }
 
+<<<<<<< HEAD
     if($Option) {
         $Option | Where-Object {$json.Option.$_} | Foreach-Object{
             $Json.Version.$_.psobject.properties | Foreach-Object{
+=======
+    if($Option -and $json.Option)
+    {
+        $Option | ?{$json.Option.$_} | %{
+            $Json.Version.$_.psobject.properties | %{
+>>>>>>> e791cbe910beb0bd252ede4bc94b8fd74e79f36a
                 $InputObject.$($_.Name) = $_.Value
             }
         }
