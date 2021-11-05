@@ -22,85 +22,114 @@ function New-SM365Connectors
 
     param
     (
-        #region FQDN
+        #region FqdnTls
         [Parameter(
             Mandatory = $true,
-            HelpMessage = 'FQDN of the SEPPmail Appliance',
-            ParameterSetName = 'FQDN',
+            HelpMessage = 'FQDN of the SEPPmail Appliance, i.e. securemail.contoso.com',
+            ParameterSetName = 'FqdnTls',
+            Position = 0
+        )]
+        [ValidatePattern("^(?!:\/\/)(?=.{1,255}$)((.{1,63}\.){1,127}(?![0-9]*$)[a-z0-9-]+\.?)$")]
+        [Alias('FQDN','SMFQDN')]
+        [Parameter(
+            Mandatory = $true,
+            HelpMessage = 'FQDN of the SEPPmail Appliance, i.e. securemail.contoso.com',
+            ParameterSetName = 'FqdnNoTls',
             Position = 0
         )]
         [ValidatePattern("^(?!:\/\/)(?=.{1,255}$)((.{1,63}\.){1,127}(?![0-9]*$)[a-z0-9-]+\.?)$")]
         [Alias('FQDN','SMFQDN')]
         [String] $SEPPmailFQDN,
-        #endregion FQDN
+        #endregion fqdntls
 
-        #region CommonTls
+        #region selfsigned
         [Parameter(
-            Mandatory = $false,
-            HelpMessage = 'If different from SEPPmailFQDN, subject of the SEPPmail SSL certificate (used for both in- and outbound connectors)',
-            ParameterSetName = 'CommonTls',
+            Mandatory = $true,
+            HelpMessage = 'OutBound Connector trusts also self signed certificates',
+            ParameterSetName = 'FQDNTls',
             Position = 1
         )]
-        [ValidatePattern("^(?!:\/\/)(?=.{1,255}$)((.{1,63}\.){1,127}(?![0-9]*$)[a-z0-9-]+\.?)$")]
-        [Alias('Tls','SMTlsDomain')]
-        [string] $TlsDomain,
-        #endregion CommonTls
-
-        #region DualTls
         [Parameter(
-            Mandatory = $false,
-            HelpMessage = 'If different from SEPPmailFQDN/TLSDomain, subject of the SEPPmail SSL certificate for the inbound connector',
-            ParameterSetName = 'DualTls',
-            Position = 1
-            )]
-         [ValidatePattern("^(?!:\/\/)(?=.{1,255}$)((.{1,63}\.){1,127}(?![0-9]*$)[a-z0-9-]+\.?)$")]
-         [string] $InboundTlsDomain,
-
-        [Parameter(
-            Mandatory = $false,
-            HelpMessage = 'If different from SEPPmailFQDN/TLSDomain, subject of the SEPPmail SSL certificate for the outbound connector',
-            ParameterSetName = 'DualTls',
+            Mandatory = $true,
+            HelpMessage = 'OutBound Connector trusts also self signed certificates',
+            ParameterSetName = 'IpTls',
             Position = 1
         )]
-        [ValidatePattern("^(?!:\/\/)(?=.{1,255}$)((.{1,63}\.){1,127}(?![0-9]*$)[a-z0-9-]+\.?)$")]
-        [string] $OutboundTlsDomain,
-        #endregion DualTls
+        [Alias('AllowSelfSigned','SelfSigned')]
+        [Switch] $AllowSelfSignedCertificates,
+        #endregion SelfSigned
 
-        #region IPAddress
+        #region NoTls
+        [Parameter(
+            Mandatory = $true,
+            HelpMessage = 'OutBound Connector allows also non-TLS conenctions',
+            ParameterSetName = 'FqdnNoTls',
+            Position = 1
+        )]
+        [Parameter(
+            Mandatory = $true,
+            HelpMessage = 'OutBound Connector allows also non-TLS conenctions',
+            ParameterSetName = 'IPNoTls',
+            Position = 1
+        )]
+        [Alias('NoTls')]
+        [Switch] $NoOutBoundTlsCheck,
+        #endregion NoTls
+
+        #region ipddress
         [Parameter(
             Mandatory = $false,
             HelpMessage = 'If SEPPmail has no FQDN and is represented as an IP Address',
-            ParameterSetName = 'IPAddress',
-            Position = 1
+            ParameterSetName = 'IpTls',
+            Position = 0
             )]
-         [ValidatePattern("^(?!:\/\/)(?=.{1,255}$)((.{1,63}\.){1,127}(?![0-9]*$)[a-z0-9-]+\.?)$")]
-         [Alias('SMIP','SMIPAddress')]
-         [string] $IPAddress,
-        #endregion SMIPAddress
+        [Parameter(
+            Mandatory = $false,
+            HelpMessage = 'If SEPPmail has no FQDN and is represented as an IP Address',
+            ParameterSetName = 'IpNoTls',
+            Position = 0
+            )]
+        [ValidatePattern("^(?!:\/\/)(?=.{1,255}$)((.{1,63}\.){1,127}(?![0-9]*$)[a-z0-9-]+\.?)$")]
+        [Alias('SMIP','SMIPAddress')]
+        [string] $IPAddress,
+        #endregion ipaddress
+
+        #region TrustedOutboundTlsDomain
+        [Parameter(
+            Mandatory = $false,
+            HelpMessage = 'For IP-Configurations, subject of the SEPPmail SSL certificate for the outbound connector securemail.contoso.com, *.contoso.com or contoso.com',
+            ParameterSetName = 'IpTls',
+            Position = 1
+        )]
+        [ValidatePattern("^(?!:\/\/)(?=.{1,255}$)((.{1,63}\.){1,127}(?![0-9]*$)[a-z0-9-]+\.?)$")]
+        [Alias('TlsDomain')]
+        [string] $TrustedOutboundTlsDomain,
+        #endregion TrustedOutboundTlsDomain
+
 
         #region Version
         [Parameter(
             Mandatory = $false,
             HelpMessage = 'Which configuration version to use',
-            ParameterSetname = 'FQDN',
+            ParameterSetname = 'FqdnTls',
             Position = 2
         )]
         [Parameter(
             Mandatory = $false,
             HelpMessage = 'Which configuration version to use',
-            ParameterSetname = 'CommonTls',
+            ParameterSetname = 'FqdnNoTls',
             Position = 2
         )]
         [Parameter(
             Mandatory = $false,
             HelpMessage = 'Which configuration version to use',
-            ParameterSetname = 'DualTls',
+            ParameterSetname = 'IpTls',
             Position = 2
          )]
         [Parameter(
             Mandatory = $false,
             HelpMessage = 'Which configuration version to use',
-            ParameterSetname = 'IPAddress',
+            ParameterSetname = 'IpNoTls',
             Position = 2
          )]
        [SM365.ConfigVersion] $Version = [SM365.ConfigVersion]::Latest,
@@ -110,25 +139,25 @@ function New-SM365Connectors
         [Parameter(
             Mandatory=$false,
             HelpMessage='Additional config options to activate',
-            ParameterSetname = 'FQDN',
+            ParameterSetname = 'FqdnTls',
             Position = 3
         )]
         [Parameter(
             Mandatory=$false,
             HelpMessage='Additional config options to activate',
-            ParameterSetname = 'CommonTls',
+            ParameterSetname = 'FqdnNoTls',
             Position = 3
         )]
         [Parameter(
             Mandatory=$false,
             HelpMessage='Additional config options to activate',
-            ParameterSetname = 'DualTls',
+            ParameterSetname = 'IpTls',
             Position = 3
         )]
         [Parameter(
             Mandatory = $false,
             HelpMessage = 'Which configuration version to use',
-            ParameterSetname = 'IPAddress',
+            ParameterSetname = 'IpNoTls',
             Position = 3
         )]
         [SM365.ConfigOption[]] $Option
@@ -140,8 +169,24 @@ function New-SM365Connectors
     {
         if(!(Test-SM365ConnectionStatus))
         {throw [System.Exception] "You're not connected to Exchange Online - please connect prior to using this CmdLet"}
-
         Write-Information "Connected to Exchange Organization `"$Script:ExODefaultDomain`"" -InformationAction Continue
+
+        Write-Verbose "Adapt Parametersets"
+        Switch($PsCmdLet.ParameterSetName) {
+            'FqdnTls' {
+
+            }
+            'FqdnNoTls' {
+
+            }
+            'IpTls' {
+
+            }
+            'IpNoTls'{
+
+            }
+        }
+
 
         Write-Verbose "Provide defaults for TlsDomains, if not specified"
         if($PSCmdLet.ParameterSetName -eq 'FQDN') {
@@ -160,10 +205,6 @@ function New-SM365Connectors
         
         Write-Verbose "$SEPPmailFQDN equals the IP(s): $smFqdnIPs"
         
-        }
-        if($PSCmdLet.ParameterSetName -eq 'TlsDomain') {
-            Write-Verbose "Using $TlsDOmain for inbound and outbound connectors"
-            $TlsDomain = $SEPPmailFQDN
         }
         if($PSCmdLet.ParameterSetName -eq 'DualTLS') {
             Write-Verbose "Using $InboundTlsDomain as inbound TLS domain and $outboundTLSDomain as outbound TLS domain"
@@ -312,7 +353,7 @@ function New-SM365Connectors
         #endRegion InboundConnector
 
         #region OutboundConnector
-        $outbound = Get-SM365OutboundConnectorSettings -Version $Version Option $Option
+        $outbound = Get-SM365OutboundConnectorSettings -Version $Version -Option $Option
         $outbound.SmartHosts = $SEPPmailFQDN
         $outbound.TlsDomain = $OutboundTlsDomain
         
@@ -325,6 +366,8 @@ function New-SM365Connectors
         $existingSMOutboundConn = $allOutboundConnectors | Where-Object Name -EQ $outbound.Name
         # only $false if the user says so interactively
         
+        $CreateOutBound = $true #Set Default Value
+
         if ($existingSMOutboundConn)
         {
             Write-Warning "Found existing SEPPmail outbound connector with name: `"$($existingSMOutboundConn.Name)`" created on `"$($existingSMOutboundConn.WhenCreated)`" pointing to SEPPmail `"$($existingSMOutboundConn.TlsDomain)`" "
