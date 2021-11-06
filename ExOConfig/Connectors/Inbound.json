@@ -9,7 +9,8 @@
             "CloudServicesMailEnabled"     : true,
             "ConnectorSource"              : "Default",
             "ConnectorType"                : "OnPremises",
-            "EFSkipIPs"                    : [ "40.92.0.0/15",
+            "EFSkipIPs"                    : [ 
+                "40.92.0.0/15",
                 "40.107.0.0/16",
                 "52.100.0.0/14",
                 "104.47.0.0/17",
@@ -28,11 +29,11 @@
             "EFUsers"                      : null,
             "Enabled"                      : true,
             "RequireTls"                   : true,
-            "RestrictDomainsToCertificate" : true,
-            "RestrictDomainsToIPAddresses" : false,
             "SenderDomains"                : "*"
         }
     },
     "Option":
-    {}
+    {
+       "AntiSpamWhiteList": true
+    }
 }

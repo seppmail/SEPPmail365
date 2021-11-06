@@ -74,7 +74,7 @@ function Set-SM365PropertiesFromConfigJson
     }
 
     # Set all properties that aren't version specific
-    $json.psobject.properties | % {
+    $json.psobject.properties | Foreach-Object {
         if ($_.Name -notin @("Version", "Name", "Option"))
         { $InputObject.$($_.Name) = $_.Value }
     }
@@ -94,8 +94,8 @@ function Set-SM365PropertiesFromConfigJson
 
     if($Option -and $json.Option)
     {
-        $Option | ?{$json.Option.$_} | %{
-            $Json.Version.$_.psobject.properties | %{
+        $Option | Where-Object {$json.Option.$_} | ForEach-Object{
+            $Json.Version.$_.psobject.properties | ForEach-Object{
                 $InputObject.$($_.Name) = $_.Value
             }
         }
@@ -134,7 +134,7 @@ function Get-SM365OutboundConnectorSettings
     Param
     (
         [SM365.ConfigVersion] $Version = [SM365.ConfigVersion]::Latest,
-        [SM365.ConfigOptions[]] $Option
+        [SM365.ConfigOption[]] $Option
     )
 
     if($Version -ne "None")

@@ -17,12 +17,14 @@ namespace SM365
     {
         None,
         DisabledSPFIncoming,
-        DisabledSPFInternal
+        DisabledSPFInternal,
+        AntiSpamWhiteList
     }
 
     public enum ConfigBundle
     {
-        None
+        None,
+        NoTls //Noch nicht aktiv
     }
 
     // Where should new transport rules be placed, if there are already existing ones
