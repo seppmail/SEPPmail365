@@ -77,7 +77,6 @@ RequiredModules = @(
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = @(    
        'New-SM365Connectors'
-       'Set-SM365Connectors'
     'Remove-SM365Connectors'
     'Backup-SM365Connectors'
        'New-SM365Rules'
@@ -95,7 +94,7 @@ CmdletsToExport = @()
 VariablesToExport = '*'
 
 # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
-AliasesToExport = @()
+AliasesToExport = '*'
 
 # DSC resources to export from this module
 # DscResourcesToExport = @()

@@ -19,6 +19,8 @@ If (!(Get-Module -Name 'tmp_*')) {
     Write-Warning "It seems you are not connected to Exchange Online. Connect using 'Connect-ExchangeOnline'"
 }
 
+Export-ModuleMember -Alias * -Function *
+
 # SIG # Begin signature block
 # MIIL1wYJKoZIhvcNAQcCoIILyDCCC8QCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR

@@ -7,10 +7,34 @@
     This commandlet will create the connectors for you.
 
     The -SEPPmailFQDN must point to a SEPPmail Appliance with a valid certificate to establish the TLS connection.
-    The parameter -TlsDomain is required, if the SEPPmailFQDN differs from the one in the SSL certificate.
+    T
 
 .EXAMPLE
+    Takes the Exchange Online environment selltings and creates Inbound and Outbound connectors to a SEPPmail Appliance.
+
     New-SM365Connectors -SEPPmailFQDN 'securemail.contoso.com'
+.EXAMPLE
+    Same as above, just no officially trusted certificate needed
+    
+    New-SM365Connectors -SEPPmailFQDN 'securemail.contoso.com' -AllowSelfSignedCertificates
+.EXAMPLE
+    Same as the dfault config, just with no TLS encryption at all.
+
+    New-SM365Connectors -SEPPmailFQDN securemail.contoso.com -NoOutBoundTlsCheck
+.EXAMPLE
+    If you want to create the connectors, but just disable them usw the -Disabled switch
+
+    New-SM365Connectors -SEPPmailFQDN securemail.contoso.com -Disabled
+
+.EXAMPLE
+    If youe SEPPmail is just accessible via an IP Address, use the -SEPPmailIP Parameter
+
+    New-SM365Connectors -SEPPmailIp '51.144.46.62'
+
+.EXAMPLE 
+     To get added to the ANTI-SPAM WHiteList of Microsoft Defender use -Option 'AntiSpamWhiteList'
+     
+    New-SM365Connectors -SEPPmailFQDN securemail.contoso.com -Option AntiSpamWhiteList -Disable
 #>
 function New-SM365Connectors
 {
@@ -44,11 +68,6 @@ function New-SM365Connectors
             HelpMessage = 'OutBound Connector trusts also self signed certificates',
             ParameterSetName = 'FqdnTls'
         )]
-        [Parameter(
-            Mandatory = $false,
-            HelpMessage = 'OutBound Connector trusts also self signed certificates',
-            ParameterSetName = 'IpTls'
-        )]
         [Alias('AllowSelfSigned','SelfSigned')]
         [Switch] $AllowSelfSignedCertificates,
         #endregion SelfSigned
@@ -67,23 +86,12 @@ function New-SM365Connectors
         [Parameter(
             Mandatory = $true,
             HelpMessage = 'If SEPPmail has no FQDN and is represented as an IP Address',
-            ParameterSetName = 'IpTls'
+            ParameterSetName = 'Ip'
         )]
         [ValidatePattern("(\b25[0-5]|\b2[0-4][0-9]|\b[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}")]
         [Alias('SMIP','SMIPAddress')]
         [string] $SEPPmailIP,
         #endregion SEPPmailIP
-
-        #region TrustedOutboundTlsDomain
-        [Parameter(
-            Mandatory = $true,
-            HelpMessage = 'For IP-Configurations, subject of the SEPPmail SSL certificate for the outbound connector securemail.contoso.com, *.contoso.com or contoso.com',
-            ParameterSetName = 'IpTls'
-        )]
-        [ValidatePattern("^(?!:\/\/)(?=.{1,255}$)((.{1,63}\.){1,127}(?![0-9]*$)[a-z0-9-]+\.?)$")]
-        [Alias('TlsDomain')]
-        [string] $TrustedOutboundTlsDomain,
-        #endregion TrustedOutboundTlsDomain
 
         #region Version
         [Parameter(
@@ -99,7 +107,7 @@ function New-SM365Connectors
         [Parameter(
            Mandatory = $false,
            HelpMessage = 'Which configuration version to use',
-           ParameterSetName = 'IpTls'
+           ParameterSetName = 'Ip'
         )]
        [SM365.ConfigVersion]$Version = [SM365.ConfigVersion]::Latest,
         #endregion Version
@@ -118,7 +126,7 @@ function New-SM365Connectors
         [Parameter(
             Mandatory = $false,
             HelpMessage = 'Which configuration version to use',
-            ParameterSetName = 'IpTls'
+            ParameterSetName = 'Ip'
         )]
         [SM365.ConfigOption[]]$Option,
         #endregion Option
@@ -137,7 +145,7 @@ function New-SM365Connectors
         [Parameter(
            Mandatory = $false,
            HelpMessage = 'Disable the connectors on creation',
-           ParameterSetName = 'IpTls'
+           ParameterSetName = 'Ip'
         )]
         [switch]$Disabled
         #endregion disabled
@@ -238,7 +246,7 @@ function New-SM365Connectors
         Write-Verbose "Read Inbound Connector Settings"
         $inbound = Get-SM365InboundConnectorSettings -Version $Version -Option $Option
         
-        if (($SCmdLet.ParametersetName -eq 'FqdnTls') -or ($SCmdLet.ParametersetName -eq 'IpTls') ) {
+        if ($PSCmdLet.ParametersetName -eq 'FqdnTls') {
             $inbound.TlsSenderCertificateName = $InboundTlsDomain
         }
         
@@ -301,7 +309,7 @@ function New-SM365Connectors
             # necessary assignment for splatting
             $param = $inbound.ToHashtable()
 
-            if ($PSCmdLet.ParameterSetName -like 'IP*') {
+            if ($PSCmdLet.ParameterSetName -eq 'Ip') {
                 $param.SenderIPAddresses = $SenderIPAddresses
                 $param.RequireTls = $false
             } else {
@@ -432,7 +440,7 @@ function New-SM365Connectors
 .EXAMPLE
     New-SM365Connectors -SEPPmailFQDN 'securemail.consoso.com'
 #>
-function Set-SM365Connectors
+<#function Set-SM365Connectors
 {
     [CmdletBinding(
          SupportsShouldProcess = $true,
@@ -603,13 +611,13 @@ function Set-SM365Connectors
             if($SetDefaults)
             {
                 # make sure we only add to existing EFSkipIPs, if defaults are requested
-                $existingSMInboundConn.EFSkipIPs | % {
+                $existingSMInboundConn.EFSkipIPs | foreach-object {
                     if ($inbound.EFSkipIPs -notcontains $_)
                     { $inbound.EFSkipIPs.Add($_) }
                 }
 
                 # make sure the appliance itself is registered in EFSkipIPs, if defaults are requested
-                [System.Net.Dns]::GetHostAddresses($existingSMInboundConn.TlsSenderCertificateName) | % {
+                [System.Net.Dns]::GetHostAddresses($existingSMInboundConn.TlsSenderCertificateName) | foreach-object {
                     if ($existingSMInboundConn.EFSkipIPs -notcontains $_.IPAddressToString) {
                         Write-Verbose "Appliance IP is not in EFSkipIPs - adding..."
                         $inbound.EFSkipIPs.Add($_.IPAddressToString)
@@ -621,7 +629,7 @@ function Set-SM365Connectors
             Write-Verbose "Updating SEPPmail Inbound Connector $($param.Name)!"
             if ($PSCmdLet.ShouldProcess($inbound.Name, "Updating Inbound Connector")) {
                 Write-Debug "Inbound Connector settings:"
-                $param.GetEnumerator() | % {
+                $param.GetEnumerator() | foreach-object {
                     Write-Debug "$($_.Key) = $($_.Value)"
                 }
 
@@ -643,7 +651,7 @@ function Set-SM365Connectors
             Write-Verbose "Updating SEPPmail Outbound Connector $($param.Name)!"
             if ($PSCmdLet.ShouldProcess($outbound.Name, "Updating Outbound Connector")) {
                 Write-Debug "Outbound Connector settings:"
-                $param.GetEnumerator() | % {
+                $param.GetEnumerator() | foreach-object {
                     Write-Debug "$($_.Key) = $($_.Value)"
                 }
 
@@ -659,6 +667,7 @@ function Set-SM365Connectors
     {
     }
 }
+#>
 
 <#
 .SYNOPSIS
@@ -709,7 +718,7 @@ function Backup-SM365Connectors
              Mandatory = $true,
              HelpMessage = 'Folder in which the backed up configuration will be stored'
          )]
-        [Alias("Folder")]
+        [Alias('Folder','Path')]
         [String] $OutFolder
     )
 
@@ -726,7 +735,7 @@ function Backup-SM365Connectors
         if(!(Test-Path $OutFolder))
         {New-Item $OutFolder -ItemType Directory}
 
-        Get-InboundConnector | %{
+        Get-InboundConnector | foreach-object{
             $n = $_.Name
             $n = $n -replace "[\[\]*\\/?:><`"]"
 
@@ -736,7 +745,7 @@ function Backup-SM365Connectors
             ConvertTo-Json -InputObject $_ | Out-File $p
         }
 
-        Get-OutboundConnector | % {
+        Get-OutboundConnector | foreach-object {
             $n = $_.Name
             $n = $n -replace "[\[\]*\\/?:><`"]"
 
@@ -747,6 +756,9 @@ function Backup-SM365Connectors
     }
 }
 
+
+
+New-Alias -Name Set-SM365Connectors -Value New-SM365Connectors
 
 # SIG # Begin signature block
 # MIIL1wYJKoZIhvcNAQcCoIILyDCCC8QCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
