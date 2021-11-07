@@ -76,14 +76,14 @@ RequiredModules = @(
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = @(    
-       'New-SM365Connectors'
-    'Remove-SM365Connectors'
     'Backup-SM365Connectors'
-       'New-SM365Rules'
-       'Set-SM365Rules'
-    'Remove-SM365Rules'
     'Backup-SM365Rules'
-       'New-SM365ExOReport',
+       'New-SM365Rules'
+       'New-SM365Connectors'
+       'New-SM365ExOReport'
+    'Remove-SM365Connectors'
+    'Remove-SM365Rules'
+       'Set-SM365Rules'
       'Test-SM365ConnectionStatus'
     )
 

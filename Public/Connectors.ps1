@@ -756,8 +756,6 @@ function Backup-SM365Connectors
     }
 }
 
-
-
 New-Alias -Name Set-SM365Connectors -Value New-SM365Connectors
 
 # SIG # Begin signature block
