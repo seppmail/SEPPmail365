@@ -17,7 +17,7 @@
   - [First Use](#org0d16067)
   - [Upgrading from a previous version](#org6e80204)
 
-<p id="document-version">Module Version: 1.1.3<br>
+<p id="document-version">Module Version: 1.2.0<br>
 <a href="https://www.seppmail.ch">SEPPmail Home Page</a></p>
 
 
@@ -30,14 +30,13 @@ their SEPPmail appliance with Exchange Online.
 
 Integration with Exchange Online requires the configuration of an inbound and  
 outbound connector, to route mails from Exchange Online to the appliance and  
-vice versa, as well as transport rules for necessary mail manipulation (e.g.  
-headers).  
-
-This module provides means to create and update default connectors, rules, and  
+vice versa, as well as transport rules for necessary mail flow control.
+  
+This module provides means to create and update connectors, rules, and  
 backing up existing configuration, as well as generating a report about the  
-current state of the environment.  
+current state of the exchange online environment.
 
-**GENERAL NOTE:**  
+## GENERAL NOTE
 Please note that Exchange Online is a relatively fast paced environment and  
 subject to change. In pratice that means that a working setup can suddenly stop  
 behaving correctly, as soon as the cloud infrastructure has been updated.  
@@ -45,32 +44,28 @@ This may affect you and thus will require a certain amount of patience.
 We try to adapt to these changes ASAP, but can't guarantee that this module will  
 be up to date immediately after Microsoft has deployed new changes.  
 
+## November 2021 - Releasenotes 1.2:
 
-
-**November 2021 - Releasenotes 1.2:**  
-
-Version 1.2 was a release focussed on 2 topics
+Version 1.2 of this module is a release focussed on 3 topics
 * Simplification based on best practices
 * Make the configuration easier to read
 * Adapt to Exchange Online Features
 
-***Simplification based on best practices***
+### Simplification based on best practices
 
-1.) The previous version worked pretty well for default configurations with a FQDN for the SEPPmail with a valid certificate. With version 1.2 we now add support for "Self-Signed Certificates" and the option to use also NO TLS in outbound traffic. Even if this may only make sense in test and demo environments, or as a temporary solution, we added it to New-SM265Connectors
+1. The previous version worked pretty well for default configurations with a FQDN for the SEPPmail with a valid certificate. With version 1.2 we now add support for "Self-Signed Certificates" and the option to use also "No TLS verification" for outbound traffic. Even if this makes only sense in test and demo environments, or as a temporary solution, we added it to New-SM365Connectors.
 
-2.) The CmdLet Set-SM365Connectors is just a Alias to New-SM365Connectors as we want our customers to build secure and tested configs. If you need more advanced configurations for your connectors like multiple IP Addresses, add this configuration after the initial creation in the UI or with the native PowerShell CmdLets.
+**NOTE for PRODUCTION ENVIRONMENTS: Always procect the traffic with TLS and do not use Self-Signed Certificates !**  
 
-***Adapt to Exchange Online Features***
+2. The CmdLet Set-SM365Connectors is just an alias to New-SM365Connectors. Using Set-SM365Connectors just recreates the connectors based on new parameter settings with one Appliance. 
+If you need more advanced configurations for your connectors like multiple IP Addresses or a SEPPmail CLuster, add this configuration after the initial creation in the UI or with the native PowerShell CmdLets.
+
+3. Adapt to Exchange Online Features
 
 Exchange Online allows it now to add IP Addresses in a Whitelist, that makes our previous
-SPF Rules unneccesary. By default we now ....
+SPF Rules unneccesary. When using the -Option "AntiSpamWhiteList" Parameter in New-SM365Connectors, the **SEPPmail Appliance** IP address will be added to the **whitelist** in the "Hosted Connection Filter (Default)" policy. This tells Exchange online, that everything coming from SEPPmail is trusted (as it was scanned by M365 Defenders already). This policy is - as far as we investigated available for Exchange Online Plans 1 and 2 (and hopefully its successors).
 
-
-- The PS-Module adds the **SEPPmail Appliance** IP address to the **whitelist** in the "Hosted Connection Filter (Default)" policy. This tells Exchange online, that everything coming from SEPPmail is trusted (as it was scanned by M365 Defenders already). This policy is - as far as we investigated available for Exchange Online Plans 1 and 2 (and hopefully its successors).
-
-- The SPF Mailflow-rules which we used so far as a workaround to avoid SPAM are deactiveted in the "Default" Configuration by default.
-
-- Inbound and Outbound Connectors are configured as before
+The SPF Mailflow-rules which we used so far as a workaround to avoid SPAM are deactiveted in the "Default" Configuration by default.
 
 ***In existing installations***
 
