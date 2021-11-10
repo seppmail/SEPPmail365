@@ -95,7 +95,7 @@ function Set-SM365PropertiesFromConfigJson
     if($Option -and $json.Option)
     {
         $Option | Where-Object {$json.Option.$_} | ForEach-Object{
-            $Json.Version.$_.psobject.properties | ForEach-Object{
+            $Json.Option.$_.psobject.properties | ForEach-Object{
                 $InputObject.$($_.Name) = $_.Value
             }
         }
