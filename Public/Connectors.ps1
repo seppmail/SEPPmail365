@@ -50,12 +50,14 @@ function New-SM365Connectors
         [Parameter(
             Mandatory = $true,
             HelpMessage = 'FQDN of the SEPPmail Appliance, i.e. securemail.contoso.com',
-            ParameterSetName = 'FqdnTls'
+            ParameterSetName = 'FqdnTls',
+            Position = 0
         )]
         [Parameter(
             Mandatory = $true,
             HelpMessage = 'FQDN of the SEPPmail Appliance, i.e. securemail.contoso.com',
-            ParameterSetName = 'FqdnNoTls'
+            ParameterSetName = 'FqdnNoTls',
+            Position = 0
         )]
         [ValidatePattern("^(?!:\/\/)(?=.{1,255}$)((.{1,63}\.){1,127}(?![0-9]*$)[a-z0-9-]+\.?)$")]
         [Alias('FQDN','SMFQDN')]
@@ -86,7 +88,8 @@ function New-SM365Connectors
         [Parameter(
             Mandatory = $true,
             HelpMessage = 'If SEPPmail has no FQDN and is represented as an IP Address',
-            ParameterSetName = 'Ip'
+            ParameterSetName = 'Ip',
+            Position = 0
         )]
         [ValidatePattern("(\b25[0-5]|\b2[0-4][0-9]|\b[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}")]
         [Alias('SMIP','SMIPAddress')]
@@ -233,7 +236,7 @@ function New-SM365Connectors
                     $FinalIPList = ($existingAllowList + $IPs)|sort-object -Unique
             }
             else {
-                $FinalIPList = $IPs
+                $FinalIPList = $SEPPmailIP
             }
             Write-verbose "Adding IPaddress list with content $finalIPList to Policy $($hcfp.Id)"
             if ($FinalIPList) {
