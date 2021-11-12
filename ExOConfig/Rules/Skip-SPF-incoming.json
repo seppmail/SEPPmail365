@@ -18,9 +18,9 @@
     },
     "Option":
     {
-        "DisabledSPFIncoming":
+        "AntiSpamWhiteList":
         {
-            "Enabled"                     : false
+            "Enabled": false
         }
     }
 }
