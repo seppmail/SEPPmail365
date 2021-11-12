@@ -18,9 +18,10 @@
     },
     "Option":
     {
-        "DisabledSPFInternal":
+        "AntiSpamWhiteList":
         {
-            "Enabled"                     : false
+            "Enabled": false
         }
+        
     }
 }

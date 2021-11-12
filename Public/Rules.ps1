@@ -21,7 +21,7 @@
             Mandatory = $false,
             HelpMessage = 'Should the rules be created active or inactive'
         )]
-        [switch] $Enabled = $true
+        [switch]$Disabled
     )
 
     begin
@@ -31,7 +31,7 @@
 
         Write-Information "Connected to Exchange Organization `"$Script:ExODefaultDomain`"" -InformationAction Continue
 
-        $outboundConnectors = Get-OutboundConnector | ?{ $_.Name -match "^\[SEPPmail\]" }
+        $outboundConnectors = Get-OutboundConnector | Where-Object { $_.Name -match "^\[SEPPmail\]" }
         if(!($outboundConnectors))
         {
             throw [System.Exception] "No SEPPmail outbound connector found. Run `"New-SM365Connectors`" to add the proper SEPPmail connectors"
@@ -119,7 +119,7 @@
                     $setting = $_
 
                     $setting.Priority = $placementPrio
-                    $setting.Enabled = $Enabled
+                    if ($Disabled -eq $true) {$setting.Enabled = $false}
 
                     if ($PSCmdlet.ShouldProcess($setting.Name, "Create transport rule"))
                     {
