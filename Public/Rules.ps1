@@ -10,10 +10,6 @@
         [SM365.PlacementPriority] $PlacementPriority = [SM365.PlacementPriority]::Top,
 
         [Parameter(Mandatory=$false,
-                   HelpMessage='Which configuration version to use')]
-        [SM365.ConfigVersion] $Version = [SM365.ConfigVersion]::Default,
-
-        [Parameter(Mandatory=$false,
                    HelpMessage='Additional config options to activate')]
         [SM365.ConfigOption[]] $Option,
 
@@ -35,6 +31,9 @@
         if(!($outboundConnectors))
         {
             throw [System.Exception] "No SEPPmail outbound connector found. Run `"New-SM365Connectors`" to add the proper SEPPmail connectors"
+        }
+        if ($($outboundConnectors.Enabled) -ne $true) {
+            throw [System.Exception] "SEPPmail outbound-connector is disabled, cannot create rules. Create connectors without -Disable switch, or enable them in the admin portal."
         }
     }
 
@@ -115,7 +114,7 @@
 
             if($createRules)
             {
-                Get-SM365TransportRuleSettings -Version $Version -Option $Option | Foreach-Object {
+                Get-SM365TransportRuleSettings -Version 'Default' -Option $Option | Foreach-Object {
                     $setting = $_
 
                     $setting.Priority = $placementPrio
@@ -164,10 +163,6 @@ function Set-SM365Rules
     param
     (
         [Parameter(Mandatory=$false,
-                   HelpMessage='Which configuration version to use')]
-        [SM365.ConfigVersion] $Version = [SM365.ConfigVersion]::Default,
-
-        [Parameter(Mandatory=$false,
                    HelpMessage='Additional config options to activate')]
         [SM365.ConfigOption[]] $Option,
 
@@ -191,7 +186,7 @@ function Set-SM365Rules
     {
         try
         {
-            Get-SM365TransportRuleSettings -Version $Version -Option $Option -IncludeSkipped | Foreach-Object{
+            Get-SM365TransportRuleSettings -Version 'Default' -Option $Option -IncludeSkipped | Foreach-Object{
                 $setting = $_
                 $rule = Get-TransportRule $setting.Name -ErrorAction SilentlyContinue
 
@@ -267,7 +262,7 @@ function Remove-SM365Rules {
 
     Write-Information "Connected to Exchange Organization `"$Script:ExODefaultDomain`"" -InformationAction Continue
 
-    $settings = Get-SM365TransportRuleSettings -Version "Latest"
+    $settings = Get-SM365TransportRuleSettings -Version 'Default'
     foreach($setting in $settings)
     {
         if($PSCmdlet.ShouldProcess($setting.Name, "Remove transport rule"))

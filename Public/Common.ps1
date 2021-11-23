@@ -3,8 +3,9 @@
                    ConfirmImpact='Medium')]
     Param (
         # Define output Filapath
-        [Parameter(   Mandatory = $true,
-                    HelpMessage = 'Path of the HTML report on disk'
+        [Parameter(   
+           Mandatory   = $true,
+           HelpMessage = 'Path of the HTML report on disk'
         )]
         $FilePath
     )
@@ -92,7 +93,7 @@
             $E = Get-ExoHTMLData -ExoCmd 'Get-MalwareFilterPolicy|Select-Object Identity,Action,IsDefault,Filetypes'
 
             $hk = '<p><h3>Content Filter Policy</h3><p>'
-            $k= Get-ExoHTMLData -ExoCmd 'Get-HostedContentFilterPolicy'
+            $k= Get-ExoHTMLData -ExoCmd 'Get-HostedContentFilterPolicy|Select-Object QuarantineRetentionPeriod,EndUserSpamNotificationFrequency,TestModeAction,IsValid,BulkSpamAction,PhishSpamAction,OriginatingServer'
 
             Write-Verbose "Blocked Sender Addresses"
             $hH = '<p><h3>Show Senders which are locked due to outbound SPAM</h3><p>'

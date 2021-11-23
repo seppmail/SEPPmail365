@@ -16,8 +16,8 @@ namespace SM365
     public enum ConfigOption
     {
         None,
-        DisabledSPFIncoming,
-        DisabledSPFInternal,
+        // DisabledSPFIncoming,
+        // DisabledSPFInternal,
         AntiSpamWhiteList
     }
 
