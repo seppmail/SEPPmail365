@@ -307,6 +307,8 @@ function New-SM365Connectors
                 $param.GetEnumerator() | Foreach-Object {
                     Write-Debug "$($_.Key) = $($_.Value)"
                 }
+                $Now = Get-Date
+                $param.Comment += "`n#Created with SEPPmail365 PowerShell Module on $now"
                 New-InboundConnector @param | Out-Null
 
                 if(!$?)
@@ -397,6 +399,8 @@ function New-SM365Connectors
                     Write-Debug "$($_.Key) = $($_.Value)"
                 }
 
+                $Now = Get-Date
+                $param.Comment += "`n#Created with SEPPmail365 PowerShell Module on $now"
                 New-OutboundConnector @param | Out-Null
 
                 if(!$?)
@@ -498,7 +502,9 @@ function Backup-SM365Connectors
     }
 }
 
-New-Alias -Name Set-SM365Connectors -Value New-SM365Connectors
+if (!(Get-Alias 'Set-SM365Connectors' -ErrorAction SilentlyContinue)) {
+    New-Alias -Name Set-SM365Connectors -Value New-SM365Connectors
+}
 
 # SIG # Begin signature block
 # MIIL1wYJKoZIhvcNAQcCoIILyDCCC8QCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB

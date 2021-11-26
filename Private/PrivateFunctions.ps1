@@ -21,7 +21,7 @@ function Test-SM365ConnectionStatus
     }
     else
     {
-        $isConnected = (Get-PSSession | ? { $_.Name -like "ExchangeOnlineInternalSession*" -and $_.State -eq "Opened" }).Count -gt 0
+        $isConnected = (Get-PSSession | Where-Object { $_.Name -like "ExchangeOnlineInternalSession*" -and $_.State -eq "Opened" }).Count -gt 0
     }
 
     if(!$isConnected)
@@ -44,7 +44,7 @@ function Test-SM365ConnectionStatus
     # Record the default domain, of the Exchange Online organization we're connected to
     if($isConnected -and !$Script:ExODefaultDomain)
     {
-        [string] $Script:ExODefaultDomain = Get-AcceptedDomain | ?{$_.Default} | select -ExpandProperty DomainName -First 1
+        [string] $Script:ExODefaultDomain = Get-AcceptedDomain | Where-Object{$_.Default} | Select-Object -ExpandProperty DomainName -First 1
     }
 
     return $isConnected

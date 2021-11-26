@@ -13,6 +13,18 @@
                    HelpMessage='Additional config options to activate')]
         [SM365.ConfigOption[]] $Option,
 
+        [Parameter(Mandatory=$false,
+                   HelpMessage='E-Mail domains you want to exclude from beeing routed throu the SEPPmail Appliance')]
+        [ValidateScript(
+            {   if (Get-AcceptedDomain -Identity $_ -Erroraction silentlycontinue) {
+                    $true
+                } else {
+                    Write-Error "Domain $_ could not get validated, please check accepted domains with 'Get-AcceptedDomains'"
+                }
+            }
+            )]           
+        [String[]]$ExcludeEmailDomain,
+
         [Parameter(
             Mandatory = $false,
             HelpMessage = 'Should the rules be created active or inactive'
@@ -120,6 +132,16 @@
                     $setting.Priority = $placementPrio
                     if ($Disabled -eq $true) {$setting.Enabled = $false}
 
+                    if (($ExcludeEmailDomain.count -ne 0) -and ($Setting.Name -eq '[SEPPmail] - Route incoming e-mails to SEPPmail')) {
+                        Write-Verbose "Excluding Inbound E-Mails domains $ExcludeEmailDomain"
+                        $Setting.ExceptIfRecipientDomainIs = $ExcludeEmailDomain
+                    }
+
+                    if (($ExcludeEmailDomain.count -ne 0) -and ($Setting.Name -eq '[SEPPmail] - Route outgoing e-mails to SEPPmail')) {
+                        Write-Verbose "Excluding Outbound E-Mail domains $ExcludeEmailDomain"
+                        $Setting.ExceptIfSenderDomainIs = $ExcludeEmailDomain
+                    }
+
                     if ($PSCmdlet.ShouldProcess($setting.Name, "Create transport rule"))
                     {
                         $param = $setting.ToHashtable()
@@ -128,7 +150,9 @@
                         $param.GetEnumerator() | Foreach-Object {
                             Write-Debug "$($_.Key) = $($_.Value)"
                         }
-
+                        Write-Verbose "Adding Timestamp to Comment"
+                        $Now = Get-Date
+                        $param.Comment += "`n#Created with SEPPmail365 PowerShell Module on $now"
                         New-TransportRule @param
                     }
                 }
@@ -154,91 +178,6 @@
 .EXAMPLE
     Set-SM365Rules -Version Default
 #>
-function Set-SM365Rules
-{
-    [CmdletBinding(
-         SupportsShouldProcess = $true,
-         ConfirmImpact = 'Medium'
-     )]
-    param
-    (
-        [Parameter(Mandatory=$false,
-                   HelpMessage='Additional config options to activate')]
-        [SM365.ConfigOption[]] $Option,
-
-        [Parameter(Mandatory=$false,
-                   HelpMessage='Should missing rules be created')]
-        [switch] $FixMissing
-    )
-
-    begin
-    {
-        if (!(Test-SM365ConnectionStatus))
-        { throw [System.Exception] "You're not connected to Exchange Online - please connect prior to using this CmdLet" }
-
-        Write-Information "Connected to Exchange Organization `"$Script:ExODefaultDomain`"" -InformationAction Continue
-
-        if(!(Get-TransportRule | ?{$_.Name -match "^\[SEPPmail\]"}))
-        {throw [System.Exception] "No SEPPmail transport rules found. Please run `"New-SM365Rules`" to create them."}
-    }
-
-    process
-    {
-        try
-        {
-            Get-SM365TransportRuleSettings -Version 'Default' -Option $Option -IncludeSkipped | Foreach-Object{
-                $setting = $_
-                $rule = Get-TransportRule $setting.Name -ErrorAction SilentlyContinue
-
-                if($rule -and $setting.Skip -and $PSCmdlet.ShouldProcess($setting.Name, "Delete transport rule"))
-                {
-                    $rule | Remove-TransportRule -Confirm:$false
-                }
-                elseif ($rule -and $PSCmdlet.ShouldProcess($setting.Name, "Update transport rule"))
-                {
-                    $parameters = $setting.ToHashtable("Update")
-
-                    Write-Debug "Transport rule settings:"
-                    $parameters.GetEnumerator() | Foreach-Object {
-                        Write-Debug "$($_.Key) = $($_.Value)"
-                    }
-
-                    Set-TransportRule @parameters
-
-                    if(!$setting.Enabled -and $rule.State -eq "Enabled")
-                    {
-                        Write-Verbose "Disabling rule $($rule.name)..."
-                        $rule | Disable-TransportRule -Confirm:$false
-                    }
-                    elseif($setting.Enabled -and $rule.State -ne "Enabled")
-                    {
-                        Write-Verbose "Activating rule $($rule.name)..."
-                        $rule | Enable-TransportRule -Confirm:$false
-                    }
-                }
-                elseif($PSCmdlet.ShouldProcess($setting.Name, "Create missing transport rule"))
-                {
-                    $parameters = $setting.ToHashtable()
-
-                    Write-Debug "Transport rule settings:"
-                    $parameters.GetEnumerator() | Foreach-Object {
-                        Write-Debug "$($_.Key) = $($_.Value)"
-                    }
-
-                    New-TransportRule @parameters
-                }
-            }
-        }
-        catch {
-            throw [System.Exception] "Error: $($_.Exception.Message)"
-        }
-    }
-
-    end
-    {
-
-    }
-}
 
 <#
 .SYNOPSIS
@@ -321,7 +260,9 @@ function Backup-SM365Rules
     }
 }
 
-
+if (!(Get-Alias 'Set-SM365rules' -ErrorAction SilentlyContinue)) {
+    New-Alias -Name Set-SM365Rules -Value New-SM365Rules
+}
 
 # SIG # Begin signature block
 # MIIL1wYJKoZIhvcNAQcCoIILyDCCC8QCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB

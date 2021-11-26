@@ -83,7 +83,7 @@ FunctionsToExport = @(
        'New-SM365ExOReport'
     'Remove-SM365Connectors'
     'Remove-SM365Rules'
-       'Set-SM365Rules'
+       #'Set-SM365Rules'
       'Test-SM365ConnectionStatus'
     )
 
@@ -162,10 +162,12 @@ PrivateData = @{
                   Evolution-step config versions
                   Connectors without domain limitation
                   Renamed rules - which make clearer what they actually do
+
+25.11.21    1.2.0 Feedback from Support and simplification of code. RC1
 '@
 
         # Prerelease string of this module
-        Prerelease = 'beta1'
+        Prerelease = 'RC1'
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         # RequireLicenseAcceptance = $false

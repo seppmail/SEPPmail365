@@ -168,7 +168,9 @@ Test-SM365ConnectionStatus
 
 **Synopsis:**  
 Two connectors are required to route mail flow between the SEPPmail appliance  
-and Exchange Online. This CmdLet will create the necessary connectors.  
+and Exchange Online. This CmdLet will create the necessary connectors. 
+
+The CmdLet resolves the SEPPmail-FQDN to check if the DNS entry is correct. **DNS-queries must NOT be done internally**, otherwise internal IP addresses may be used in Exchange Online config settings.
 
 **Parameter List:**  
 `-SEPPmailFQDN [string] (mandatory)`  
@@ -202,6 +204,10 @@ New-SM365Connectors -SEPPmailIP "123.124.125.126"
 
 ```powershell
 New-SM365Connectors -SEPPmailFQDN "securemail.contoso.com" -noOutBoundTlsCheck
+```
+
+```powershell
+New-SM365Connectors -SEPPmailFQDN "securemail.contoso.com" -AllowSelfSignedCertificates
 ```
 
 ```powershell

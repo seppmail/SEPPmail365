@@ -43,9 +43,7 @@ namespace SM365
         EncryptedHeaderCleaning = 8,
         DecryptedHeaderCleaning = 16,
         OutgoingHeaderCleaning = 32,
-        SkipSpfIncoming = 64,
-        SkipSpfInternal = 128,
-        All = Inbound | Outbound | Internal | EncryptedHeaderCleaning | DecryptedHeaderCleaning | OutgoingHeaderCleaning | SkipSpfIncoming | SkipSpfInternal
+        All = Inbound | Outbound | Internal | EncryptedHeaderCleaning | DecryptedHeaderCleaning | OutgoingHeaderCleaning
     }
 
     public enum OperationType
@@ -243,6 +241,8 @@ namespace SM365
         public string FromScope {get; set;}
         public string SentToScope {get; set;}
         public string RouteMessageOutboundConnector {get; set;}
+        public List<string> ExceptIfRecipientDomainIs {get; set;}
+        public List<string> ExceptIfSenderDomainIs {get; set;}
         public string ExceptIfHeaderMatchesMessageHeader {get; set;}
         public string ExceptIfHeaderMatchesPatterns {get; set;}
         public string ExceptIfHeaderContainsMessageHeader {get; set;}
@@ -289,6 +289,10 @@ namespace SM365
                 ret["ExceptIfHeaderMatchesPatterns"] = ExceptIfHeaderMatchesPatterns;
             if(!string.IsNullOrEmpty(ExceptIfMessageTypeMatches))
                 ret["ExceptIfMessageTypeMatches"] = ExceptIfMessageTypeMatches;
+            if(ExceptIfRecipientDomainIs != null)
+                ret["ExceptIfRecipientDomainIs"] = ExceptIfRecipientDomainIs;
+            if(ExceptIfSenderDomainIs !=null)
+                ret["ExceptIfSenderDomainIs"] = ExceptIfSenderDomainIs;
             if(!string.IsNullOrEmpty(SetAuditSeverity))
                 ret["SetAuditSeverity"] = SetAuditSeverity;
             if(!string.IsNullOrEmpty(Mode))
