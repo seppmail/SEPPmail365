@@ -16,5 +16,6 @@
     },
     "Option":
         {
+            "NoAntiSpamWhiteListing": false
         }
 }

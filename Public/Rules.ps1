@@ -9,9 +9,11 @@
                    HelpMessage='Should the new rules be placed before or after existing ones (if any)')]
         [SM365.PlacementPriority] $PlacementPriority = [SM365.PlacementPriority]::Top,
 
+        <#
         [Parameter(Mandatory=$false,
                    HelpMessage='Additional config options to activate')]
         [SM365.ConfigOption[]] $Option,
+        #>
 
         [Parameter(Mandatory=$false,
                    HelpMessage='E-Mail domains you want to exclude from beeing routed throu the SEPPmail Appliance')]
@@ -152,7 +154,7 @@
                         }
                         Write-Verbose "Adding Timestamp to Comment"
                         $Now = Get-Date
-                        $param.Comment += "`n#Created with SEPPmail365 PowerShell Module on $now"
+                        $param.Comments += "`n#Created with SEPPmail365 PowerShell Module on $now"
                         New-TransportRule @param
                     }
                 }

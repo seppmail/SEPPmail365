@@ -15,10 +15,10 @@ namespace SM365
     // Specifies options to be used by cmdlets
     public enum ConfigOption
     {
-        None,
+        Default,
         // DisabledSPFIncoming,
         // DisabledSPFInternal,
-        AntiSpamWhiteList
+        NoAntiSpamWhiteListing
     }
 
     public enum ConfigBundle
@@ -241,13 +241,13 @@ namespace SM365
         public string FromScope {get; set;}
         public string SentToScope {get; set;}
         public string RouteMessageOutboundConnector {get; set;}
-        public List<string> ExceptIfRecipientDomainIs {get; set;}
-        public List<string> ExceptIfSenderDomainIs {get; set;}
         public string ExceptIfHeaderMatchesMessageHeader {get; set;}
         public string ExceptIfHeaderMatchesPatterns {get; set;}
         public string ExceptIfHeaderContainsMessageHeader {get; set;}
         public string ExceptIfHeaderContainsWords {get; set;}
         public string ExceptIfMessageTypeMatches {get; set;}
+        public List<string> ExceptIfRecipientDomainIs {get; set;}
+        public List<string> ExceptIfSenderDomainIs {get; set;}
         public string SetAuditSeverity {get; set;}
         public string Mode {get; set;}
         public string SenderAddressLocation {get; set;}

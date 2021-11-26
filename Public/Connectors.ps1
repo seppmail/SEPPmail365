@@ -1,4 +1,4 @@
-﻿
+
 <#
 .SYNOPSIS
     Adds SEPPmail Exchange Online connectors
@@ -112,7 +112,7 @@ function New-SM365Connectors
             HelpMessage = 'Which configuration version to use',
             ParameterSetName = 'Ip'
         )]
-        [SM365.ConfigOption[]]$Option = 'None',
+        [SM365.ConfigOption[]]$Option = 'Default',
         #endregion Option
 
         #region disabled
@@ -147,7 +147,7 @@ function New-SM365Connectors
             try {
                 Write-Verbose "Transform $SEPPmailFQDN to IP Adress for IP based options"
                 $SEPPmailIP = ([System.Net.Dns]::GetHostAddresses($SEPPmailFQDN).IPAddressToString)
-                Write-Verbose "$SourceFQDN equals the IP(s): $smFqdnIPs"
+                Write-Verbose "$SourceFQDN equals the IP(s): $SEPPmailIP"
             }
             catch {
                 Write-Error "Could not resolve IP Address of $SourceFQDN. Please check SEPPmailFQDN hostname and try again."
@@ -205,27 +205,6 @@ function New-SM365Connectors
 
     process
     {
-        #Region - Add SMFQDN to hosted Connection Filter Policy Whitelist
-        if ($option -eq 'AntiSpamWhiteList')
-        {
-            Write-Verbose "Trying to add SEPPmail Appliance to Whitelist in 'Hosted Connection Filter Policy'"
-            Write-Verbose "Collecting existing WhiteList"
-            $hcfp = Get-HostedConnectionFilterPolicy
-            [string[]]$existingAllowList = $hcfp.IPAllowList
-            Write-verbose "Adding SEPPmail Appliance to Policy $($hcfp.Id)"
-            if ($existingAllowList) {
-                    $FinalIPList = ($existingAllowList + $IPs)|sort-object -Unique
-            }
-            else {
-                $FinalIPList = $SEPPmailIP
-            }
-            Write-verbose "Adding IPaddress list with content $finalIPList to Policy $($hcfp.Id)"
-            if ($FinalIPList) {
-                Set-HostedConnectionFilterPolicy -Identity $hcfp.Id -IPAllowList $finalIPList
-            }
-        }
-        #endRegion - Hosted Connection Filter Policy WhiteList
-
         #region - Inbound Connector
         Write-Verbose "Read Inbound Connector Settings"
         $inbound = Get-SM365InboundConnectorSettings -Version 'Default' -Option $Option
@@ -239,7 +218,7 @@ function New-SM365Connectors
             $inbound.Enabled = $false
         }
 
-        Write-Verbose "Setting SEPPmail IP Address(es) $smFqdnIps for EFSkipIP´s and Anti-SPAM Whitelist"
+        Write-Verbose "Setting SEPPmail IP Address(es) $SEPPmailIP for EFSkipIP´s and Anti-SPAM Whitelist"
         [string[]]$SEPPmailIprange = $SEPPmailIP
         $inbound.EFSkipIPs.AddRange($SEPPmailIPRange)
 
@@ -311,8 +290,30 @@ function New-SM365Connectors
                 $param.Comment += "`n#Created with SEPPmail365 PowerShell Module on $now"
                 New-InboundConnector @param | Out-Null
 
-                if(!$?)
-                {throw $error[0]}
+                if(!$?) {
+                    throw $error[0]
+                } else {
+                    #region - Add SMFQDN to hosted Connection Filter Policy Whitelist
+                    if ($option[0] -ne 'NoAntiSpamWhiteListing')
+                    {
+                        Write-Verbose "Adding SEPPmail Appliance to wWhitelist in 'Hosted Connection Filter Policy'"
+                        Write-Verbose "Collecting existing WhiteList"
+                        $hcfp = Get-HostedConnectionFilterPolicy
+                        [string[]]$existingAllowList = $hcfp.IPAllowList
+                        Write-verbose "Adding SEPPmail Appliance to Policy $($hcfp.Id)"
+                        if ($existingAllowList) {
+                            $FinalIPList = ($existingAllowList + $SEPPmailIP)|sort-object -Unique
+                        }
+                        else {
+                            $FinalIPList = $SEPPmailIP
+                        }
+                        Write-verbose "Adding IPaddress list with content $finalIPList to Policy $($hcfp.Id)"
+                        if ($FinalIPList) {
+                            Set-HostedConnectionFilterPolicy -Identity $hcfp.Id -IPAllowList $finalIPList
+                        }
+                    }
+                    #endRegion - Hosted Connection Filter Policy WhiteList
+                }
             }
         }
         #endRegion InboundConnector
@@ -439,12 +440,53 @@ function Remove-SM365Connectors
 
     $inbound = Get-SM365InboundConnectorSettings -Version "None"
     $outbound = Get-SM365OutboundConnectorSettings -Version "None"
+    $hcfp = Get-HostedConnectionFilterPolicy
 
-    if($PSCmdlet.ShouldProcess($outbound.Name, "Remove SEPPmail connector"))
-    {Remove-OutboundConnector $outbound.Name}
+    if($PSCmdlet.ShouldProcess($outbound.Name, "Remove SEPPmail outbound connector"))
+    {
+        if (Get-OutboundConnector | Where-Object Identity -eq '[SEPPmail] ExchangeOnline -> Appliance')
+        {
+            Remove-OutboundConnector $outbound.Name
+        }
+        else {
+            Write-Warning 'No SEPPmail Outbound Connector found'
+        }
+    }
 
-    if($PSCmdlet.ShouldProcess($inbound.Name, "Remove SEPPmail connector"))
-    {Remove-InboundConnector $inbound.Name}
+    if($PSCmdlet.ShouldProcess($hcfp.Id, "Remove SEPPmail IP from Anti-Spam Whitelist"))
+    { if (Get-InboundConnector | Where-Object Identity -eq '[SEPPmail] Appliance -> ExchangeOnline')
+        {
+            Write-Verbose "Remove SEPPmail Appliance IP from Whitelist in 'Hosted Connection Filter Policy'"
+            Write-Verbose "Collecting existing WhiteList"
+
+            $InboundConnector = Get-InboundConnector | Where-Object Identity -eq '[SEPPmail] Appliance -> ExchangeOnline'
+            if ($inboundConnector.SenderIPAddresses.count -le 1) {
+                [string]$InboundSEPPmailIP = $InboundConnector.SenderIPAddresses[0]
+            } 
+            if ($inboundConnector.TlsSenderCertificateName) {
+                [string]$InboundSEPPmailIP = ([System.Net.Dns]::GetHostAddresses($($inboundConnector.TlsSenderCertificateName)).IPAddressToString)
+            }
+            [System.Collections.ArrayList]$existingAllowList = $hcfp.IPAllowList
+            Write-verbose "Removing SEPPmail Appliance IP from Policy $($hcfp.Id)"
+            if ($existingAllowList) {
+                    $existingAllowList.Remove($InboundSEPPmailIP[0])
+                    Set-HostedConnectionFilterPolicy -Identity $hcfp.Id -IPAllowList $existingAllowList
+                    Write-Information "IP: $InboundSEPPmailIP removed from Hosted Connection Filter Policy $hcfp.Id"
+            }
+        }
+    }
+
+    if($PSCmdlet.ShouldProcess($inbound.Name, "Remove SEPPmail inbound connector"))
+    {
+        if (Get-InboundConnector | Where-Object Identity -eq '[SEPPmail] Appliance -> ExchangeOnline')
+        {
+            Remove-InboundConnector $inbound.Name
+        }
+        else 
+        {
+            Write-Warning 'No SEPPmail Inbound Connector found'
+        }
+    }
 }
 
 <#
