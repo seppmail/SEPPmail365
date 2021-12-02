@@ -68,7 +68,7 @@
             # Find out possible Office Message Encryption Settings
             Write-Verbose "Collecting Office Message Encryption Settings"
             $hP = '<p><h3>Office Message Encryption Settings</h3><p>'
-            $P = Get-ExoHTMLData -ExoCmd 'Get-OMEConfiguration|Select-Object PSComputerName,RunspaceId,PSShowComputerName,TemplateName,OTPEnabled,SocialIdSignIn,ExternalMailExpiryInterval,Identity,IsValid'
+            $P = Get-ExoHTMLData -ExoCmd 'Get-OMEConfiguration|Select-Object PSComputerName,TemplateName,OTPEnabled,SocialIdSignIn,ExternalMailExpiryInterval,Identity,IsValid'
             
             # Get MX Record Report for each domain
             $hO = '<p><h3>MX Record for each Domain</h3><p>'
