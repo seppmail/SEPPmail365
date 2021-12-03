@@ -79,11 +79,11 @@ FunctionsToExport = @(
     'Backup-SM365Connectors'
     'Backup-SM365Rules'
        'New-SM365Rules'
+       'Get-SM365Connectors'
        'New-SM365Connectors'
        'New-SM365ExOReport'
     'Remove-SM365Connectors'
     'Remove-SM365Rules'
-       #'Set-SM365Rules'
       'Test-SM365ConnectionStatus'
     )
 

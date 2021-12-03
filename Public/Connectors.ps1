@@ -1,4 +1,41 @@
 
+function Get-SM365Connectors
+{
+    [CmdletBinding(SupportsShouldProcess=$true,
+                   ConfirmImpact='Medium')]
+    Param
+    (
+    )
+
+    if (!(Test-SM365ConnectionStatus))
+    { throw [System.Exception] "You're not connected to Exchange Online - please connect prior to using this CmdLet" }
+
+    Write-Information "Connected to Exchange Organization `"$Script:ExODefaultDomain`"" -InformationAction Continue
+
+    $inbound = Get-SM365InboundConnectorSettings -Version "None"
+    $outbound = Get-SM365OutboundConnectorSettings -Version "None"
+
+    if (Get-OutboundConnector | Where-Object Identity -eq $($outbound.Name))
+    {
+        Get-OutboundConnector $outbound.Name
+    }
+    else {
+        Write-Warning "No SEPPmail Outbound Connector with name `"$($outbound.Name)`" found"
+    }
+
+
+    if (Get-InboundConnector | Where-Object Identity -eq $($inbound.Name))
+    {
+        Get-InboundConnector $inbound.Name
+    }
+    else 
+    {
+        Write-Warning "No SEPPmail Inbound Connector with Name `"$($inbound.Name)`" found"
+    }
+
+}
+
+
 <#
 .SYNOPSIS
     Adds SEPPmail Exchange Online connectors
@@ -430,7 +467,7 @@ function Remove-SM365Connectors
                    ConfirmImpact='Medium')]
     Param
     (
-
+    [Switch]$leaveAntiSpamWhiteList
     )
 
     if (!(Test-SM365ConnectionStatus))
@@ -442,9 +479,9 @@ function Remove-SM365Connectors
     $outbound = Get-SM365OutboundConnectorSettings -Version "None"
     $hcfp = Get-HostedConnectionFilterPolicy
 
-    if($PSCmdlet.ShouldProcess($outbound.Name, "Remove SEPPmail outbound connector"))
+    if($PSCmdlet.ShouldProcess($outbound.Name, "Remove SEPPmail outbound connector $($Outbound.Name)"))
     {
-        if (Get-OutboundConnector | Where-Object Identity -eq '[SEPPmail] ExchangeOnline -> Appliance')
+        if (Get-OutboundConnector | Where-Object Identity -eq $($outbound.Name))
         {
             Remove-OutboundConnector $outbound.Name
         }
@@ -453,32 +490,35 @@ function Remove-SM365Connectors
         }
     }
 
-    if($PSCmdlet.ShouldProcess($hcfp.Id, "Remove SEPPmail IP from Anti-Spam Whitelist"))
-    { if (Get-InboundConnector | Where-Object Identity -eq '[SEPPmail] Appliance -> ExchangeOnline')
-        {
-            Write-Verbose "Remove SEPPmail Appliance IP from Whitelist in 'Hosted Connection Filter Policy'"
-            Write-Verbose "Collecting existing WhiteList"
-
-            $InboundConnector = Get-InboundConnector | Where-Object Identity -eq '[SEPPmail] Appliance -> ExchangeOnline'
-            if ($inboundConnector.SenderIPAddresses.count -le 1) {
-                [string]$InboundSEPPmailIP = $InboundConnector.SenderIPAddresses[0]
-            } 
-            if ($inboundConnector.TlsSenderCertificateName) {
-                [string]$InboundSEPPmailIP = ([System.Net.Dns]::GetHostAddresses($($inboundConnector.TlsSenderCertificateName)).IPAddressToString)
-            }
-            [System.Collections.ArrayList]$existingAllowList = $hcfp.IPAllowList
-            Write-verbose "Removing SEPPmail Appliance IP from Policy $($hcfp.Id)"
-            if ($existingAllowList) {
-                    $existingAllowList.Remove($InboundSEPPmailIP[0])
-                    Set-HostedConnectionFilterPolicy -Identity $hcfp.Id -IPAllowList $existingAllowList
-                    Write-Information "IP: $InboundSEPPmailIP removed from Hosted Connection Filter Policy $hcfp.Id"
+    if (!($leaveAntiSpamWhiteList)) {
+        if($PSCmdlet.ShouldProcess($hcfp.Id, "Remove SEPPmail IP from Anti-Spam Whitelist")) {
+        { if (Get-InboundConnector | Where-Object Identity -eq $($inbound.Name))
+            {
+                Write-Verbose "Remove SEPPmail Appliance IP from Whitelist in 'Hosted Connection Filter Policy'"
+                Write-Verbose "Collecting existing WhiteList"
+            
+                $InboundConnector = Get-InboundConnector | Where-Object Identity -eq $($inbound.Name)
+                if ($inboundConnector.SenderIPAddresses.count -le 1) {
+                    [string]$InboundSEPPmailIP = $InboundConnector.SenderIPAddresses[0]
+                } 
+                if ($inboundConnector.TlsSenderCertificateName) {
+                    [string]$InboundSEPPmailIP = ([System.Net.Dns]::GetHostAddresses($($inboundConnector.TlsSenderCertificateName)).IPAddressToString)
+                }
+                [System.Collections.ArrayList]$existingAllowList = $hcfp.IPAllowList
+                Write-verbose "Removing SEPPmail Appliance IP from Policy $($hcfp.Id)"
+                if ($existingAllowList) {
+                        $existingAllowList.Remove($InboundSEPPmailIP[0])
+                        Set-HostedConnectionFilterPolicy -Identity $hcfp.Id -IPAllowList $existingAllowList
+                        Write-Information "IP: $InboundSEPPmailIP removed from Hosted Connection Filter Policy $hcfp.Id"
+                    }
+                }
             }
         }
     }
 
-    if($PSCmdlet.ShouldProcess($inbound.Name, "Remove SEPPmail inbound connector"))
+    if($PSCmdlet.ShouldProcess($inbound.Name, "Remove SEPPmail inbound connector $($inbound.Name)"))
     {
-        if (Get-InboundConnector | Where-Object Identity -eq '[SEPPmail] Appliance -> ExchangeOnline')
+        if (Get-InboundConnector | Where-Object Identity -eq $($inbound.Name))
         {
             Remove-InboundConnector $inbound.Name
         }
