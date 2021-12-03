@@ -147,10 +147,10 @@ function New-SM365Connectors
             try {
                 Write-Verbose "Transform $SEPPmailFQDN to IP Adress for IP based options"
                 $SEPPmailIP = ([System.Net.Dns]::GetHostAddresses($SEPPmailFQDN).IPAddressToString)
-                Write-Verbose "$SourceFQDN equals the IP(s): $SEPPmailIP"
+                Write-Verbose "$SEPPmailFQDN equals the IP(s): $SEPPmailIP"
             }
             catch {
-                Write-Error "Could not resolve IP Address of $SourceFQDN. Please check SEPPmailFQDN hostname and try again."
+                Write-Error "Could not resolve IP Address of $SEPPmailFQDN. Please check SEPPmailFQDN hostname and try again."
                 break
             }
         }
