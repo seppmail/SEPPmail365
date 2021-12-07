@@ -77,13 +77,14 @@ RequiredModules = @(
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = @(    
     'Backup-SM365Connectors'
-    'Backup-SM365Rules'
-       'New-SM365Rules'
        'Get-SM365Connectors'
        'New-SM365Connectors'
-       'New-SM365ExOReport'
     'Remove-SM365Connectors'
+    'Backup-SM365Rules'
+       'Get-SM365Rules'
+       'New-SM365Rules'
     'Remove-SM365Rules'
+       'New-SM365ExOReport'
       'Test-SM365ConnectionStatus'
     )
 
@@ -157,13 +158,15 @@ PrivateData = @{
 
 09.09.21    1.1.3 Minor update - add new config version that disables rules which set the SCL to -1
 
-31.10.21    1.2.0 New whitelist filter policy,
+31.10.21    1.2.0 beta 1 - New whitelist filter policy,
                   Tighter report
                   Evolution-step config versions
                   Connectors without domain limitation
                   Renamed rules - which make clearer what they actually do
 
-25.11.21    1.2.0 Feedback from Support and simplification of code. RC1
+25.11.21    1.2.0 beta 2 - Feedback from Support and simplification of code. RC1
+
+03.12.21    1.2.0 RC1 - Get-SM365Rules and Get-SM365Connectors, bugfixes
 '@
 
         # Prerelease string of this module
@@ -180,7 +183,7 @@ PrivateData = @{
 } # End of PrivateData hashtable
 
 # HelpInfo URI of this module
-# HelpInfoURI = ''
+HelpInfoURI = 'https://github.com/seppmail/SEPPmail365/blob/master/documentation_seppmail365_1.1.0.html'
 
 # Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
 # DefaultCommandPrefix = ''

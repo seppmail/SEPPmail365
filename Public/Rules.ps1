@@ -1,4 +1,44 @@
-﻿function New-SM365Rules
+﻿function Get-SM365Rules {
+    [CmdletBinding()]
+    param
+    ()
+
+    if (!(Test-SM365ConnectionStatus))
+    { 
+        throw [System.Exception] "You're not connected to Exchange Online - please connect prior to using this CmdLet" 
+    }
+    else 
+    {
+        Write-Information "Connected to Exchange Organization `"$Script:ExODefaultDomain`"" -InformationAction Continue
+
+        $settings = Get-SM365TransportRuleSettings -Version 'Default'
+        foreach($setting in $settings)
+        {
+            $rule = Get-TransportRule $setting.Name -ErrorAction SilentlyContinue
+        
+            if($rule)
+            {
+                $outputHt = [ordered]@{
+                    Name = $rule.Name
+                    State = $rule.State
+                    Priority = $rule.Priority
+                    ExceptIfSenderDomainIs = $rule.ExceptIfSenderDomainIs
+                    ExceptIfRecipientDomainIs = $rule.ExceptIfRecipientDomainIs
+                    RouteMessageOutboundConnector = $rule.RouteMessageOutboundConnector
+                    Comments = $rule.Comments    
+                }
+                $outputRule = New-Object -TypeName PSObject -Property $outputHt
+                Write-Output $outputRule
+            }
+            else
+            {
+                Write-Warning "Rule $($setting.Name) does not exist"
+            }
+        }    
+    }
+}
+
+function New-SM365Rules
 {
     [CmdletBinding(SupportsShouldProcess = $true,
                    ConfirmImpact = 'Medium'
