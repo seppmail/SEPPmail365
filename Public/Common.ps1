@@ -95,6 +95,8 @@
             $hk = '<p><h3>Content Filter Policy</h3><p>'
             $k= Get-ExoHTMLData -ExoCmd 'Get-HostedContentFilterPolicy|Select-Object QuarantineRetentionPeriod,EndUserSpamNotificationFrequency,TestModeAction,IsValid,BulkSpamAction,PhishSpamAction,OriginatingServer'
 
+            $hk1 = '<p><h3>Hosted Connection Filer (Anti-Spam) Policy</h3><p>'
+            $k1 = Get-ExoHTMLData -ExoCmd 'Get-HostedConnectionFilterPolicy|select Name,AdminDisplayName,DirectoryBasedEdgeBlockMode,EnableSafeList,IPAllowList,IPBlockList,IsDefault,IsValid'
             Write-Verbose "Blocked Sender Addresses"
             $hH = '<p><h3>Show Senders which are locked due to outbound SPAM</h3><p>'
             $h = Get-ExoHTMLData -ExoCmd 'Get-BlockedSenderAddress'
@@ -154,7 +156,7 @@
             $style = Get-Content $PSScriptRoot\..\HTML\SEPPmailReport.css
             Convertto-HTML -Body "$LogoHTML $Top $RepCreationDatetime $moduleVersion`
                    $hSplitLine $hGeneral $hSplitLine $hA $a $hB $b $hP $P $hO $o`
-                  $hSplitLine $hSecurity $hSplitLine $hC $c $hd $d $hE $e $hK $k $hH $h $hJ $j $hJ1 $J1 `
+                  $hSplitLine $hSecurity $hSplitLine $hC $c $hd $d $hE $e $hK $k $hk1 $k1 $hH $h $hJ $j $hJ1 $J1 `
                  $hSplitLine $hOtherConn $hSplitLine $hG $g $hI $i `
                 $hSplitLine $hConnectors $hSplitLine $hL $l $hM $m `
             $hSplitLine $hTransPortRules $hSplitLine $hN $n $hEndofReport " -Title "SEPPmail365 Exo Report" -Head $style|Out-File -FilePath $filePath
@@ -166,6 +168,18 @@
     }
     end {
     }
+}
+
+function Remove-SM365Setup {
+    [CmdletBinding()]
+    param()
+
+    Begin {}
+    Process {
+        Remove-SM365Rules
+        Remove-SM365Connectors
+    }
+    End{}
 }
 # SIG # Begin signature block
 # MIIL1wYJKoZIhvcNAQcCoIILyDCCC8QCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB

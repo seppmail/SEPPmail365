@@ -165,9 +165,12 @@ PrivateData = @{
                   Connectors without domain limitation
                   Renamed rules - which make clearer what they actually do
 
-25.11.21    1.2.0 beta 2 - Feedback from Support and simplification of code. RC1
+25.11.21    1.2.0 beta 2 - Feedback from Support and simplification of code.
+                  Rules -ExcludeDomain Feature to route only specific domains to SEPPmail
 
 03.12.21    1.2.0 RC1 - Get-SM365Rules and Get-SM365Connectors, bugfixes
+
+09.12.21    1.2.0 RC2 - Remove-SM365Setup, polish for Gallery-Release
 '@
 
         # Prerelease string of this module

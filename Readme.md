@@ -72,20 +72,17 @@ Connector Settings offer the following options:
 If you need more advanced configurations for your connectors like multiple IP Addresses or a SEPPmail CLuster, add this configuration after the initial creation in the UI or with the native PowerShell CmdLets.
 
 3. **Adapt to Exchange Online Features** - 
-Exchange Online allows it now to add IP Addresses in a Whitelist, that makes our previous
-SPF Rules unneccesary. When using the -Option "AntiSpamWhiteList" Parameter in New-SM365Connectors, the **SEPPmail Appliance** IP address will be added to the **whitelist** in the "Hosted Connection Filter (Default)" policy. This tells Exchange online, that everything coming from SEPPmail is trusted (as it was scanned by M365 Defenders already). This policy is - as far as we investigated available for Exchange Online Plans 1 and 2 (and hopefully its successors).
+Exchange Online allows it now to add IP Addresses in a Whitelist (Hosted Connection Filter Policy), that makes our previous SPF Rules unneccesary. Beginning from version 1.2 **we add the SEPPmail to this list by default**.  This tells Exchange online, that everything coming from SEPPmail is trusted (as it was scanned by M365 Defenders already). This policy is - as far as we investigated available for Exchange Online Plans 1 and 2 (and hopefully its successors). When using the -Option "NoAntiSpamWhiteListing" Parameter in New-SM365Connectors, this behavior can be surpressed.
 
-## NOT SURE - sollen wir ?### 
-The SPF Mailflow-rules which we used so far as a workaround to avoid SPAM are deactiveted in the "Default" Configuration by default.
-
-Oder activated ??
+## No SPF Rules anymore
+The SPF Mailflow-rules which we used so far as a workaround to avoid SPAM are dremoved.
 
 # Prerequisites
 
 The module requires at least PowerShell 5.1 (64bit) and the  
 [ExchangeOnlineManagement](https://www.powershellgallery.com/packages/ExchangeOnlineManagement/2.0.5) module of version 2.0.5 or higher.  
 
-The module was developed and runs also on PowerShell Core 7.1.5+
+The module was developed on macOS and runs also on PowerShell Core 7.1.5+
 
 <a id="org88ae7e3"></a>
 
@@ -276,32 +273,14 @@ New-SM365Rules
 
 ```powershell
 # Create the transport rules in an inactive state
-New-SM365Rules -Enabled:$false
+New-SM365Rules -disabled
 ```
-
-
-<a id="orgf4ad813"></a>
-
-## Set-SM365Rules
-
-**Synopsis:**  
-Updates the SEPPmail transport rules to the default values, or a specific  
-version.  
-
-**Parameter List:**  
-`-Version [ConfigVersion] (optional)`  
-The major version of your SEPPmail appliance.  
-
-`-FixMissing [switch] (optional)`  
-Indicates that missing SEPPmail transport rules should be created with their  
-default values.  
-
-**Examples:**  
 
 ```powershell
-# update rules to the latest version and create missing ones
-Set-SM365Rules -FixMissing
+# Create rules and exclude domains
+New-SM365Rules -ExcludeEmailDomain 'contosode.onmicrosoft.com','testdomain.de'
 ```
+
 
 
 <a id="org22b1f28"></a>
@@ -310,10 +289,6 @@ Set-SM365Rules -FixMissing
 
 **Synopsis:**  
 Removes the SEPPmail transport rules.  
-
-**Parameter List:**  
-`-Version [ConfigVersion] (optional)`  
-The major version of your SEPPmaill appliance.  
 
 **Examples:**  
 
