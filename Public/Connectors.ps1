@@ -18,6 +18,16 @@ function Get-SM365Connectors
         if (Get-OutboundConnector | Where-Object Identity -eq $($outbound.Name))
         {
             $obc = Get-OutboundConnector $outbound.Name
+            $obOutputHT = [ordered]@{
+                   OutBoundConnectorName = $obc.Name
+             OutBoundConnectorSmartHosts = $obc.SmartHosts
+              OutBoundConnectorTlsDomain = $obc.TlsDomain
+            OutBoundConnectorTlsSettings = $obc.TlsSettings
+                OutBoundConnectorEnabled = $obc.Enabled
+            }
+            $obOutputConnector = New-Object -TypeName PSObject -Property $obOutputHt
+            Write-Output $obOutputConnector
+
         }
         else {
             Write-Warning "No SEPPmail Outbound Connector with name `"$($outbound.Name)`" found"
@@ -27,30 +37,23 @@ function Get-SM365Connectors
         if (Get-InboundConnector | Where-Object Identity -eq $($inbound.Name))
         {
             $ibc = Get-InboundConnector $inbound.Name
+
+            $ibOutputHT = [ordered]@{
+                                InboundConnectorName = $ibc.Name
+                   InboundConnectorSenderIPAddresses = $ibc.SenderIPAddresses
+            InboundConnectorTlsSenderCertificateName = $ibc.TlsSenderCertificateName
+                          InboundConnectorRequireTLS = $ibc.RequireTLS
+                             InboundConnectorEnabled = $ibc.Enabled
+            }
+            $ibOutputConnector = New-Object -TypeName PSObject -Property $ibOutputHt
+            Write-Output $ibOutputConnector
+
         }
         else 
         {
             Write-Warning "No SEPPmail Inbound Connector with Name `"$($inbound.Name)`" found"
         }
     
-        # Build Output Object
-        # Inbound Name,SenderIPAddresses,TlsSenderCertificateName,RequireTLS,Enabled
-    
-    
-        $outputHT = [ordered]@{
-                               OutBoundConnectorName = $obc.Name
-                         OutBoundConnectorSmartHosts = $obc.SmartHosts
-                          OutBoundConnectorTlsDomain = $obc.TlsDomain
-                        OutBoundConnectorTlsSettings = $obc.TlsSettings
-                            OutBoundConnectorEnabled = $obc.Enabled
-                                InboundConnectorName = $ibc.Name
-                   InboundConnectorSenderIPAddresses = $ibc.SenderIPAddresses
-            InboundConnectorTlsSenderCertificateName = $ibc.TlsSenderCertificateName
-                          InboundConnectorRequireTLS = $ibc.RequireTLS
-                             InboundConnectorEnabled = $ibc.Enabled
-        }
-        $outputConnector = New-Object -TypeName PSObject -Property $outputHt
-        Write-Output $outputConnector
     
     }
 }

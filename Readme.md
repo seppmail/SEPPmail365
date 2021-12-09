@@ -302,7 +302,7 @@ Remove-SM365Rules -Whatif
 ## Backup-SM365Connectors
 
 **Synopsis:**  
-Performs a backup of all connectors found to individual json files for every connector. **There is no Restore-SM365Connectors** CmdLets, because the JSON provided cannot be used to recreate connectors. The backup JSON-files can be used as written source to recreate connectors with the native Exchange Online CmdLets.  
+Performs a backup of all connectors found to individual json files for every connector. **There is no Restore-SM365Connectors** CmdLets, because the JSON provided cannot be used to recreate connectors. The backup JSON-files can be used as written source to recreate connectors with the native Exchange Online CmdLets or the SEPPmail365 module.  
 
 **Parameter List:**  
 `-OutFolder [string] (mandatory)`  
