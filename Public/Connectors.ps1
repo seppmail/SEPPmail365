@@ -522,31 +522,32 @@ function Remove-SM365Connectors
 
     if($PSCmdlet.ShouldProcess($inbound.Name, "Remove SEPPmail inbound connector $($inbound.Name)"))
     {
-        if (Get-InboundConnector | Where-Object Identity -eq $($inbound.Name))
+        $InboundConnector = Get-InboundConnector | Where-Object Identity -eq $($inbound.Name)
+        if ($inboundConnector)
             {
+            Write-Verbose 'Collect Inbound Connector IP for later Whitelistremoval'
+            
+            [string]$InboundSEPPmailIP = $null
+            if ($inboundConnector.SenderIPAddresses.count -le 1) {
+                $InboundSEPPmailIP = $InboundConnector.SenderIPAddresses[0]
+            } 
+            if ($inboundConnector.TlsSenderCertificateName) {
+                $InboundSEPPmailIP = ([System.Net.Dns]::GetHostAddresses($($inboundConnector.TlsSenderCertificateName)).IPAddressToString)
+            }
             Remove-InboundConnector $inbound.Name
 
             Write-Verbose "If Inbound Connector has been removed, remove also Whitelisted IPs"
-            if (!($leaveAntiSpamWhiteList)) {
-                if (Get-InboundConnector | Where-Object Identity -eq $($inbound.Name)) {
+            if ((!($leaveAntiSpamWhiteList)) -and (!(Get-InboundConnector | Where-Object Identity -eq $($inbound.Name))))
+            {
                     Write-Verbose "Remove SEPPmail Appliance IP from Whitelist in 'Hosted Connection Filter Policy'"
                     
                     Write-Verbose "Collecting existing WhiteList"
-                
-                    $InboundConnector = Get-InboundConnector | Where-Object Identity -eq $($inbound.Name)
-                    if ($inboundConnector.SenderIPAddresses.count -le 1) {
-                        [string]$InboundSEPPmailIP = $InboundConnector.SenderIPAddresses[0]
-                    } 
-                    if ($inboundConnector.TlsSenderCertificateName) {
-                        [string]$InboundSEPPmailIP = ([System.Net.Dns]::GetHostAddresses($($inboundConnector.TlsSenderCertificateName)).IPAddressToString)
-                    }
                     [System.Collections.ArrayList]$existingAllowList = $hcfp.IPAllowList
-                    Write-verbose "Removing SEPPmail Appliance IP from Policy $($hcfp.Id)"
+                    Write-verbose "Removing SEPPmail Appliance IP $InboundSEPPmailIP from Policy $($hcfp.Id)"
                     if ($existingAllowList) {
                         $existingAllowList.Remove($InboundSEPPmailIP)
                         Set-HostedConnectionFilterPolicy -Identity $hcfp.Id -IPAllowList $existingAllowList
                         Write-Information "IP: $InboundSEPPmailIP removed from Hosted Connection Filter Policy $hcfp.Id"
-                    }
                 }
             }
         }
