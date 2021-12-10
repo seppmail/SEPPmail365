@@ -144,7 +144,7 @@ function New-SM365Connectors
         [Switch] $NoOutBoundTlsCheck,
         #endregion NoTls
 
-        #region SEPPmailIP
+        #region IP
         [Parameter(
             Mandatory = $true,
             HelpMessage = 'If SEPPmail has no FQDN and is represented as an IP Address',
@@ -154,7 +154,7 @@ function New-SM365Connectors
         [ValidatePattern("(\b25[0-5]|\b2[0-4][0-9]|\b[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}")]
         [Alias('SMIP','SMIPAddress')]
         [string] $SEPPmailIP,
-        #endregion SEPPmailIP
+        #endregion IP
 
         #region Option
         [Parameter(
@@ -332,10 +332,17 @@ function New-SM365Connectors
             # necessary assignment for splatting
             $param = $inbound.ToHashtable()
 
+            Write-Verbose "Set parameters based on ParameterSet"
             if ($PSCmdLet.ParameterSetName -eq 'Ip') {
                 $param.SenderIPAddresses = $SenderIPAddresses
                 $param.RequireTls = $false
-            } else {
+            } 
+            if (($PSCmdLet.ParameterSetName -eq 'FQDNTls') -and ($AllowSelfSignedCertificates)) {
+                $param.RestrictDomainsToCertificate = $false
+                $param.TlsSenderCertificateName = $SEPPmailFQDN
+            }
+
+            if ($PSCmdLet.ParameterSetName -eq 'FqdnNoTls') {
                 $param.TlsSenderCertificateName = $SEPPmailFQDN
             }
 
