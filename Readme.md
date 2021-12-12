@@ -89,21 +89,31 @@ The module was developed on macOS and runs also on PowerShell Core 7.1.5+
 # Module Installation
 
 Installing the module from the PowerShellGallery is as easy as executing:  
+## Installation on Windows 
 
+Installing the module is as easy as executing:  
 ```powershell
 Install-Module "SEPPmail365"
 ```
 
+
 If you want to use the newest (maybe instable) version, that might not be production ready  
+## Installation on macOS and Linux
+
+In addition to the main module you need to add PSWSMan which adds WAMan client libraries to linux and macOS for remote connectivity to Exchange Online.
+
+```powershell
+Install-Module PSWSMan
+sudo pwsh -Command 'Install-WSMan'
+```
+
+If you want to use the newest version, that might not be production ready
 yet, go to the [SEPPmail365 Github repository](https://github.com/seppmail/SEPPmail365), download the source code and  
 execute:  
 
 ```powershell
 Import-Module "C:\path\to\module\SEPPmail365.psd1"
 ```
-
-
-<a id="orgdd7c058"></a>
 
 # Preparation
 
