@@ -8,8 +8,23 @@ namespace SM365
     public enum ConfigVersion
     {
         None,
-        Default,
+        Default, // Initial config when module was released
         Latest = Default
+    }
+
+    // Specifies options to be used by cmdlets
+    public enum ConfigOption
+    {
+        Default,
+        // DisabledSPFIncoming,
+        // DisabledSPFInternal,
+        NoAntiSpamWhiteListing
+    }
+
+    public enum ConfigBundle
+    {
+        None,
+        NoTls //Noch nicht aktiv
     }
 
     // Where should new transport rules be placed, if there are already existing ones
@@ -28,9 +43,7 @@ namespace SM365
         EncryptedHeaderCleaning = 8,
         DecryptedHeaderCleaning = 16,
         OutgoingHeaderCleaning = 32,
-        SkipSpfIncoming = 64,
-        SkipSpfInternal = 128,
-        All = Inbound | Outbound | Internal | EncryptedHeaderCleaning | DecryptedHeaderCleaning | OutgoingHeaderCleaning | SkipSpfIncoming | SkipSpfInternal
+        All = Inbound | Outbound | Internal | EncryptedHeaderCleaning | DecryptedHeaderCleaning | OutgoingHeaderCleaning
     }
 
     public enum OperationType
@@ -54,6 +67,25 @@ namespace SM365
         {return (no>>pos) & 1;}
     }
 
+    public class ConfigBundleSettings
+    {
+        public ConfigBundleSettings()
+        {
+            Option = new List<ConfigOption>();
+        }
+
+        public ConfigBundleSettings(ConfigBundle id, ConfigVersion version, List<ConfigOption> option)
+        {
+            Id = id;
+            Version = version;
+            Option = option;
+        }
+
+        public ConfigBundle Id {get; set;}
+        public ConfigVersion Version {get; set;}
+        public List<ConfigOption> Option {get; set;}
+    }
+
     // We only provide these classes for static typing and to prevent misspells in configuration variables.
     // For convenience they all have a ToHashtable method, in order to use the object with parameter splatting
     public class InboundConnectorSettings
@@ -72,6 +104,7 @@ namespace SM365
         public string ConnectorSource {get; set;}
         public string ConnectorType {get; set;}
         public string TlsSenderCertificateName {get; set;}
+        public bool Skip {get; set;}
 
         public bool? EFSkipLastIP  {get; set;}
         public bool? RequireTls {get; set;}
@@ -136,6 +169,7 @@ namespace SM365
 
         public string Name {get; private set;}
         public ConfigVersion Version {get; private set;}
+        public bool Skip {get; set;}
 
         public string Comment {get; set;}
         public string ConnectorSource {get; set;}
@@ -195,6 +229,7 @@ namespace SM365
         public string Name {get; private set;}
         public ConfigVersion Version {get; private set;}
         public bool Enabled {get; set;}
+        public bool Skip {get; set;}
         public AvailableTransportRuleSettings Type {get; private set;}
 
         public int Priority {get; set;}
@@ -211,6 +246,8 @@ namespace SM365
         public string ExceptIfHeaderContainsMessageHeader {get; set;}
         public string ExceptIfHeaderContainsWords {get; set;}
         public string ExceptIfMessageTypeMatches {get; set;}
+        public List<string> ExceptIfRecipientDomainIs {get; set;}
+        public List<string> ExceptIfSenderDomainIs {get; set;}
         public string SetAuditSeverity {get; set;}
         public string Mode {get; set;}
         public string SenderAddressLocation {get; set;}
@@ -252,6 +289,10 @@ namespace SM365
                 ret["ExceptIfHeaderMatchesPatterns"] = ExceptIfHeaderMatchesPatterns;
             if(!string.IsNullOrEmpty(ExceptIfMessageTypeMatches))
                 ret["ExceptIfMessageTypeMatches"] = ExceptIfMessageTypeMatches;
+            if(ExceptIfRecipientDomainIs != null)
+                ret["ExceptIfRecipientDomainIs"] = ExceptIfRecipientDomainIs;
+            if(ExceptIfSenderDomainIs !=null)
+                ret["ExceptIfSenderDomainIs"] = ExceptIfSenderDomainIs;
             if(!string.IsNullOrEmpty(SetAuditSeverity))
                 ret["SetAuditSeverity"] = SetAuditSeverity;
             if(!string.IsNullOrEmpty(Mode))

@@ -2,17 +2,21 @@
 BODY {
   font-family: Helvetica;
   font-size: 10pt;
-  color: #575759
+  color: #575757
 }
 h1 {
   font-size: 14pt;
 }
 h2 {
   font-size: 12pt;
+  color: #C7D400;
+}
+h3 {
+  font-size: 11pt;
 }
 TABLE {
   padding: 12px;
-  border: 1px #575759;
+  border: 1px #575757;
   border-collapse: collapse;
 }
 TH {
@@ -22,7 +26,7 @@ TH {
   border: 1px solid black; 
   background: #C7D400;
   padding: 5px;
-  color: #575759
+  color: #575757
 }
 TD {
   border: 1px solid black;

@@ -1,6 +1,6 @@
 {
-    "Name"                                : "[SEPPmail] - Route outgoing/internal Mails to SEPPmail",
-    "Comments"                            : "Mails sent from inside the organization are sent to SEPPmail appliance if they have not been there already for sig/enc processing.",
+    "Name"                                : "[SEPPmail] - Route outgoing e-mails to SEPPmail",
+    "Comments"                            : "Mails sent from inside the organization to the Internet are sent to SEPPmail appliance for encryption and signing.",
     "RouteMessageOutboundConnector"       : "[SEPPmail] ExchangeOnline -> Appliance",
     "SMPriority"                          : 1,
 
@@ -20,5 +20,10 @@
             "Mode"                                : "Enforce",
             "SenderAddressLocation"               : "Header"
         }
-    }
+    },
+    "Option":
+        {
+            
+        }
+
 }

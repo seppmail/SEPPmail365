@@ -13,5 +13,9 @@
             "UseMXRecord"              : false,
             "CloudServicesMailEnabled" : true
         }
-    }
+    },
+    "Option":
+        {
+            "NoAntiSpamWhiteListing": false
+        }
 }
