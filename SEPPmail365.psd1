@@ -86,6 +86,7 @@ FunctionsToExport = @(
     'Remove-SM365Rules'
        'New-SM365ExOReport'
       'Test-SM365ConnectionStatus'
+       'Get-SM365Setup'
     'Remove-SM365Setup'
     )
 
@@ -159,22 +160,22 @@ PrivateData = @{
 
 09.09.21    1.1.3 Minor update - add new config version that disables rules which set the SCL to -1
 
-31.10.21    1.2.0 beta 1 - New whitelist filter policy,
+31.10.21    1.2.0 beta1 - New whitelist filter policy,
                   Tighter report
                   Evolution-step config versions
                   Connectors without domain limitation
                   Renamed rules - which make clearer what they actually do
 
-25.11.21    1.2.0 beta 2 - Feedback from Support and simplification of code.
+25.11.21    1.2.0 beta2 - Feedback from Support and simplification of code.
                   Rules -ExcludeDomain Feature to route only specific domains to SEPPmail
 
-03.12.21    1.2.0 RC1 - Get-SM365Rules and Get-SM365Connectors, bugfixes
+03.12.21    1.2.0 RC1 - Internal:Get-SM365Rules and Get-SM365Connectors, bugfixes
 
-09.12.21    1.2.0 RC2 - Remove-SM365Setup, polish for Gallery-Release
+09.12.21    1.2.0 RC2 - Public RC: Add Remove-SM365Setup, polish for Gallery-Release
 '@
 
         # Prerelease string of this module
-        Prerelease = 'RC1'
+        Prerelease = 'RC2'
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         # RequireLicenseAcceptance = $false
