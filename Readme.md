@@ -97,13 +97,15 @@ Install-Module "SEPPmail365"
 ```
 
 
-If you want to use the newest (maybe instable) version, that might not be production ready  
+If you want to use the newest (maybe instable) version, that might not be production ready.
+
 ## Installation on macOS and Linux
 
 In addition to the main module you need to add PSWSMan which adds WAMan client libraries to linux and macOS for remote connectivity to Exchange Online.
 
 ```powershell
-Install-Module PSWSMan
+# Do this OUTSIDE Powershell in the shell !
+sudo pwsh -command 'Install-Module PSWSMan'
 sudo pwsh -Command 'Install-WSMan'
 ```
 
