@@ -278,13 +278,14 @@ Remove-SM365Connector -leaveAntiSpamWhiteList
 Remove-SM365Connector # Cleans up IP Adresses from hosted connection filter policy
 ```
 
-## Final Note on Connectors Parameters you can use in **ANY** parameterset
+## Final Note on connectors-parameters you can use in **ANY** parameterset
 ```powershell
 -disabled # Is be used to create "disabled" connectors. Makes sense for sensitive environment with step-by-step implementation.
+
 -Option NoAntiSpamWhiteListing # Is used to disable whitelisting
 ````
 
-
+**Note on Disable/enable:** To enable the connectors, either recreate them, use the admin interface of Exchange Online or use the native Exchange Online PowerShell CmdLets `Set-InboundConnector` and `Set-OutBoundConnector`.
 ## New-SM365Rules
 
 **Synopsis:**  
@@ -294,9 +295,12 @@ Creates the required transport rules needed to correctly handle mails from and t
 `-PlacementPriority [SM365.PlacementPriority] (optional)`  
 Specifies whether new rules should be put in front or behind existing transport rules (if any). If not provided and in an interactive session, the CmdLet will ask for this information interactively.  
 
-`-Enabled [Switch] (optional)`  
-Allows for the rules to be created in an inactive state, in case you just  
-want to prepare your environment.  
+`-ExcludeEmailDomain [String[]] (optional)`  
+Specifies one or more (comma-seperated) E-Mail domains that should be excluded in SEPPmail traffic. 
+
+
+`-Disabled [Switch] (optional)`  
+Allows for the rules to be created in an inactive state, in case you just want to prepare your environment.  
 
 **Examples:**  
 
