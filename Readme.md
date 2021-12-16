@@ -32,15 +32,15 @@ In Version 1.1.0 we had a couple of CmdLet parameters which confused people like
 
 #### Domain limitation only in Transport-Rules
 
-With this version we **do not limit domains in the connector** in general. But you are able to exclude E-Mail domains in rules. 
+With this version we **do not limit domains in the connector** in general. But you are able to exclude E-Mail domains in transport rules. 
 
 #### Alias-CmdLets
 
-New-SM365Connectors and New-SM365Rules contain a lot of logic to prepare the ExO environment as good as possible. the accodring "Set-" Commandlets are now simply an Alias for the "New-*" Commandlets. So whenever you "Set-" something, you simple recreate it.
+New-SM365Connectors and New-SM365Rules contain a lot of logic to prepare the Exchange Online environment as good as possible. The according "Set-" commandlets are now simply aliases for the "New-*" Commandlets. So whenever you "Set-" something, you simply recreate it.
 
 #### No Restore
 
-Having a backup of a configuration makes sense for many reasons (documentation, ...). Our Backup-* CmdLets ket you write connector and rules-configs to JSON files. **Why is there no restore ?** Ths JSON files are great to read but terrible to use for connector and rule recreation. To avoid mistakes and errors there is no Restore-* CmdLets. If you ned to restore some settings read the JSON file and restore with the New-* CmeLets.
+Having a backup of a configuration makes sense for many reasons (documentation, ...). Our Backup-* CmdLets ket you write connector and rules-configs to JSON files. **Why is there no restore ?** JSON files are great to read but terrible to use for connector and rule recreation. To avoid mistakes and errors there is no Restore-* CmdLet. If you need to restore some settings, read the JSON file and restore with the New-* CmdLets.
 
 #### General note on simplification
 
@@ -63,18 +63,20 @@ Connector Settings offer the following options:
 **NOTE for PRODUCTION ENVIRONMENTS: Always procect the traffic with TLS and do not use Self-Signed Certificates !**  
 
 The CmdLet Set-SM365Connectors is just an alias to New-SM365Connectors. Using Set-SM365Connectors just recreates the connectors based on new parameter settings with one Appliance. 
-If you need more advanced configurations for your connectors like multiple IP Addresses or a SEPPmail Cluster, add this configuration after the initial creation in the UI or with the native PowerShell CmdLets.
+If you need more advanced configurations for your connectors like multiple IP addresses or a SEPPmail cluster, add this configuration after the initial creation in the UI or with the native PowerShell CmdLets.
 
 ### Adapt to Exchange Online Features 
 
 #### Anti-SPAM IP Whitelisting
 
-Exchange Online allows it now to add IP Addresses in a Whitelist (Hosted Connection Filter Policy), that makes our previous SPF Rules unneccesary. Beginning from version 1.2 **we add the SEPPmail to this list by default**.  This tells Exchange online, that everything coming from SEPPmail is trusted (as it was scanned by M365 Defenders already). This policy is - as far as we investigated available for Exchange Online Plans 1 and 2 (and hopefully its successors). When using the -Option "NoAntiSpamWhiteListing" Parameter in New-SM365Connectors, this behavior can be surpressed.
-(Thanks to Alexander Tschanz from Smart-IT Swizerland for this hint)
+Exchange Online allows it now to add IP Addresses in a Whitelist (Hosted Connection Filter Policy), that makes our previous SPF Rules unneccesary. Beginning from version 1.2 **we add the SEPPmail to this list by default**.  This tells Exchange Online, that everything coming from SEPPmail is trusted (as it was scanned by M365 Defenders already). This policy is - as far as we investigated - available for Exchange Online Plans 1 and 2 (and hopefully its successors). 
+
+To surpress this behavior use the -Option "NoAntiSpamWhiteListing" Parameter in New-SM365Connectors.
+(Thanks to Alexander Tschanz from Smart-IT Swizerland for this hint!)
 
 ### No SPF Rules anymore
 
-The SPF Mailflow-rules which we used so far as a workaround to avoid SPAM are dremoved.
+The SPF mailflow-rules which we used so far as a workaround to avoid SPAM are removed.
 
 ### No EFSKIP connection parameters in Connectors
 
@@ -86,9 +88,7 @@ The module requires at least PowerShell 5.1 (64bit) and the
 
 The module was developed on macOS and runs also on PowerShell Core 7.1.5+
 
-_Note on Powershell on debian_: There are scenarios where module installation fails with an error on incorrect module maifest. We are currently investigating this.
-
-<a id="org88ae7e3"></a>
+_Note on PowerShell on debian_: There are scenarios where module installation fails with an error on incorrect module maifest. We are currently investigating this.
 
 # Module Installation
 
@@ -99,8 +99,6 @@ Installing the module is as easy as executing:
 ```powershell
 Install-Module "SEPPmail365"
 ```
-
-If you want to use the newest (maybe instable) version, that might not be production ready.
 
 ## Installation on macOS and Linux
 
@@ -115,8 +113,7 @@ sudo pwsh -Command 'Install-WSMan'
 ## Prereleases
 
 If you want to use the newest version, that might not be production ready
-yet, go to the [SEPPmail365 Github repository](https://github.com/seppmail/SEPPmail365), download the source code and  
-execute:  
+yet, go to the [SEPPmail365 Github repository](https://github.com/seppmail/SEPPmail365), download the source code and execute:  
 
 ```powershell
 Import-Module "C:\path\to\module\SEPPmail365.psd1"
@@ -158,8 +155,6 @@ All CmdLets support the PowerShell [common parameters](https://docs.microsoft.co
 `-Verbose`, etc.  
 
 
-<a id="orgf8badef"></a>
-
 ## Test-SM365ConnectionStatus
 
 **Synopsis:**  
@@ -192,7 +187,7 @@ Remove-SM365Setup # Removes SEPPmail Rules and Connectors
 (Get-HostedConnectionFilterpolicy).IpAllowList # Show IP Whitelist
 ````
 
-### Report on ExoEnvironment
+### Report on Exchange Online Environment
 ```powershell
 New-SM365ExOReport -FilePath /Users/roman/Desktop/Exorep0812.html
 ````
@@ -335,7 +330,7 @@ Remove-SM365Rules -Whatif
 ## Backup-SM365Connectors
 
 **Synopsis:**  
-Performs a backup of all connectors found to individual json files for every connector. **There is no Restore-SM365Connectors** CmdLets, because the JSON provided cannot be used to recreate connectors. The backup JSON-files can be used as written source to recreate connectors with the native Exchange Online CmdLets or the SEPPmail365 module.  
+Performs a backup of all connectors found to individual json files for every connector. **There is no Restore-SM365Connectors** CmdLet, because the JSON provided cannot be used to recreate connectors. The backup JSON-files can be used as written source to recreate connectors with the native Exchange Online CmdLets or the SEPPmail365 module.  
 
 **Parameter List:**  
 `-OutFolder [string] (mandatory)`  
@@ -354,7 +349,7 @@ foreach ($file in $backupfiles) {Get-Content $file}
 ## Backup-SM365Rules
 
 **Synopsis:**  
-Performs a backup of all transport rules found to individual json files for every rule.  **There is no Restore-SM365rules** CmdLets, because the JSON provided cannot be used to recreate connectors. The backup JSON-files can be used as written source to recreate rules with the native Exchange Online CmdLets. 
+Performs a backup of all transport rules found to individual json files for every rule.  **There is no Restore-SM365rules** CmdLet, because the JSON provided cannot be used to recreate connectors. The backup JSON-files can be used as written source to recreate rules with the native Exchange Online CmdLets. 
 
 **Parameter List:**  
 `-OutFolder [string] (mandatory)`  
@@ -371,14 +366,14 @@ foreach ($file in $backupfiles) {Get-Content $file}
 
 ### A note on RESTORING Connectors and Rules
 
-The native Exchange Online CommandLets provide a way to read conector/rule settings, but emit everything a connector/rule contains. This makes it great to rebuild by hand, but difficult to build valid connector rule combinations in software.
+The native Exchange Online CommandLets provide a way to read connector/rule settings, but emit everything a connector/rule contains. This makes it great to rebuild by hand, but difficult to build valid connector rule combinations in software.
 
-For Restore, we recommend to manuelly read the JSON-exports and build the connectors/rules out od this information from scratch.
+For Restore, we recommend to manually read the JSON-exports and build the connectors/rules out of this information from scratch.
 
 
 # Clustering and multi-host configurations
 
-the current version only supports the usage of one SEPPmail per Connector-command. This might be an SMTP load-balancer for a cluster or a single node. If you want to use multiple hosts for Exo-SEPPmail connectivity, create the connectors with one host and add the others in the UI or PowerShell CmdLets "Set-OutboundConnector" and "Set-InboundConnector". Furthermore adapt the Anti-SPAM Whitelist with "Set-HostedConnectionFilterPolicy".
+the current version only supports the usage of one SEPPmail per Connector-command. This might be an SMTP load-balancer for a cluster or a single node. If you want to use multiple hosts for Exchange Online-SEPPmail connectivity, create the connectors with one host and add the others in the UI or PowerShell CmdLets "Set-OutboundConnector" and "Set-InboundConnector". Furthermore adapt the Anti-SPAM Whitelist with "Set-HostedConnectionFilterPolicy".
 
 # Upgrading from a previous version
 
