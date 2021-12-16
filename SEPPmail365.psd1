@@ -172,10 +172,13 @@ PrivateData = @{
 03.12.21    1.2.0 RC1 - Internal:Get-SM365Rules and Get-SM365Connectors, bugfixes
 
 09.12.21    1.2.0 RC2 - Public RC: Add Remove-SM365Setup, polish for Gallery-Release
+
+21.12.21    1.2.0 Production Release
+
 '@
 
         # Prerelease string of this module
-        Prerelease = 'RC2'
+        # Prerelease = 'RC2'
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         # RequireLicenseAcceptance = $false
