@@ -260,7 +260,7 @@ Get-SM365Connectors #Shows disabled
 ```
 ### Default with FQDN and no ANTISPAM Whitelisting
 ```powershell
-New-SM365Connectors -SEPPmailFQDN seppmail365lablb.westeurope.cloudapp.azure.com -Option NoAntiSpamWhitelisting
+New-SM365Connectors -SEPPmailFQDN seppmail365lablb.westeurope.cloudapp.azure.com -Option NoAntiSpamWhiteListing
 (Get-HostedConnectionFilterpolicy).IpAllowList # Show IP Whitelist
 Get-SM365Connectors
 ```

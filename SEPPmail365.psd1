@@ -134,24 +134,11 @@ PrivateData = @{
         # ReleaseNotes of this module
         ReleaseNotes = 
 @'
-17.07.20    0.2.0 Build same functionality as the existing SEPPmail O365 deployment script
-
-21.07.20    0.5.0 Add Whatif/Confim, some bugfixes, beta2
-
-29.07.20    0.5.1 Some fixes in readme/examples and basic HTML report
-
-03.08.20    0.9.0 Updated readme, examples and prep for release
-
-04.08.20    0.9.1 Updated Logo, updated publisher, finished for release 1.0
-
-18.8.20     0.9.2 Improved error handling, connector output, new CmdLet Remove-SM365Connectors
-
-26.8.20     1.0.0 Fixing final issues and ready to release.
+26.08.20    1.0.0 Fixing final issues and ready to release.
 
 03.12.20    1.1.0 Incoming mails don't land in Junk folders anymore.
                   Add Set-SM365Connectors and Set-SM365Rules CmdLets to update configuration.
                   Add Remove-SM365Connectors and Remove-SM365Rules CmdLets.
-
                   Add detailed documentation (HTML and Markdown) on Github Page.
 
 04.12.20    1.1.1 Minor fix - add missing action to new transport rules.
@@ -173,8 +160,7 @@ PrivateData = @{
 
 09.12.21    1.2.0 RC2 - Public RC: Add Remove-SM365Setup, polish for Gallery-Release
 
-21.12.21    1.2.0 Production Release
-
+21.12.21    1.2.0 Production Release, includes -TLSCertName Parameter for connectors wildcard certificates
 '@
 
         # Prerelease string of this module
