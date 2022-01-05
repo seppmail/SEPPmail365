@@ -1,4 +1,13 @@
+<#
+.SYNOPSIS
+    Read existing SEPPmail Exchange Online connectors
+.DESCRIPTION
+    SEPPmail uses 2 Connectors to transfer messages between SEPPmail and Exchange Online
+    This commandlet will show existing connectors.
 
+.EXAMPLE
+    Get-SM365Connectors
+#>
 function Get-SM365Connectors
 {
     [CmdletBinding()]
@@ -58,7 +67,6 @@ function Get-SM365Connectors
     }
 }
 
-
 <#
 .SYNOPSIS
     Adds SEPPmail Exchange Online connectors
@@ -67,10 +75,15 @@ function Get-SM365Connectors
     This commandlet will create the connectors for you.
 
     The -SEPPmailFQDN must point to a SEPPmail Appliance with a valid certificate to establish the TLS connection.
-    T
+    To use a wildcard certifiacate, use the -TLSCertName parameter.
 
 .EXAMPLE
-    Takes the Exchange Online environment selltings and creates Inbound and Outbound connectors to a SEPPmail Appliance.
+    Takes the Exchange Online environment settings and creates Inbound and Outbound connectors to a SEPPmail Appliance with a wildcard TLS certificate
+
+    New-SM365Connectors -SEPPmailFQDN 'securemail.contoso.com' -TLSCertName '*.contoso.com'
+.EXAMPLE
+    Takes the Exchange Online environment settings and creates Inbound and Outbound connectors to a SEPPmail Appliance.
+    Assumes that the TLS certificate is identical with the SEPPmail FQDN
 
     New-SM365Connectors -SEPPmailFQDN 'securemail.contoso.com'
 .EXAMPLE
@@ -78,23 +91,23 @@ function Get-SM365Connectors
     
     New-SM365Connectors -SEPPmailFQDN 'securemail.contoso.com' -AllowSelfSignedCertificates
 .EXAMPLE
-    Same as the dfault config, just with no TLS encryption at all.
+    Same as the default config, just with no TLS encryption at all.
 
     New-SM365Connectors -SEPPmailFQDN securemail.contoso.com -NoOutBoundTlsCheck
 .EXAMPLE
-    If you want to create the connectors, but just disable them usw the -Disabled switch
+    If you want to create the connectors, but just disable them on creation, use the -Disabled switch.
 
     New-SM365Connectors -SEPPmailFQDN securemail.contoso.com -Disabled
 
 .EXAMPLE
-    If youe SEPPmail is just accessible via an IP Address, use the -SEPPmailIP Parameter
+    If your SEPPmail is just accessible via an IP Address, use the -SEPPmailIP parameter.
 
     New-SM365Connectors -SEPPmailIp '51.144.46.62'
 
 .EXAMPLE 
-     To get added to the ANTI-SPAM WHiteList of Microsoft Defender use -Option 'AntiSpamWhiteList'
+    To avoid, adding the SEPPmail to the ANTI-SPAM WHiteList of Microsoft Defender use the example below
      
-    New-SM365Connectors -SEPPmailFQDN securemail.contoso.com -Option AntiSpamWhiteList -Disable
+    New-SM365Connectors -SEPPmailFQDN securemail.contoso.com -Option NoAntiSpamWhiteListing
 #>
 function New-SM365Connectors
 {
@@ -123,6 +136,17 @@ function New-SM365Connectors
         [Alias('FQDN','SMFQDN')]
         [String] $SEPPmailFQDN,
         #endregion fqdntls
+
+        #region TLSSenderCertificateName
+        [Parameter(
+            Mandatory = $false,
+            HelpMessage = 'Name of the certificate if different from the SEPPmail-FQDN. Read the cetificate name in your SEPPmail under SSL==>Issued to==>Name (CN)',
+            ParameterSetname = 'FqdnTls',
+            Position = 1
+        )]
+        [Alias('TLSCertName','CertName')]
+        [String] $TLSCertificateName,
+        #endregion
 
         #region selfsigned
         [Parameter(
@@ -341,7 +365,9 @@ function New-SM365Connectors
                 $param.RestrictDomainsToCertificate = $false
                 $param.TlsSenderCertificateName = $SEPPmailFQDN
             }
-
+            if (($PSCmdLet.ParameterSetName -eq 'FQDNTls') -and ($null -ne $TLSCertificateName)) {
+                $param.TlsSenderCertificateName = $TLSCertificateName
+            }
             if ($PSCmdLet.ParameterSetName -eq 'FqdnNoTls') {
                 $param.TlsSenderCertificateName = $SEPPmailFQDN
             }
@@ -469,6 +495,11 @@ function New-SM365Connectors
 
                 $Now = Get-Date
                 $param.Comment += "`n#Created with SEPPmail365 PowerShell Module on $now"
+
+                if ($TLSCertificateName) {
+                    $param.TlsDomain = $TLSCertificateName
+                }
+
                 New-OutboundConnector @param | Out-Null
 
                 if(!$?)
