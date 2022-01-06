@@ -5,7 +5,8 @@
         # Define output Filapath
         [Parameter(   
            Mandatory   = $true,
-           HelpMessage = 'Path of the HTML report on disk'
+           HelpMessage = 'Relative path of the HTML report on disk',
+           ParameterSetName = 'Filepath'
         )]
         $FilePath
     )
@@ -18,6 +19,39 @@
             Write-Information "Connected to Exchange Organization `"$Script:ExODefaultDomain`"" -InformationAction Continue
         Write-verbose 'Defining Function fo read Exo Data and return an info Message in HTML even if nothing is retrieved'
         }
+
+        #region Filetest
+        If ((Split-Path $filepath -Extension).Length -eq 0) {
+
+            Write-Verbose "Test if $Filepath exists"
+            If (!(Test-Path $FilePath)) {
+                throw [System.Exception] "$Filepath does not exist. Enter a valid filepath including filename like ~\exoreport.html"
+            }
+            else {
+                $reporttimestamp = "{0:dd-MMMM-yyy_HH-mm-ss}" -f (Get-Date)
+                $reportdomainname = Get-AcceptedDomain|where-object InitialDomain -eq $true|select-object -expandproperty Domainname
+                $ReportFileName = $reportTimeStamp + $reportdomainname + '.html'
+                
+                Write-Verbose "$Filepath is a path (only), adding $ReportFilename"
+                $FilePath = Join-path -Path $FilePath -ChildPath $ReportFileName
+            }
+        
+        }
+        else {
+            $ParentFilePath = Split-Path $FilePath -Parent
+            If (!(Test-Path $ParentFilePath)) {
+                throw [System.Exception] "The Path $ParentFilePath does not exist. Enter a valid filepath including filename like ~\exoreport.html"
+            }
+            else {
+                Write-Verbose "Test if $Filepath is a valid Filename"
+                
+                If (!(((Split-Path $FilePath -Extension) -eq '.html') -or ((Split-Path $FilePath -Extension) -eq '.htm'))) {
+                    Write-Warning "$Filepath does not contain a usual html-report filename. We recommend using 'html' or 'htm' as file-extension."
+                }
+            }
+        }
+        #endregion
+
         function Get-ExoHTMLData {
             param (
                 [Parameter(
@@ -42,12 +76,12 @@
                 #"Whatis is $Whatif and `$pscmdlet.ShouldProcess is $($pscmdlet.ShouldProcess) "
                 #For later Use
             }
-            $mv = Get-module SEPPmail365 |select-object -expandproperty version
-            $Top = "<p><h1>Exchange Online Report created with SEPPmail365 Module</h1><p>"
+            $mv = '1.2.0'
+            #$mv = (Get-Module SEPPmail365).Version.ToString()
+            $Top = "<p><h1>Exchange Online Report</h1><p>"
             $now = Get-Date
             $RepCreationDateTime = "<p><body>Report created: $now</body><p>"
-            $moduleVersion = "<p><body>Module Version: $mv</body><p>"
-
+            $moduleVersion = "<p><body>SEPPmail365 Module Version: $mv</body><p>"
             Write-Verbose "Collecting Accepted Domains"
             $hSplitLine = '<p><h2>---------------------------------------------------------------------------------------------------------------------------</h2><p>'
             #region General infos
@@ -77,9 +111,8 @@
             Foreach ($AcceptedDomain in $oTemp.DomainName) {
                     $O += (Get-MxRecordReport -Domain $AcceptedDomain|Select-Object -Unique|Select-Object HighestPriorityMailhost,HighestPriorityMailhostIpAddress,Domain|Convertto-HTML -Fragment)
             }
-
             #endregion
-            
+
             #region Security 
             $hSecurity = '<p><h2>Security related Information</h2><p>'
             $hC = '<p><h3>DKIM Settings</h3><p>'
@@ -151,13 +184,13 @@
 "@
 
             $hEndOfReport = '<p><h2>--- End of Report ---</h2><p>'
-            $style = Get-Content $PSScriptRoot\..\HTML\SEPPmailReport.css
+            $style = Get-Content $modulepath\HTML\SEPPmailReport.css
             Convertto-HTML -Body "$LogoHTML $Top $RepCreationDatetime $moduleVersion`
                    $hSplitLine $hGeneral $hSplitLine $hA $a $hB $b $hP $P $hO $o`
                   $hSplitLine $hSecurity $hSplitLine $hC $c $hd $d $hE $e $hK $k $hH $h $hJ $j $hJ1 $J1 `
                  $hSplitLine $hOtherConn $hSplitLine $hG $g $hI $i `
                 $hSplitLine $hConnectors $hSplitLine $hL $l $hM $m `
-            $hSplitLine $hTransPortRules $hSplitLine $hN $n $hEndofReport " -Title "SEPPmail365 Exo Report" -Head $style|Out-File -FilePath $filePath
+            $hSplitLine $hTransPortRules $hSplitLine $hN $n $hEndofReport " -Title "SEPPmail365 Exo Report" -Head $style|Out-File -FilePath $filePath -Force
 
         }
         catch {
