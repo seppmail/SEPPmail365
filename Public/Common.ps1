@@ -17,11 +17,11 @@
         { throw [System.Exception] "You're not connected to Exchange Online - please connect prior to using this CmdLet" }
         else {
             Write-Information "Connected to Exchange Organization `"$Script:ExODefaultDomain`"" -InformationAction Continue
-        Write-verbose 'Defining Function fo read Exo Data and return an info Message in HTML even if nothing is retrieved'
+            Write-verbose 'Defining Function fo read Exo Data and return an info Message in HTML even if nothing is retrieved'
         }
 
         #region Filetest
-        If ((Split-Path $filepath -Extension).Length -eq 0) {
+        If (!($FilePath.Contains('.'))) {
 
             Write-Verbose "Test if $Filepath exists"
             If (!(Test-Path $FilePath)) {
@@ -45,7 +45,7 @@
             else {
                 Write-Verbose "Test if $Filepath is a valid Filename"
                 
-                If (!(((Split-Path $FilePath -Extension) -eq '.html') -or ((Split-Path $FilePath -Extension) -eq '.htm'))) {
+                If (!(($Filepath.Contains('.html')) -or ($Filepath.Contains('.html')))) {
                     Write-Warning "$Filepath does not contain a usual html-report filename. We recommend using 'html' or 'htm' as file-extension."
                 }
             }
