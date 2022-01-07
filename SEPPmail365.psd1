@@ -12,7 +12,7 @@
 RootModule = 'SEPPmail365.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.2.0'
+ModuleVersion = '1.2.1'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Desktop','Core')
@@ -161,10 +161,12 @@ PrivateData = @{
 09.12.21    1.2.0 RC2 - Public RC: Add Remove-SM365Setup, polish for Gallery-Release
 
 21.12.21    1.2.0 Production Release, includes -TLSCertName Parameter for connectors wildcard certificates
+
+07.01.2022  1.2.1 Published release with file handling on reports and fix for -TLSCertname
 '@
 
         # Prerelease string of this module
-        # Prerelease = 'RC2'
+        # Prerelease = ''
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         # RequireLicenseAcceptance = $false
