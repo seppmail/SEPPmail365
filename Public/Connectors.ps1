@@ -356,18 +356,26 @@ function New-SM365Connectors
             # necessary assignment for splatting
             $param = $inbound.ToHashtable()
 
-            Write-Verbose "Set parameters based on ParameterSet"
+            Write-Verbose "Modify params based on ParameterSet"
+            Write-verbose "IP based Config, using $SenderIPAdresses"
             if ($PSCmdLet.ParameterSetName -eq 'Ip') {
                 $param.SenderIPAddresses = $SenderIPAddresses
                 $param.RequireTls = $false
             } 
+            Write-Verbose "FQDN and Self Signed certificates, TLSCertificatename = $SEPPmailFQDN"
             if (($PSCmdLet.ParameterSetName -eq 'FQDNTls') -and ($AllowSelfSignedCertificates)) {
                 $param.RestrictDomainsToCertificate = $false
                 $param.TlsSenderCertificateName = $SEPPmailFQDN
             }
-            if (($PSCmdLet.ParameterSetName -eq 'FQDNTls') -and ($null -ne $TLSCertificateName)) {
+            Write-Verbose "FQDN and certificatename equals FQDN, using $SEPpmailFQDN as TLSCertificateName"
+            if (($PSCmdLet.ParameterSetName -eq 'FQDNTls') -and ($TLSCertificateName.Length -eq 0)) {
+                $param.TlsSenderCertificateName = $SEPPmailFQDN
+            }
+            Write-Verbose "FQDN and certificatename specified, using $TlscertificateName as TLSCertificateName"
+            if (($PSCmdLet.ParameterSetName -eq 'FQDNTls') -and ($TLSCertificateName.Length -gt 0)) {
                 $param.TlsSenderCertificateName = $TLSCertificateName
             }
+            Write-Verbose "NoTls, using $SEPPmailFQDN as TLSCertificateName"
             if ($PSCmdLet.ParameterSetName -eq 'FqdnNoTls') {
                 $param.TlsSenderCertificateName = $SEPPmailFQDN
             }
@@ -381,7 +389,7 @@ function New-SM365Connectors
                 }
                 $Now = Get-Date
                 $param.Comment += "`n#Created with SEPPmail365 PowerShell Module on $now"
-                New-InboundConnector @param | Out-Null
+                [void](New-InboundConnector @param)
 
                 if(!$?) {
                     throw $error[0]
@@ -496,11 +504,11 @@ function New-SM365Connectors
                 $Now = Get-Date
                 $param.Comment += "`n#Created with SEPPmail365 PowerShell Module on $now"
 
-                if ($TLSCertificateName) {
+                if ($TLSCertificateName.Length -gt 0) {
                     $param.TlsDomain = $TLSCertificateName
                 }
 
-                New-OutboundConnector @param | Out-Null
+                [void](New-OutboundConnector @param)
 
                 if(!$?)
                 {throw $error[0]}
