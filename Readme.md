@@ -171,7 +171,7 @@ All CmdLets support the PowerShell [common parameters](https://docs.microsoft.co
 `-Verbose`, etc.  
 
 
-## Test-SM365ConnectionStatus
+## 1 - Test-SM365ConnectionStatus
 
 **Synopsis:**  
 Internally used to check your conenction status to Exchange Online..  
@@ -189,7 +189,7 @@ Test-SM365ConnectionStatus
 
 <a id="orgb92507f"></a>
 
-## Before you change something
+## 2 - Before you change something
 
 ### Check existing SEPPmail Rules and Connectors
 
@@ -211,11 +211,11 @@ Remove-SM365Setup # Removes SEPPmail Rules and Connectors
 New-SM365ExOReport -FilePath /Users/roman/Desktop/Exorep0812.html
 ```
 
-## Build Connectivity between Exchange online and SEPPmail
+## 3 - Build Connectivity between Exchange Online and SEPPmail
 
-### 3 Options (Get-Help New-SM365Connectors)
+In this part we create inbound and outbound connectors to allow E-Mail-flow between Exchange Online and SEPPmail. You have several options to establish connectivity.
 
-#### Option 1: FQDN with full SSL and optional "AllowSelfsigned" Option
+### Option 1: FQDN with full SSL and optional "AllowSelfsigned" Option
 
 Full SSL is the recommended setting for production environments. All else is for test and demo purposes.
 
@@ -224,19 +224,35 @@ New-SM365Connectors [-SEPPmailFQDN] <String> [-TLSCertificateName] <String> [-Al
 [-Confirm] [<CommonParameters>]
 ```
 
-#### FQDN and NoTLS Option
+### Option 2: FQDN and NoTLS Option
 
 ```powershell
 New-SM365Connectors [-SEPPmailFQDN] <String> [-NoOutBoundTlsCheck] [-Option {None | AntiSpamWhiteList}] [-Disabled] [-WhatIf] [-Confirm] 
 [<CommonParameters>]
 ```
 
-#### IP Option
+### Option 3: IP Option
 
 ```powershell
 New-SM365Connectors [-SEPPmailIP] <String> [-Option {None | AntiSpamWhiteList}] [-Disabled] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
+## 4 - Addin Mailflow-Rules
+
+When inbound- and outbound connectors are established, we need mailflow rules to route E-Mails via the SEPPmail appliance if necessary. The New-SM365Rules CmdLet handles this for you. The most convenient way to do this is running the following code:
+```powershell
+New-SM365Rules 
+
+# If you want to know what happens in detail, run
+
+New-SM365Rules -Verbose
+
+```
+
+
+For more info read details below.
+
+# Using the Commandlets
 
 ## New-SM365Connectors
 
