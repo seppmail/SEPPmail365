@@ -12,6 +12,14 @@ Please note that Exchange Online is a fast paced environment and subject to chan
 
 We try to adapt to these changes ASAP, but can't guarantee that this module will be up to date immediately after Microsoft has deployed new changes.  
 
+## PowerShell Platform
+
+_PowerShell Core is the future !_
+
+The module runs on both platforms (Windows PowerShell and PowerShell Core macOS/Windows/Linux) but we *highly recommend* to run this module in *Powershell Core*, (also on Windows). So install PowerShell Core asap on your machine via the Windows Store or the notes here: https://github.com/powershell/powershell
+
+In future versions, we might end support for Windows PowerShell.
+
 ## November 2021 - Releasenotes 1.2.x
 
 Version 1.2 of this module is a release focussed on 4 topics:
