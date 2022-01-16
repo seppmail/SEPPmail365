@@ -243,6 +243,7 @@ function Remove-SM365Rules {
 
     Write-Information "Connected to Exchange Organization `"$Script:ExODefaultDomain`"" -InformationAction Continue
 
+    Write-Verbose "Removing current version module rules"
     $settings = Get-SM365TransportRuleSettings -Version 'Default'
     foreach($setting in $settings)
     {
@@ -250,11 +251,29 @@ function Remove-SM365Rules {
         {
             $rule = Get-TransportRule $setting.Name -ErrorAction SilentlyContinue
             if($rule)
-            {$rule | Remove-TransportRule -Confirm:$false}
+                {$rule | Remove-TransportRule -Confirm:$false}
             else
-            {Write-Verbose "Rule $($setting.Name) does not exist"}
+                {Write-Verbose "Rule $($setting.Name) does not exist"}
         }
     }
+    
+    Write-Verbose "Removing module 1.1.x version rules"
+    [string[]]$11rules = '[SEPPmail] - Route incoming/internal Mails to SEPPmail',`
+                         '[SEPPmail] - Route ExO organiz./internal Mails to SEPPmail',`
+                         '[SEPPmail] - Route outgoing/internal Mails to SEPPmail',`
+                         '[SEPPmail] - Skip SPF check after incoming appliance routing',`
+                         '[SEPPmail] - Skip SPF check after internal appliance routing'
+    try {
+        foreach ($rule in $11rules) {
+            If (Get-TransportRule -id $rule -ErrorAction SilentlyContinue) {
+                Remove-TransportRule -id $rule -Confirm:$false
+            }
+        }
+    }
+    catch {
+        throw [System.Exception] "Error: $($_.Exception.Message)"
+    }        
+
 }
 
 <#
