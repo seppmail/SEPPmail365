@@ -239,7 +239,9 @@ function Remove-SM365Rules {
     )
 
     if (!(Test-SM365ConnectionStatus))
-    { throw [System.Exception] "You're not connected to Exchange Online - please connect prior to using this CmdLet" }
+    { 
+        throw [System.Exception] "You're not connected to Exchange Online - please connect prior to using this CmdLet" 
+    }
 
     Write-Information "Connected to Exchange Organization `"$Script:ExODefaultDomain`"" -InformationAction Continue
 
@@ -256,24 +258,32 @@ function Remove-SM365Rules {
                 {Write-Verbose "Rule $($setting.Name) does not exist"}
         }
     }
-    
+
     Write-Verbose "Removing module 1.1.x version rules"
     [string[]]$11rules = '[SEPPmail] - Route incoming/internal Mails to SEPPmail',`
                          '[SEPPmail] - Route ExO organiz./internal Mails to SEPPmail',`
                          '[SEPPmail] - Route outgoing/internal Mails to SEPPmail',`
                          '[SEPPmail] - Skip SPF check after incoming appliance routing',`
                          '[SEPPmail] - Skip SPF check after internal appliance routing'
-    try {
-        foreach ($rule in $11rules) {
-            If (Get-TransportRule -id $rule -ErrorAction SilentlyContinue) {
-                Remove-TransportRule -id $rule -Confirm:$false
+    try 
+    {
+        foreach ($rule in $11rules) 
+        {
+            If($PSCmdLet.ShouldProcess($rule, "Remove module 1.1 transport rule")) 
+            {
+                If (Get-TransportRule -id $rule -ErrorAction SilentlyContinue) 
+                {
+                    {
+                        Remove-TransportRule -id $rule -Confirm:$false
+                    }
+                }
             }
         }
     }
-    catch {
+    catch 
+    {
         throw [System.Exception] "Error: $($_.Exception.Message)"
     }        
-
 }
 
 <#
