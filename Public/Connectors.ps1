@@ -289,6 +289,103 @@ function New-SM365Connectors
 
     process
     {
+        #region OutboundConnector
+        $outbound = Get-SM365OutboundConnectorSettings -Version 'Default' -Option $Option
+        $param = $outbound.ToHashtable()
+        if ($PsCmdLet.ParameterSetname -like 'fqdn*') {
+            $param.SmartHosts = $SEPPmailFQDN            
+        } else {
+            $param.SmartHosts = $SenderIPAddresses                  
+        }
+        Write-Verbose "Set Tls outbound domain depending in ParameterSetName $PsCmdLet.ParameterSetName"
+        if ($PsCmdLet.ParameterSetName -eq 'FqdnTls') {
+            $param.TlsDomain = $OutboundTlsDomain
+            if ($AllowSelfSignedCertificates) {
+                $param.TlsSettings = 'EncryptionOnly'
+                $param.Remove('TlsDomain')
+            }
+        }
+
+        if ($PsCmdLet.ParameterSetName -ne 'FqdnTls') {
+            $param.TlsSettings = $null
+        }
+
+        Write-verbose "if -disabled switch is used, the connector stays deactivated"
+        if ($Disabled) {
+            $param.Enabled = $false
+        }
+
+        Write-Verbose "Read existing SEPPmail outbound connector"
+        $existingSMOutboundConn = $allOutboundConnectors | Where-Object Name -EQ $outbound.Name
+        # only $false if the user says so interactively
+        
+        [bool]$createOutBound = $true #Set Default Value
+        if ($existingSMOutboundConn)
+        {
+            Write-Warning "Found existing SEPPmail outbound connector with name: `"$($existingSMOutboundConn.Name)`" created on `"$($existingSMOutboundConn.WhenCreated)`" pointing to SEPPmail `"$($existingSMOutboundConn.TlsDomain)`" "
+
+            if($InteractiveSession)
+            {
+                [string] $tmp = $null
+
+                Do {
+                    try {
+                        [ValidateSet('y', 'Y', 'n', 'N')]$tmp = Read-Host -Prompt "Shall we delete and recreate the outbound connector (will only work if no rules use it)? (Y/N)"
+                        break
+                    }
+                    catch {}
+                }
+                until ($?)
+
+                if ($tmp -eq 'y') {
+                    $createOutbound = $true
+
+                    Write-Verbose "Removing existing Outbound Connector $($existingSMOutboundConn.Name) !"
+                    if ($PSCmdLet.ShouldProcess($($existingSMOutboundConn.Name), 'Removing existing SEPPmail Outbound Connector')) {
+                        $existingSMOutboundConn | Remove-OutboundConnector -Confirm:$false # user already confirmed action
+
+                        if (!$?)
+                        { throw $error[0] }
+                    }
+                }
+                else {
+                    Write-Warning "Leaving existing SEPPmail outbound connector `"$($existingSMOutboundConn.Name)`" untouched."
+                    $createOutbound = $false
+                }
+            }
+            else
+            {
+                throw [System.Exception] "Outbound connector $($outbound.Name) already exists"
+            }
+        }
+        else
+        {Write-Verbose "No existing Outbound Connector found"}
+
+        if($createOutbound)
+        {
+            Write-Verbose "Creating SEPPmail Outbound Connector $($param.Name)!"
+            if ($PSCmdLet.ShouldProcess($($param.Name), 'Creating Outbound Connector'))
+            {
+                Write-Debug "Outbound Connector settings:"
+                $param.GetEnumerator() | ForEach-Object{
+                    Write-Debug "$($_.Key) = $($_.Value)"
+                }
+
+                $Now = Get-Date
+                $param.Comment += "`n#Created with SEPPmail365 PowerShell Module on $now"
+
+                if ($TLSCertificateName.Length -gt 0) {
+                    $param.TlsDomain = $TLSCertificateName
+                }
+
+                [void](New-OutboundConnector @param)
+
+                if(!$?)
+                {throw $error[0]}
+            }
+        }
+        #endregion OutboundConnector
+
         #region - Inbound Connector
         Write-Verbose "Read Inbound Connector Settings"
         $inbound = Get-SM365InboundConnectorSettings -Version 'Default' -Option $Option
@@ -418,103 +515,6 @@ function New-SM365Connectors
             }
         }
         #endRegion InboundConnector
-
-        #region OutboundConnector
-        $outbound = Get-SM365OutboundConnectorSettings -Version 'Default' -Option $Option
-        $param = $outbound.ToHashtable()
-        if ($PsCmdLet.ParameterSetname -like 'fqdn*') {
-            $param.SmartHosts = $SEPPmailFQDN            
-        } else {
-            $param.SmartHosts = $SenderIPAddresses                  
-        }
-        Write-Verbose "Set Tls outbound domain depending in ParameterSetName $PsCmdLet.ParameterSetName"
-        if ($PsCmdLet.ParameterSetName -eq 'FqdnTls') {
-            $param.TlsDomain = $OutboundTlsDomain
-            if ($AllowSelfSignedCertificates) {
-                $param.TlsSettings = 'EncryptionOnly'
-                $param.Remove('TlsDomain')
-            }
-        }
-
-        if ($PsCmdLet.ParameterSetName -ne 'FqdnTls') {
-            $param.TlsSettings = $null
-        }
-
-        Write-verbose "if -disabled switch is used, the connector stays deactivated"
-        if ($Disabled) {
-            $param.Enabled = $false
-        }
-
-        Write-Verbose "Read existing SEPPmail outbound connector"
-        $existingSMOutboundConn = $allOutboundConnectors | Where-Object Name -EQ $outbound.Name
-        # only $false if the user says so interactively
-        
-        [bool]$createOutBound = $true #Set Default Value
-        if ($existingSMOutboundConn)
-        {
-            Write-Warning "Found existing SEPPmail outbound connector with name: `"$($existingSMOutboundConn.Name)`" created on `"$($existingSMOutboundConn.WhenCreated)`" pointing to SEPPmail `"$($existingSMOutboundConn.TlsDomain)`" "
-
-            if($InteractiveSession)
-            {
-                [string] $tmp = $null
-
-                Do {
-                    try {
-                        [ValidateSet('y', 'Y', 'n', 'N')]$tmp = Read-Host -Prompt "Shall we delete and recreate the outbound connector (will only work if no rules use it)? (Y/N)"
-                        break
-                    }
-                    catch {}
-                }
-                until ($?)
-
-                if ($tmp -eq 'y') {
-                    $createOutbound = $true
-
-                    Write-Verbose "Removing existing Outbound Connector $($existingSMOutboundConn.Name) !"
-                    if ($PSCmdLet.ShouldProcess($($existingSMOutboundConn.Name), 'Removing existing SEPPmail Outbound Connector')) {
-                        $existingSMOutboundConn | Remove-OutboundConnector -Confirm:$false # user already confirmed action
-
-                        if (!$?)
-                        { throw $error[0] }
-                    }
-                }
-                else {
-                    Write-Warning "Leaving existing SEPPmail outbound connector `"$($existingSMOutboundConn.Name)`" untouched."
-                    $createOutbound = $false
-                }
-            }
-            else
-            {
-                throw [System.Exception] "Outbound connector $($outbound.Name) already exists"
-            }
-        }
-        else
-        {Write-Verbose "No existing Outbound Connector found"}
-
-        if($createOutbound)
-        {
-            Write-Verbose "Creating SEPPmail Outbound Connector $($param.Name)!"
-            if ($PSCmdLet.ShouldProcess($($param.Name), 'Creating Outbound Connector'))
-            {
-                Write-Debug "Outbound Connector settings:"
-                $param.GetEnumerator() | ForEach-Object{
-                    Write-Debug "$($_.Key) = $($_.Value)"
-                }
-
-                $Now = Get-Date
-                $param.Comment += "`n#Created with SEPPmail365 PowerShell Module on $now"
-
-                if ($TLSCertificateName.Length -gt 0) {
-                    $param.TlsDomain = $TLSCertificateName
-                }
-
-                [void](New-OutboundConnector @param)
-
-                if(!$?)
-                {throw $error[0]}
-            }
-        }
-        #endregion OutboundConnector
     }
 
     end
