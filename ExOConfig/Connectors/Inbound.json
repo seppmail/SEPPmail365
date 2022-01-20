@@ -12,6 +12,15 @@
             "Enabled"                      : true,
             "RequireTls"                   : true,
             "SenderDomains"                : "*"
+        },
+        "Partner":
+        {
+            "CloudServicesMailEnabled"     : false,
+            "ConnectorSource"              : "Default",
+            "ConnectorType"                : "Partner",
+            "Enabled"                      : true,
+            "RequireTls"                   : true,
+            "SenderDomains"                : "*"
         }
     },
     "Option":

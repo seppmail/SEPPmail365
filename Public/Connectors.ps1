@@ -183,6 +183,25 @@ function New-SM365Connectors
         #region Option
         [Parameter(
             Mandatory = $false,
+            HelpMessage = 'Which configuration option to use',
+            ParameterSetName = 'FqdnTls'
+        )]
+        [Parameter(
+            Mandatory = $false,
+            HelpMessage = 'Which configuration option to use',
+            ParameterSetName = 'FqdnNoTls'
+        )]
+        [Parameter(
+            Mandatory = $false,
+            HelpMessage = 'Which configuration option to use',
+            ParameterSetName = 'Ip'
+        )]
+        [SM365.ConfigOption[]]$Option = 'Default',
+        #endregion Option
+
+        #region Version
+        [Parameter(
+            Mandatory = $false,
             HelpMessage = 'Which configuration version to use',
             ParameterSetName = 'FqdnTls'
         )]
@@ -196,8 +215,9 @@ function New-SM365Connectors
             HelpMessage = 'Which configuration version to use',
             ParameterSetName = 'Ip'
         )]
-        [SM365.ConfigOption[]]$Option = 'Default',
-        #endregion Option
+        [SM365.ConfigVersion[]]$Version = 'Default',
+        #endregion Version
+
 
         #region disabled
         [Parameter(
@@ -290,7 +310,7 @@ function New-SM365Connectors
     process
     {
         #region OutboundConnector
-        $outbound = Get-SM365OutboundConnectorSettings -Version 'Default' -Option $Option
+        $outbound = Get-SM365OutboundConnectorSettings -Version $Version -Option $Option
         $param = $outbound.ToHashtable()
         if ($PsCmdLet.ParameterSetname -like 'fqdn*') {
             $param.SmartHosts = $SEPPmailFQDN            
@@ -388,7 +408,7 @@ function New-SM365Connectors
 
         #region - Inbound Connector
         Write-Verbose "Read Inbound Connector Settings"
-        $inbound = Get-SM365InboundConnectorSettings -Version 'Default' -Option $Option
+        $inbound = Get-SM365InboundConnectorSettings -Version $Version -Option $Option
         
         if ($PSCmdLet.ParametersetName -eq 'FqdnTls') {
             $inbound.TlsSenderCertificateName = $InboundTlsDomain

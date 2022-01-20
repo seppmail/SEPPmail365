@@ -12,6 +12,15 @@
             "TlsSettings"              : "DomainValidation",
             "UseMXRecord"              : false,
             "CloudServicesMailEnabled" : true
+        },
+        "Partner":
+        {
+            "ConnectorSource"          : "Default",
+            "ConnectorType"            : "Partner",
+            "IsTransportRuleScoped"    : true,
+            "TlsSettings"              : "DomainValidation",
+            "UseMXRecord"              : false,
+            "CloudServicesMailEnabled" : false
         }
     },
     "Option":
