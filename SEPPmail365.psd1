@@ -12,7 +12,7 @@
 RootModule = 'SEPPmail365.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.2.1'
+ModuleVersion = '1.2.2'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Desktop','Core')
@@ -162,7 +162,11 @@ PrivateData = @{
 
 21.12.21    1.2.0 Production Release, includes -TLSCertName Parameter for connectors wildcard certificates
 
-07.01.2022  1.2.1 Published release with file handling on reports and fix for -TLSCertname
+07.01.22    1.2.1 Published release with file handling on reports and fix for -TLSCertname
+
+21.01.22    1.2.2 Outbound connectors are created before inbound connectors.
+                  "Module update" available check and notification on module init
+
 '@
 
         # Prerelease string of this module
