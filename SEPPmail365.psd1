@@ -166,7 +166,6 @@ PrivateData = @{
 
 21.01.22    1.2.2 Outbound connectors are created before inbound connectors.
                   "Module update" available check and notification on module init
-
 '@
 
         # Prerelease string of this module

@@ -20,7 +20,12 @@ The module runs on both platforms (Windows PowerShell and PowerShell Core macOS/
 
 In future versions, we might end support for Windows PowerShell.
 
-## November 2021 - Releasenotes 1.2.x
+## January 2022 - Releasenotes 1.2.2
+
+* Add "Update available" notification on module startup
+* Create Outbound-Connector first to avoid Excange Online warning message
+
+## November 2021 - Releasenotes 1.2.1
 
 Version 1.2 of this module is a release focussed on 4 topics:
 
