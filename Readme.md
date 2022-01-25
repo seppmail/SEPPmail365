@@ -1,4 +1,42 @@
-# Abstract
+- [Prerequisites](#prerequisites)
+- [Module Installation](#module-installation)
+	- [Installation on Windows](#installation-on-windows)
+	- [Installation on macOS and Linux](#installation-on-macos-and-linux)
+	- [Prereleases](#prereleases)
+- [Preparation](#preparation)
+- [Setup SEPPmail with Exchange online](#setup-seppmail-with-exchange-online)
+	- [1 - Test-SM365ConnectionStatus](#1---test-sm365connectionstatus)
+	- [2 - Before you change something](#2---before-you-change-something)
+		- [Check existing SEPPmail Rules and Connectors](#check-existing-seppmail-rules-and-connectors)
+		- [Cleanup environment](#cleanup-environment)
+		- [Report on Exchange Online Environment](#report-on-exchange-online-environment)
+	- [3 - Build Connectivity between Exchange Online and SEPPmail](#3---build-connectivity-between-exchange-online-and-seppmail)
+		- [Option 1: FQDN with full SSL and optional "AllowSelfsigned" Option](#option-1-fqdn-with-full-ssl-and-optional-allowselfsigned-option)
+		- [Option 2: FQDN and NoTLS Option](#option-2-fqdn-and-notls-option)
+		- [Option 3: IP Option](#option-3-ip-option)
+	- [4 - Addin Mailflow-Rules](#4---addin-mailflow-rules)
+- [Using the Commandlets](#using-the-commandlets)
+	- [New-SM365Connectors](#new-sm365connectors)
+		- [Default with IP](#default-with-ip)
+		- [DNS Check included](#dns-check-included)
+		- [Default with FQDN and wildcard certificate](#default-with-fqdn-and-wildcard-certificate)
+		- [Default with FQDN and single host SSL certificate](#default-with-fqdn-and-single-host-ssl-certificate)
+		- [FQDN with self-signed Certificate](#fqdn-with-self-signed-certificate)
+		- [FQDN with no outbound TLS](#fqdn-with-no-outbound-tls)
+		- [FQDN with no outbound TLS and DISABLED](#fqdn-with-no-outbound-tls-and-disabled)
+		- [Default with FQDN and no ANTISPAM Whitelisting](#default-with-fqdn-and-no-antispam-whitelisting)
+	- [Set-SM365Connectors](#set-sm365connectors)
+	- [Cleaning Up Connectors](#cleaning-up-connectors)
+	- [Final Note on connectors-parameters you can use in **ANY** parameterset](#final-note-on-connectors-parameters-you-can-use-in-any-parameterset)
+	- [New-SM365Rules](#new-sm365rules)
+	- [Remove-SM365Rules](#remove-sm365rules)
+	- [Backup-SM365Connectors](#backup-sm365connectors)
+	- [BACKUP connector settings](#backup-connector-settings)
+	- [Backup-SM365Rules](#backup-sm365rules)
+- [Clustering and multi-host configurations](#clustering-and-multi-host-configurations)
+- [Upgrading from a previous version](#upgrading-from-a-previous-version)
+
+## Abstract
 
 The SEPPmail365 PowerShell module helps customers and partners to smoothly integrate their SEPPmail appliance with Exchange Online.  
 
@@ -6,7 +44,7 @@ Integration with Exchange Online requires the configuration of an inbound and ou
   
 This module provides means to create and update connectors, rules, and backing up existing configuration, as well as generating a report about the current state of the Exchange Online environment.
 
-## GENERAL NOTE
+## General Note
 
 Please note that Exchange Online is a fast paced environment and subject to change. In pratice that means that a working setup can suddenly stop behaving correctly, as soon as the cloud infrastructure has been updated. This may affect you and thus will require a certain amount of patience.
 
@@ -22,17 +60,18 @@ In future versions, we might end support for Windows PowerShell.
 
 ## January 2022 - Releasenotes 1.2.2
 
-* Add "Update available" notification on module startup
-* Create Outbound-Connector first to avoid Excange Online warning message
+- Add "Update available" notification on module startup
+- Create Outbound-Connector first to avoid Excange Online warning message
+- Remove-SM365rules now removes also rules created with earlier module versions
 
 ## November 2021 - Releasenotes 1.2.1
 
 Version 1.2 of this module is a release focussed on 4 topics:
 
-* Simplification based on best practices
-* More flexible connectivity for test and demo environments
-* Make the configuration easier to use and read
-* Adapt to current Exchange Online Features
+- Simplification based on best practices
+- More flexible connectivity for test and demo environments
+- Make the configuration easier to use and read
+- Adapt to current Exchange Online Features
 
 ### Simplification based on best practices
 
@@ -64,12 +103,12 @@ The previous version worked pretty well for default configurations with a FQDN f
 
 Connector Settings offer the following options:
 
-|Option|Parameter in New-SM365connectors| SEPPmail Addressed by|TLS Security|Certificate security |
-|---------------|----------|--|--|---------|
-|default|--no parameter required--| Full Qualified Domain Name|yes|trusted |
-|self signed|-AllowSelfSignedCertificates| Full Qualified Domain Name|yes|trusted & self signed |
-|no TLS|-NoOutboundTlsCheck| Full Qualified Domain Name|no|none|
-|IP|-SEPPmailIP| IP Address|no|none|
+| Option      | Parameter in New-SM365connectors | SEPPmail Addressed by      | TLS Security | Certificate security  |
+| ----------- | -------------------------------- | -------------------------- | ------------ | --------------------- |
+| default     | --no parameter required--        | Full Qualified Domain Name | yes          | trusted               |
+| self signed | -AllowSelfSignedCertificates     | Full Qualified Domain Name | yes          | trusted & self signed |
+| no TLS      | -NoOutboundTlsCheck              | Full Qualified Domain Name | no           | none                  |
+| IP          | -SEPPmailIP                      | IP Address                 | no           | none                  |
 
 **NOTE for PRODUCTION ENVIRONMENTS: Always procect the traffic with TLS and do not use Self-Signed Certificates !**  
 
@@ -439,7 +478,7 @@ $backupfiles = Get-ChildItem /Users/roman/Desktop/ExoBackup
 foreach ($file in $backupfiles) {Get-Content $file}
 ```
 
-### A note on RESTORING Connectors and Rules
+*_A note on RESTORING Connectors and Rules_*
 
 The native Exchange Online CommandLets provide a way to read connector/rule settings, but emit everything a connector/rule contains. This makes it great to rebuild by hand, but difficult to build valid connector rule combinations in software.
 
