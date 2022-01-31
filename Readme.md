@@ -1,3 +1,20 @@
+- [Introduction](#introduction)
+	- [Abstract](#abstract)
+	- [General Note](#general-note)
+	- [PowerShell Platform](#powershell-platform)
+	- [January 2022 - Releasenotes 1.2.2](#january-2022---releasenotes-122)
+	- [November 2021 - Releasenotes 1.2.1](#november-2021---releasenotes-121)
+		- [Simplification based on best practices](#simplification-based-on-best-practices)
+			- [Only parameters that make sense](#only-parameters-that-make-sense)
+			- [Domain limitation only in Transport-Rules](#domain-limitation-only-in-transport-rules)
+			- [Alias-CmdLets for Set-*](#alias-cmdlets-for-set-)
+			- [No Restore](#no-restore)
+			- [General note on simplification](#general-note-on-simplification)
+		- [More fliexible connectivity for test and demo environments](#more-fliexible-connectivity-for-test-and-demo-environments)
+		- [Adapt to Exchange Online Features](#adapt-to-exchange-online-features)
+			- [Anti-SPAM IP Whitelisting](#anti-spam-ip-whitelisting)
+		- [No SPF Rules anymore](#no-spf-rules-anymore)
+		- [No EFSKIP connection parameters in Connectors](#no-efskip-connection-parameters-in-connectors)
 - [Prerequisites](#prerequisites)
 - [Module Installation](#module-installation)
 	- [Installation on Windows](#installation-on-windows)
@@ -35,6 +52,10 @@
 	- [Backup-SM365Rules](#backup-sm365rules)
 - [Clustering and multi-host configurations](#clustering-and-multi-host-configurations)
 - [Upgrading from a previous version](#upgrading-from-a-previous-version)
+- [Dealing with aliases and multiple domains in Exchange online](#dealing-with-aliases-and-multiple-domains-in-exchange-online)
+
+
+# Introduction
 
 ## Abstract
 
@@ -503,5 +524,19 @@ The current version only supports the usage of one SEPPmail per Connector-comman
 6.) Create Connectors
 
 7.) Create Rules
+
+# Dealing with aliases and multiple domains in Exchange online
+
+Exchange Online has the unpleasent behavior to rename e-mail addresses when somebody sends an E-mail to an alias. This prevents E-mail decryption in many ways, i.e. the SEPPmail domain encryption, and others. What happens is that the private decryption keys for the re-written alias adressess do not fit anymore as in the picture below.
+
+![rewriting](./visuals/seppmail365-alias.png)
+
+Beginning with 2022, Microsoft has announced a beta-feature for Exchange Online which does not reqrite domains anymore. The feature is in public preview and can be activated very simply with the following command:
+
+```powershell
+Set-OrganizationConfig -SendFromAliasEnabled $TRUE
+```
+
+For more info read the original [blog from Microsoft](https://techcommunity.microsoft.com/t5/exchange-team-blog/sending-from-email-aliases-public-preview/ba-p/3070501).
 
 --- end of file ---
