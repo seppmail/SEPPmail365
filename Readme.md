@@ -54,7 +54,6 @@
 - [Upgrading from a previous version](#upgrading-from-a-previous-version)
 - [Dealing with aliases and multiple domains in Exchange online](#dealing-with-aliases-and-multiple-domains-in-exchange-online)
 
-
 # Introduction
 
 ## Abstract
@@ -185,7 +184,7 @@ In addition to the main module you need to add PSWSMan which adds WSMan client l
 
 ```powershell
 # Do this OUTSIDE Powershell in the shell !
-sudo pwsh -command 'Install-Module PSWSMan' # Read more on this here https://github.com/jborean93/omi
+sudo pwsh -command 'Install-Module PSWSMan -Scope allusers' # Read more on this here https://github.com/jborean93/omi
 sudo pwsh -Command 'Install-WSMan'
 ```
 
