@@ -529,13 +529,18 @@ The current version only supports the usage of one SEPPmail per Connector-comman
 
 Exchange Online has the unpleasent behavior to rename e-mail addresses when somebody sends an E-mail to an alias. This prevents E-mail decryption in many ways, i.e. the SEPPmail domain encryption, and others. What happens is that the private decryption keys for the re-written alias adressess do not fit anymore as in the picture below.
 
-![rewriting](./visuals/seppmail365-alias.png)
+![rewriting](./visuals/seppmail365-alias_wrong.png)
 
 Beginning with 2022, Microsoft has announced a beta-feature for Exchange Online which does not reqrite domains anymore. The feature is in public preview and can be activated very simply with the following command:
 
 ```powershell
 Set-OrganizationConfig -SendFromAliasEnabled $TRUE
 ```
+
+This setting prevents the alias-rewrite step and allows it for SEPPmail to use the correct keys for decryption.
+
+![no rewriting](./visuals/seppmail365-alias_right.png)
+
 
 For more info read the original [blog from Microsoft](https://techcommunity.microsoft.com/t5/exchange-team-blog/sending-from-email-aliases-public-preview/ba-p/3070501).
 
