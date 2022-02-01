@@ -531,7 +531,7 @@ Exchange Online has the unpleasent behavior to rename e-mail addresses when some
 
 ![rewriting](./visuals/seppmail365-alias_wrong.png)
 
-Beginning with 2022, Microsoft has announced a beta-feature for Exchange Online which does not reqrite domains anymore. The feature is in public preview and can be activated very simply with the following command:
+Beginning with 2022, Microsoft has announced a beta-feature for Exchange Online which does not rewrite domains anymore. The feature is in public preview and can be activated very simply with the following command:
 
 ```powershell
 Set-OrganizationConfig -SendFromAliasEnabled $TRUE
@@ -540,7 +540,6 @@ Set-OrganizationConfig -SendFromAliasEnabled $TRUE
 This setting prevents the alias-rewrite step and allows it for SEPPmail to use the correct keys for decryption.
 
 ![no rewriting](./visuals/seppmail365-alias_right.png)
-
 
 For more info read the original [blog from Microsoft](https://techcommunity.microsoft.com/t5/exchange-team-blog/sending-from-email-aliases-public-preview/ba-p/3070501).
 
