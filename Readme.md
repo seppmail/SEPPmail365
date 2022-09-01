@@ -2,6 +2,7 @@
 	- [Abstract](#abstract)
 	- [General Note](#general-note)
 	- [PowerShell Platform](#powershell-platform)
+	- [September 2022 - Releasenotes 1.2.3](#september-2022---releasenotes-123)
 	- [January 2022 - Releasenotes 1.2.2](#january-2022---releasenotes-122)
 	- [November 2021 - Releasenotes 1.2.1](#november-2021---releasenotes-121)
 		- [Simplification based on best practices](#simplification-based-on-best-practices)
@@ -25,6 +26,7 @@
 	- [1 - Test-SM365ConnectionStatus](#1---test-sm365connectionstatus)
 	- [2 - Before you change something](#2---before-you-change-something)
 		- [Check existing SEPPmail Rules and Connectors](#check-existing-seppmail-rules-and-connectors)
+		- [Generate an Exchange Online Report](#generate-an-exchange-online-report)
 		- [Cleanup environment](#cleanup-environment)
 		- [Report on Exchange Online Environment](#report-on-exchange-online-environment)
 	- [3 - Build Connectivity between Exchange Online and SEPPmail](#3---build-connectivity-between-exchange-online-and-seppmail)
@@ -77,6 +79,11 @@ _PowerShell Core is the future !_
 The module runs on both platforms (Windows PowerShell and PowerShell Core macOS/Windows/Linux) but we *highly recommend* to run this module in *Powershell Core*, (also on Windows). So install PowerShell Core asap on your machine via the Windows Store or the notes here: https://github.com/powershell/powershell
 
 In future versions, we might end support for Windows PowerShell.
+
+## September 2022 - Releasenotes 1.2.3
+
+- Add rule for setting identification header
+- Add generating a Code for identification
 
 ## January 2022 - Releasenotes 1.2.2
 
@@ -236,7 +243,14 @@ Connect-ExchangeOnline -Device
 
 # Setup SEPPmail with Exchange online
 
-Version specific configuration can be requested via the `-Version` parameter.  
+Import the Module with:
+
+```powershell
+Import-Module SEPPmail365
+```
+
+After successful import, this command will also generate am identification-code which is needed for the Appliance setup with Exchange Online.
+Remember that code and use it for the appliance setup.
 
 **Note about parameters:**  
 All CmdLets support the PowerShell [common parameters](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_commonparameters?view=powershell-7) `-Confirm`, `-Whatif`,  
@@ -246,7 +260,7 @@ All CmdLets support the PowerShell [common parameters](https://docs.microsoft.co
 ## 1 - Test-SM365ConnectionStatus
 
 **Synopsis:**  
-Internally used to check your conenction status to Exchange Online..  
+Internally used to check your connection status to Exchange Online..  
 
 Returns `$true` if you are connected and throws an exception if the connection is not ready.  
 
@@ -268,6 +282,12 @@ Test-SM365ConnectionStatus
 ```powershell
 Get-SM365Rules # Shows existing SEPPmail Rules
 Get-SM365Connectors # Shows existing SEPPmail Connectors
+```
+
+### Generate an Exchange Online Report
+
+```powershell
+New-SC365ExoReport ~\Desktop # generates a report on the desktop
 ```
 
 ### Cleanup environment

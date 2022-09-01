@@ -32,6 +32,18 @@ catch {
     Write-Error "Could not determine newest module version due to exception $($_.Exception.Message)"
 }
 
+Write-Verbose 'Generate X-SM-HeaderCheck'
+try {
+    [String]$Global:HeaderCheckValue = ( -join ((0x30..0x39) + ( 0x41..0x46) | Get-Random -Count 16  | Foreach-Object {[char]$_}) )
+    Write-Warning "X-SM-HeaderCheck value for your SEPPmail Appliance is $headerCheckValue."
+    Write-Warning "!!! Enter this value in the Managed Domain configuation, otherwise Mailflow will not work !!!"
+    Set-Content "$env:LOCALAPPDATA\SEPPmailHeaderCheckValue.txt" -Value $headerCheckValue -force
+    Write-Output '(Headercheck Value is also stored in Valiable $HeaderCheckValue for this session and on your disk $env:LOCALAPPDATA\SEPPmailHeaderCheckValue.txt)'
+}
+catch {
+    Write-Error "Unique Header check value could not be generated due to $($_.Exception.Message)"
+}
+
 Export-ModuleMember -Alias * -Function *
 
 # SIG # Begin signature block

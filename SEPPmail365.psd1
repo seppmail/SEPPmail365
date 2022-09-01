@@ -12,7 +12,7 @@
 RootModule = 'SEPPmail365.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.2.2'
+ModuleVersion = '1.2.3'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Desktop','Core')
@@ -166,6 +166,8 @@ PrivateData = @{
 
 21.01.22    1.2.2 Outbound connectors are created before inbound connectors.
                   "Module update" available check and notification on module init
+
+3.9.22      1.2.3 Fix for missing Microsoft Tenant-ID Header.
 '@
 
         # Prerelease string of this module

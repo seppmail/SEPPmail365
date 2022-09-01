@@ -1,0 +1,32 @@
+{
+    "Name"                                : "[SEPPmail] - Set Identification Header",
+    "Comments"                            : "Mails sent from inside the organization to the Internet are tagged with the identification header for SEPPmail Appliance",
+    "RouteMessageOutboundConnector"       : "[SEPPmail] ExchangeOnline -> Appliance",
+    "SMPriority"                          : 1,
+
+    "Version":
+    {
+        "Default":
+        {
+            "FromScope"                           : "InOrganization",
+            "SentToScope"                         : "NotInOrganization",
+            "SetHeaderName"                       : "X-SM-HeaderCheck",
+            "SetHeaderValue"                      : "",
+            "ExceptIfHeaderMatchesMessageHeader"  : "X-SM-internal",
+            "ExceptIfHeaderMatchesPatterns"       : "yes",
+            "ExceptIfHeaderContainsMessageHeader" : "X-SM-outgoing",
+            "ExceptIfHeaderContainsWords"         : "yes",
+            "ExceptIfMessageTypeMatches"          : "OOF",
+            "ExceptIfSCLOver"                     : 9,
+            "Priority"                            : 0,
+            "SetAuditSeverity"                    : "DoNotAudit",
+            "Mode"                                : "Enforce",
+            "SenderAddressLocation"               : "Header"
+        }
+    },
+    "Option":
+        {
+            
+        }
+
+}
