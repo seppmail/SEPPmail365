@@ -2,7 +2,7 @@
     "Name"                                : "[SEPPmail] - Route outgoing e-mails to SEPPmail",
     "Comments"                            : "Mails sent from inside the organization to the Internet are sent to SEPPmail appliance for encryption and signing.",
     "RouteMessageOutboundConnector"       : "[SEPPmail] ExchangeOnline -> Appliance",
-    "SMPriority"                          : 1,
+    "SMPriority"                          : 2,
 
     "Version":
     {
@@ -15,6 +15,7 @@
             "ExceptIfHeaderContainsMessageHeader" : "X-SM-outgoing",
             "ExceptIfHeaderContainsWords"         : "yes",
             "ExceptIfMessageTypeMatches"          : "OOF",
+            "ExceptIfSCLOver"                     : 9,
             "Priority"                            : 0,
             "SetAuditSeverity"                    : "DoNotAudit",
             "Mode"                                : "Enforce",
