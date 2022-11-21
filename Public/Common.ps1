@@ -1,53 +1,97 @@
-﻿function New-SM365ExOReport {
-    [CmdletBinding(SupportsShouldProcess=$true,
-                   ConfirmImpact='Medium')]
-    Param (
-        # Define output Filapath
-        [Parameter(   
-           Mandatory   = $true,
-           HelpMessage = 'Relative path of the HTML report on disk',
-           ParameterSetName = 'Filepath'
+﻿<#
+.SYNOPSIS
+    Generates a report of the current Status of the Exchange Online environment
+.DESCRIPTION
+    The report will write all needed information of Exchange Online into an HTML file. This is useful for documentation and decisions for the integration. It also makes sense as some sort of snapshot documentation before and after an integration into seppmail.cloud
+.EXAMPLE
+    PS C:\> New-SC365ExoReport
+    This reads relevant information of Exchange Online and writes a summary report in an HTML in the current directory
+.EXAMPLE
+    PS C:\> New-SC365ExoReport -FilePath '~/Desktop'
+    -Filepath requires a relative path and may be used with or without filename (auto-generated filename)
+.EXAMPLE
+    PS C:\> New-SC365ExoReport -LiteralPath c:\temp\expreport.html
+    Literalpath requires a full and valid path
+.INPUTS
+    FilePath
+.OUTPUTS
+    HTML Report
+.NOTES
+    See https://github.com/seppmail/SEPPmail365cloud/blob/main/README.md for more
+#>
+function New-SM365ExOReport {
+    [CmdletBinding(
+        SupportsShouldProcess = $true,
+                ConfirmImpact = 'Medium',
+     DefaultParameterSetName  = 'FilePath',
+                      HelpURI = 'https://github.com/seppmail/SEPPmail365cloud/blob/main/README.md#setup-the-integration'
         )]
-        $FilePath
+    Param (
+        # Define output relative Filepath
+        [Parameter(   
+           Mandatory   = $false,
+           HelpMessage = 'Relative path of the HTML report on disk',
+           ParameterSetName = 'FilePath',
+           Position = 0
+           #Position = 0
+        )]
+        [Alias('Path')]
+        [string]$filePath = '.',
+
+        [Parameter(   
+           Mandatory   = $false,
+           HelpMessage = 'Literal path of the HTML report on disk',
+           ParameterSetName = 'LiteralPath',
+           Position = 0
+        )]
+        [string]$Literalpath = '.'
     )
 
     begin
     {
-        if (!(Test-SM365ConnectionStatus))
-        { throw [System.Exception] "You're not connected to Exchange Online - please connect prior to using this CmdLet" }
+        if (!(Test-SC365ConnectionStatus)){
+            throw [System.Exception] "You're not connected to Exchange Online - please connect prior to using this CmdLet" }
         else {
             Write-Information "Connected to Exchange Organization `"$Script:ExODefaultDomain`"" -InformationAction Continue
             Write-verbose 'Defining Function fo read Exo Data and return an info Message in HTML even if nothing is retrieved'
         }
 
-        #region Filetest
-        If (!($FilePath.Contains('.'))) {
-
-            Write-Verbose "Test if $Filepath exists"
-            If (!(Test-Path $FilePath)) {
-                throw [System.Exception] "$Filepath does not exist. Enter a valid filepath including filename like ~\exoreport.html"
-            }
-            else {
-                $reporttimestamp = "{0:dd-MMMM-yyy_HH-mm-ss}" -f (Get-Date)
-                $reportdomainname = Get-AcceptedDomain|where-object InitialDomain -eq $true|select-object -expandproperty Domainname
-                $ReportFileName = $reportTimeStamp + $reportdomainname + '.html'
-                
-                Write-Verbose "$Filepath is a path (only), adding $ReportFilename"
-                $FilePath = Join-path -Path $FilePath -ChildPath $ReportFileName
-            }
-        
+        function New-SelfGeneratedReportName {
+            Write-Verbose "Creating self-generated report filename."
+            return ("{0:HHm-ddMMyyy}" -f (Get-Date)) + (Get-AcceptedDomain|where-object default -eq $true|select-object -expandproperty Domainname) + '.html'
         }
-        else {
-            $ParentFilePath = Split-Path $FilePath -Parent
-            If (!(Test-Path $ParentFilePath)) {
-                throw [System.Exception] "The Path $ParentFilePath does not exist. Enter a valid filepath including filename like ~\exoreport.html"
-            }
-            else {
-                Write-Verbose "Test if $Filepath is a valid Filename"
+
+        #region Filetest only if not $Literalpath is selected
+        if ($PsCmdlet.ParameterSetName -eq "FilePath") {
+
+            If (Test-Path $FilePath -PathType Container) {
+                Write-Verbose "Filepath $Filepath is a directory"
                 
-                If (!(($Filepath.Contains('.html')) -or ($Filepath.Contains('.html')))) {
-                    Write-Warning "$Filepath does not contain a usual html-report filename. We recommend using 'html' or 'htm' as file-extension."
+                if (Test-Path (Split-Path (Resolve-Path $Filepath) -Parent)) {
+                    Write-Verbose "Filepath $Filepath Container exists on disk, creating default ReportFilename"
+                    $ReportFilename = New-SelfGeneratedReportName
+                    $FinalPath = Join-Path -Path $filePath -ChildPath $ReportFilename
+                } else {
+                    throw [System.Exception] "$FilePath is not valid. Enter a valid filepath like ~\Desktop or c:\temp\expreport.html"
                 }
+
+                } else {
+                    Write-Verbose "FilePath $Filepath is a Full Path including Filename"
+                    if ((Split-Path $FilePath -Extension) -eq '.html') {
+                        $FinalPath = $Filepath
+                    } else {
+                        throw [System.Exception] "$FilePath is not an HTML file. Enter a valid filepath like ~\Desktop or c:\temp\expreport.html"
+                    }
+                }
+        }
+
+        else {
+        # Literalpath
+            $SplitLiteralPath = Split-Path -Path $LiteralPath -Parent
+            If (Test-Path -Path $SplitLiteralPath) {
+                $finalPath = $LiteralPath
+            } else {
+                throw [System.Exception] "$LiteralPath does not exist. Enter a valid literal path like ~\exoreport.html or c:\temp\expreport.html"
             }
         }
         #endregion
@@ -59,13 +103,18 @@
                     HelpMessage = 'Enter Cmdlte to ')]
                 [string]$ExoCmd
             )
-            $rawData = Invoke-Expression -Command $exoCmd
-            if ($null -eq $rawData) {
-                $ExoHTMLData = New-object -type PSobject -property @{Result = '--- no information available ---'}|Convertto-HTML -Fragment
-            } else {
-                $ExoHTMLData = $rawData|Convertto-HTML -Fragment
-            } 
-            return $ExoHTMLData    
+            try {
+                $rawData = Invoke-Expression -Command $exoCmd
+                if ($null -eq $rawData) {
+                    $ExoHTMLData = New-object -type PSobject -property @{Result = '--- no information available ---'}|Convertto-HTML -Fragment
+                } else {
+                    $ExoHTMLData = $rawData|Convertto-HTML -Fragment
+                } 
+                return $ExoHTMLData
+            }
+            catch {
+                Write-Warning "Could not fetch data from command '$exoCmd'"
+            }    
         }
     }
 
@@ -76,12 +125,20 @@
                 #"Whatis is $Whatif and `$pscmdlet.ShouldProcess is $($pscmdlet.ShouldProcess) "
                 #For later Use
             }
-            $mv = '1.2.0'
-            #$mv = (Get-Module SEPPmail365).Version.ToString()
+            $mv = $myInvocation.MyCommand.Version
             $Top = "<p><h1>Exchange Online Report</h1><p>"
             $now = Get-Date
-            $RepCreationDateTime = "<p><body>Report created: $now</body><p>"
-            $moduleVersion = "<p><body>SEPPmail365 Module Version: $mv</body><p>"
+            if ($PSVersionTable.OS -like 'Microsoft Windows*') {
+                $repUser = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+            } else {
+                $repUser = (hostname) + '/' + (whoami)
+            }
+            $RepCreationDateTime = "<p><body>Report created on: $now</body><p>"
+            $RepCreatedBy = "<p><body>Report created by: $repUser</body><p>"
+            $ReportFilename = Split-Path $FinalPath -Leaf
+            $moduleVersion = "<p><body>SEPPmail365cloud Module Version: $mv</body><p>"
+            $reportTenantID = Get-SC365TenantID -maildomain (Get-AcceptedDomain|where-object InitialDomain -eq $true|select-object -expandproperty Domainname)
+            $TenantInfo = "<p><body>Microsoft O/M365 AzureAD Tenant ID: $reportTenantID</body><p>"
             Write-Verbose "Collecting Accepted Domains"
             $hSplitLine = '<p><h2>---------------------------------------------------------------------------------------------------------------------------</h2><p>'
             #region General infos
@@ -92,7 +149,7 @@
             # Find out Office Configuration
             Write-Verbose "Collecting M365 Configuration"
             $hB = '<p><h3>ExO Configuration Details</h3><p>'
-            $B = Get-ExoHTMLData -ExoCmd 'Get-OrganizationConfig |Select-Object DisplayName,ExchangeVersion,AllowedMailboxRegions,DefaultMailboxRegion'
+            $B = Get-ExoHTMLData -ExoCmd 'Get-OrganizationConfig |Select-Object DisplayName,ExchangeVersion,AllowedMailboxRegions,DefaultMailboxRegion,DisablePlusAddressInRecipients'
 
             # Find out possible Sending Limits for LFT
             Write-Verbose "Collecting Send and Receive limits for SEPPmail LFT configuration"
@@ -157,11 +214,11 @@
             
             Write-Verbose "InboundConnectors"
             $hL = '<p><h3>Inbound Connectors</h3><p>'
-            $L = Get-ExoHTMLData -ExoCmd 'Get-InboundConnector |Select-Object Identity,Enabled,SenderDomains,OrganizationalUnitRootInternal,TlsSenderCertificateName,IsValid'
+            $L = Get-ExoHTMLData -ExoCmd 'Get-InboundConnector |Select-Object Identity,Enabled,SenderDomains,SenderIPAddresses,OrganizationalUnitRootInternal,TlsSenderCertificateName,OriginatingServer,IsValid'
             
             Write-Verbose "OutboundConnectors"
             $hM = '<p><h3>Outbound Connectors</h3><p>'
-            $M = Get-ExoHTMLData -ExoCmd 'Get-OutboundConnector|Select-Object Identity,Enabled,SmartHosts,TlsDomain,TlsSettings,RecipientDomains,OriginatingServer,IsValid'
+            $M = Get-ExoHTMLData -ExoCmd 'Get-OutboundConnector -IncludeTestModeConnectors:$true|Select-Object Identity,Enabled,SmartHosts,TlsDomain,TlsSettings,RecipientDomains,OriginatingServer,IsValid'
             #endregion connectors
             
             #region mailflow rules
@@ -171,27 +228,49 @@
             $N = Get-ExoHTMLData -ExoCmd 'Get-TransportRule | select-object Name,State,Mode,Priority,FromScope,SentToScope'
             #endregion transport rules
 
-
-            if ($psversiontable.PSedition -eq 'Desktop') {
-                $HeaderLogo = [Convert]::ToBase64String((Get-Content -path $PSScriptRoot\..\HTML\SEPPmailLogo.jpg -encoding byte ))
-            } else {
-                $HeaderLogo = [Convert]::ToBase64String((Get-Content -path $PSScriptRoot\..\HTML\SEPPmailLogo.jpg -AsByteStream))
-            }
-
+            $HeaderLogo = [Convert]::ToBase64String((Get-Content -path $PSScriptRoot\..\HTML\SEPPmailLogo_T.png -AsByteStream))
 
             $LogoHTML = @"
 <img src="data:image/jpg;base64,$($HeaderLogo)" style="left:150px alt="Exchange Online System Report">
 "@
 
             $hEndOfReport = '<p><h2>--- End of Report ---</h2><p>'
-            $style = Get-Content $modulepath\HTML\SEPPmailReport.css
-            Convertto-HTML -Body "$LogoHTML $Top $RepCreationDatetime $moduleVersion`
-                   $hSplitLine $hGeneral $hSplitLine $hA $a $hB $b $hP $P $hO $o`
-                  $hSplitLine $hSecurity $hSplitLine $hC $c $hd $d $hE $e $hK $k $hH $h $hJ $j $hJ1 $J1 `
+            $style = Get-Content -Path $PSScriptRoot\..\HTML\SEPPmailReport.css
+            $finalreport = Convertto-HTML -Body "$LogoHTML $Top $RepCreationDatetime $RepCreatedBy $moduleVersion $TenantInfo`
+                   $hSplitLine $hGeneral $hSplitLine $hA $a $hB $b $hO $o`
+                  $hSplitLine $hSecurity $hSplitLine $hC $c $hd $d $hE $e $hP $P $hH $H $hK $k $hJ $j $hJ1 $J1 `
                  $hSplitLine $hOtherConn $hSplitLine $hG $g $hI $i `
                 $hSplitLine $hConnectors $hSplitLine $hL $l $hM $m `
-            $hSplitLine $hTransPortRules $hSplitLine $hN $n $hEndofReport " -Title "SEPPmail365 Exo Report" -Head $style|Out-File -FilePath $filePath -Force
+            $hSplitLine $hTransPortRules $hSplitLine $hN $n $hEndofReport " -Title "SEPPmail365 Exo Report" -Head $style
 
+            # Write Report to Disk
+            try {
+                $finalReport|Out-File -FilePath $FinalPath -Force
+            }
+            catch{
+                Write-Warning "Could not write report to $FinalPath"
+                if ($IsWindows) {
+                    $FinalPath = Join-Path -Path $env:localappdata -ChildPath $ReportFilename
+                }
+                if ($IsMacOs) {
+                    $Finalpath = Join-Path -Path $env:HOME -ChildPath $ReportFilename
+                }
+                Write-Verbose "Writing report to $finalPath"
+                try {
+                    $finalReport|Out-File -FilePath $finalPath -Force
+                }
+                catch {
+                    $error[0]
+                }
+            }
+
+            if ($IsWindows) {
+                Write-Information -MessageData "Opening $finalPath with default browser"
+                Invoke-Expression "& '$finalpath'"
+            }
+            if ($IsMacOs) {
+                "Report is stored on your disk at $finalpath. Open with your favorite browser."
+            }
         }
         catch {
             throw [System.Exception] "Error: $($_.Exception.Message)"

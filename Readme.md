@@ -2,13 +2,14 @@
 	- [Abstract](#abstract)
 	- [General Note](#general-note)
 	- [PowerShell Platform](#powershell-platform)
+	- [November 2022 - Releasenotes 1.2.5](#november-2022---releasenotes-125)
 	- [September 2022 - Releasenotes 1.2.3](#september-2022---releasenotes-123)
 	- [January 2022 - Releasenotes 1.2.2](#january-2022---releasenotes-122)
 	- [November 2021 - Releasenotes 1.2.1](#november-2021---releasenotes-121)
 		- [Simplification based on best practices](#simplification-based-on-best-practices)
 			- [Only parameters that make sense](#only-parameters-that-make-sense)
 			- [Domain limitation only in Transport-Rules](#domain-limitation-only-in-transport-rules)
-			- [Alias-CmdLets for Set-*](#alias-cmdlets-for-set-)
+			- [Alias-CmdLets for Set-\*](#alias-cmdlets-for-set-)
 			- [No Restore](#no-restore)
 			- [General note on simplification](#general-note-on-simplification)
 		- [More fliexible connectivity for test and demo environments](#more-fliexible-connectivity-for-test-and-demo-environments)
@@ -79,6 +80,11 @@ _PowerShell Core is the future !_
 The module runs on both platforms (Windows PowerShell and PowerShell Core macOS/Windows/Linux) but we *highly recommend* to run this module in *Powershell Core*, (also on Windows). So install PowerShell Core asap on your machine via the Windows Store or the notes here: https://github.com/powershell/powershell
 
 In future versions, we might end support for Windows PowerShell.
+
+## November 2022 - Releasenotes 1.2.5
+
+- Add Support for ExchangeOnlineManagement 3.0.0
+- New-SM365ExoReport similar to cloud-module
 
 ## September 2022 - Releasenotes 1.2.3
 
