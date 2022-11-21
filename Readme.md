@@ -308,7 +308,7 @@ Remove-SM365Setup # Removes SEPPmail Rules and Connectors
 ### Report on Exchange Online Environment
 
 ```powershell
-New-SM365ExOReport -FilePath /Users/roman/Desktop/Exorep0812.html
+New-SM365ExOReport
 ```
 
 ## 3 - Build Connectivity between Exchange Online and SEPPmail
