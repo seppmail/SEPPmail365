@@ -16,8 +16,8 @@ Write-Verbose 'Loading Module Files'
 . $ModulePath\Public\Connectors.ps1
 
 Write-Verbose "Testing Exchange Online connectivity"
-If (!(Get-Module -Name 'tmp_*')) {
-    Write-Warning "It seems you are not connected to Exchange Online. Connect using 'Connect-ExchangeOnline'"
+if (!(Test-SC365ConnectionStatus)) {
+    Write-Warning "You are not connected to Exchange Online. Use Connect-ExchangeOnline to connect to your tenant"
 }
 
 Write-Verbose 'Test new version available'
@@ -25,7 +25,7 @@ try {
     $onLineVersion = Find-Module -Name 'SEPPmail365'|Select-Object -expandproperty Version
     $offLineVersion = Test-ModuleManifest (Join-Path $ModulePath -ChildPath seppmail365.psd1) |Select-Object -ExpandProperty Version 
     if ($onLineVersion -gt $offLineVersion) {
-        Write-Warning "There is a new version of the SEPPmail365 module available on the PowerShell Gallery. Update the module as soon as possible. More info here https://www.powershellgallery.com/packages/SEPPMail365"
+        Write-Warning "You have version $offlineVersion, but there is the new version $onLineVersion of the SEPPmail365 module available on the PowerShell Gallery. Update the module as soon as possible. More info here https://www.powershellgallery.com/packages/SEPPMail365"
     }   
 }
 catch {

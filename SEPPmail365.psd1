@@ -33,7 +33,7 @@ Copyright = '(c) SEPPmail AG. All rights reserved.'
 Description = 'Integrate and maintain SEPPmail in Microsoft 365 and Exchange Online'
 
 # Minimum version of the PowerShell engine required by this module
-PowerShellVersion = '5.1'
+PowerShellVersion = '7.2.0'
 
 # Name of the PowerShell host required by this module
 # PowerShellHostName = ''
@@ -54,7 +54,7 @@ ProcessorArchitecture = 'Amd64'
 RequiredModules = @(
     @{
         ModuleName = 'ExchangeOnlineManagement'
-        ModuleVersion = '2.0.5'
+        ModuleVersion = '3.0.0'
         GUID = 'B5ECED50-AFA4-455B-847A-D8FB64140A22'
     }
 )
@@ -76,18 +76,18 @@ RequiredModules = @(
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = @(    
-    'Backup-SM365Connectors'
+    #'Backup-SM365Connectors'
        'Get-SM365Connectors'
        'New-SM365Connectors'
     'Remove-SM365Connectors'
-    'Backup-SM365Rules'
+    #'Backup-SM365Rules'
        'Get-SM365Rules'
        'New-SM365Rules'
     'Remove-SM365Rules'
        'New-SM365ExOReport'
       'Test-SM365ConnectionStatus'
-       'Get-SM365Setup'
-    'Remove-SM365Setup'
+       #'Get-SM365Setup'
+    '#Remove-SM365Setup'
     )
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.

@@ -24,7 +24,7 @@ function New-SM365ExOReport {
         SupportsShouldProcess = $true,
                 ConfirmImpact = 'Medium',
      DefaultParameterSetName  = 'FilePath',
-                      HelpURI = 'https://github.com/seppmail/SEPPmail365cloud/blob/main/README.md#setup-the-integration'
+                      HelpURI = 'https://github.com/seppmail/SEPPmail365/README.md'
         )]
     Param (
         # Define output relative Filepath
@@ -278,6 +278,128 @@ function New-SM365ExOReport {
     }
     end {
     }
+}
+
+<#
+.SYNOPSIS
+    Test Exchange Online connectivity
+.DESCRIPTION
+    When staying in a Powershell Session with Exchange Online many things can occur to disturb the session. The Test-SC365connectivity CmdLet figures out if the session is still valid
+.EXAMPLE
+    PS C:\> Test-SC365ConnectionStatus
+    Whithout any parameter the CmdLet emits just true or false
+.EXAMPLE
+    PS C:\> Test-SC365ConnectionStatus -verbose
+    For deeper analisys of connectivity issues the verbose switch provides a lot of relevant information.
+.EXAMPLE
+    PS C:\> Test-SC365ConnectionStatus -showDefaultDomain
+    ShowDefaultdomain will also emit the current default e-mail domain 
+.EXAMPLE
+    PS C:\> Test-SC365ConnectionStatus -Connect
+    Connnect will try to connect via the standard method (web-browser) 
+.INPUTS
+    Inputs (if any)
+.OUTPUTS
+    true/false
+.NOTES
+    See https://github.com/seppmail/SEPPmail365cloud/blob/main/README.md for more
+#>
+function Test-SC365ConnectionStatus
+{
+    [CmdLetBinding(
+        HelpURI = 'https://github.com/seppmail/SEPPmail365/README.md'
+    )]
+    Param
+    (
+        [Parameter(
+            Mandatory=$false,
+            HelpMessage = 'If turned on, the CmdLet will emit the current default domain'
+        )]
+        [switch]$showDefaultDomain,
+
+        [Parameter(
+            Mandatory=$false,
+            HelpMessage = 'If turned on, the CmdLet will try to connect to Exchange Online is disconnected'
+        )]
+        [switch]$Connect
+
+    )
+
+    [bool]$isConnected = $false
+
+    Write-Verbose "Check if module ExchangeOnlineManagement is imported"
+    if(!(Get-Module ExchangeOnlineManagement -ErrorAction SilentlyContinue))
+    {
+        Write-Warning "ExchangeOnlineManagement module not yet imported, importing ..."
+
+        if(!(Import-Module ExchangeOnlineManagement -PassThru -ErrorAction SilentlyContinue))
+        {throw [System.Exception] "ExchangeOnlineManagement module does not seem to be installed! Use 'Install-Module ExchangeOnlineManagement' to install.'"}
+    }
+    else
+    {
+        $ExoConnInfo = if (Get-Connectioninformation) {(Get-ConnectionInformation)[-1]}
+
+        if ($ExoConnInfo) {
+            Write-Verbose "Connected to Exchange Online Tenant $($ExoConnInfo.TenantID)"
+
+            [datetime]$TokenExpiryTimeLocal = $ExoConnInfo.TokenExpiryTimeUTC.Datetime.ToLocalTime()
+            $delta = New-TimeSpan -Start (Get-Date) -End $TokenExpiryTimeLocal
+            $ticks = $delta.Ticks
+            if ($ticks -like '-*') # Token expired
+            {
+                $isconnected = $false
+                Write-Warning "You're not actively connected to your Exchange Online organization. TOKEN is EXPIRED"
+                if(($InteractiveSession) -and ($Connect))# defined in public/Functions.ps1
+                {
+                    try
+                    {
+                        # throws an exception if authentication fails
+                        Write-Verbose "Reconnecting to Exchange Online"
+                        Connect-ExchangeOnline -SkipLoadingFormatData
+                        $isConnected = $true
+                    }
+                    catch
+                    {
+                        throw [System.Exception] "Could not connect to Exchange Online, please retry."}
+                }
+                else {
+                    $isConnected = $false
+                }
+                
+            }
+            else # Valid connection
+            {
+                $tokenLifeTime = [math]::Round($delta.TotalHours)
+                Write-verbose "Active session token exipry time is $TokenExpiryTimeLocal (roughly $tokenLifeTime hours)"
+                $tmpModuleName = Split-Path -Path $ExoConnInfo.ModuleName -Leaf
+                Write-verbose "Active session Module name is $tmpModuleName"
+                
+                $isConnected = $true
+                    
+                [string] $Script:ExODefaultDomain = Get-AcceptedDomain | Where-Object{$_.Default} | Select-Object -ExpandProperty DomainName -First 1
+                if ($showDefaultDomain) {"$Script:ExoDefaultdomain"}
+            }
+            } 
+            else # No Connection 
+            {
+                if(($InteractiveSession) -and ($connect)) # defined in public/Functions.ps1
+                {
+                    try
+                    {
+                        # throws an exception if authentication fails
+                        Write-Verbose "Connecting to Exchange Online"
+                        Connect-ExchangeOnline -SkipLoadingFormatData
+                    }
+                    catch
+                    {
+                        throw [System.Exception] "Could not connect to Exchange Online, please retry."}
+                }
+                else {
+                    $isConnected = $false
+                }
+            }
+    }
+    return $isConnected
 }
 
 function Remove-SM365Setup {

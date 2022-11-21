@@ -85,6 +85,8 @@ In future versions, we might end support for Windows PowerShell.
 
 - Add Support for ExchangeOnlineManagement 3.0.0
 - New-SM365ExoReport similar to cloud-module
+- Test-SM365ConnectionStatus similar to cloud-module
+- Removed Backup and Setup Commandlets
 
 ## September 2022 - Releasenotes 1.2.3
 
