@@ -49,7 +49,7 @@ function New-SM365ExOReport {
 
     begin
     {
-        if (!(Test-SC365ConnectionStatus)){
+        if (!(Test-SM365ConnectionStatus)){
             throw [System.Exception] "You're not connected to Exchange Online - please connect prior to using this CmdLet" }
         else {
             Write-Information "Connected to Exchange Organization `"$Script:ExODefaultDomain`"" -InformationAction Continue
@@ -137,7 +137,7 @@ function New-SM365ExOReport {
             $RepCreatedBy = "<p><body>Report created by: $repUser</body><p>"
             $ReportFilename = Split-Path $FinalPath -Leaf
             $moduleVersion = "<p><body>SEPPmail365cloud Module Version: $mv</body><p>"
-            $reportTenantID = Get-SC365TenantID -maildomain (Get-AcceptedDomain|where-object InitialDomain -eq $true|select-object -expandproperty Domainname)
+            $reportTenantID = Get-SM365TenantID -maildomain (Get-AcceptedDomain|where-object InitialDomain -eq $true|select-object -expandproperty Domainname)
             $TenantInfo = "<p><body>Microsoft O/M365 AzureAD Tenant ID: $reportTenantID</body><p>"
             Write-Verbose "Collecting Accepted Domains"
             $hSplitLine = '<p><h2>---------------------------------------------------------------------------------------------------------------------------</h2><p>'
@@ -400,6 +400,35 @@ function Test-SM365ConnectionStatus
             }
     }
     return $isConnected
+}
+
+<#
+.SYNOPSIS
+    Read Office/Microsoft365 Azure TenantID
+.DESCRIPTION
+    Every Exchange Online is part of some sort of Microsoft Subscription and each subscription has an Azure Active Directory included. We need the TenantId to identify managed domains in seppmail.cloud
+.EXAMPLE
+    PS C:\> Get-SC365TenantID -maildomain 'contoso.de'
+    Explanation of what the example does
+.INPUTS
+    Maildomain as string (mandatory)
+.OUTPUTS
+    TenantID (GUID) as string
+.NOTES
+    See https://github.com/seppmail/SEPPmail365/blob/main/README.md for more
+#>
+Function Get-SM365TenantID {
+    [CmdLetBinding(
+        HelpURI = 'https://github.com/seppmail/SEPPmail365/blob/main/README.md'
+    )]
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$maildomain
+    )
+
+    $uri = 'https://login.windows.net/' + $maildomain + '/.well-known/openid-configuration'
+    $TenantId = (Invoke-WebRequest $uri| ConvertFrom-Json).token_endpoint.Split('/')[3]
+    Return $tenantid
 }
 
 function Remove-SM365Setup {

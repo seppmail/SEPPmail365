@@ -1,7 +1,6 @@
 [CmdLetBinding()]
 
 $ModulePath = $PSScriptRoot
-
 $InteractiveSession = [System.Environment]::UserInteractive
 
 Write-Verbose 'Request terminating errors by default'
@@ -20,7 +19,7 @@ if (!(Test-SM365ConnectionStatus)) {
     Write-Warning "You are not connected to Exchange Online. Use Connect-ExchangeOnline to connect to your tenant"
 }
 
-Write-Verbose 'Test new version available'
+Write-Verbose 'Test if new moduleversion is available'
 try {
     $onLineVersion = Find-Module -Name 'SEPPmail365'|Select-Object -expandproperty Version
     $offLineVersion = Test-ModuleManifest (Join-Path $ModulePath -ChildPath seppmail365.psd1) |Select-Object -ExpandProperty Version 
