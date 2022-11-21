@@ -304,7 +304,7 @@ function New-SM365ExOReport {
 .NOTES
     See https://github.com/seppmail/SEPPmail365cloud/blob/main/README.md for more
 #>
-function Test-SC365ConnectionStatus
+function Test-SM365ConnectionStatus
 {
     [CmdLetBinding(
         HelpURI = 'https://github.com/seppmail/SEPPmail365/README.md'
