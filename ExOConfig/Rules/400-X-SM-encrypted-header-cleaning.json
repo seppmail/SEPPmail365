@@ -1,15 +1,18 @@
 {
-    "Name"                  : "[SEPPmail] - Clean outbound SEPPmail header decrypted",
-    "Comments"              : "Removes decrypted SEPPmail x-headers from E-Mail.",
-    "SMPriority"            : 10,
-
-    "Version":
+    "routing":
     {
-        "Default":
+        "inline" :
         {
+            
+        },
+        "parallel":
+        {
+            "Name"                  : "[SEPPmail.cloud] - 400 Clean outbound SEPPmail header encrypted",
+            "Comments"              : "Removes encrypted SEPPmail.cloud x-headers from E-Mail.",
+            "SMPriority"            : 4,
             "FromScope"             : "InOrganization",
             "SentToScope"           : "NotInOrganization",
-            "RemoveHeader"          : "X-SM-decrypted",
+            "RemoveHeader"          : "X-SM-encrypted",
             "Priority"              : 0,
             "SetAuditSeverity"      : "DoNotAudit",
             "Mode"                  : "Enforce",
