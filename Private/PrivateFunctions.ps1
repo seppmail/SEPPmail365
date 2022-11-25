@@ -60,20 +60,13 @@ function Get-SM365InboundConnectorSettings
     [CmdletBinding()]
     Param
     (
-        [String]$Version,
-        [SM365.ConfigOption[]] $Option
+        [ValidateSet('Default','Partner')]
+        [String]$Type = 'Default'
     )
 
-    if($Version -ne "None")
-    {Write-Verbose "Loading inbound connector settings for version $Version"}
-    else
-    {Write-Verbose "Loading mandatory inbound connector settings"}
-
-    $json = ConvertFrom-Json (Get-Content -Path "$PSScriptRoot\..\ExOConfig\Connectors\Inbound.json" -Raw)
-
-    $ret = [SM365.InboundConnectorSettings]::new($json.Name, $Version)
-
-    Set-SM365PropertiesFromConfigJson $ret -Json $json -Version $Version -Option $Option
+    Write-Verbose "Loading inbound connector settings for routingtype $Routing"
+    $inBoundRaw = (Get-Content "$PSScriptRoot\..\ExOConfig\Connectors\InBound.json" -Raw|Convertfrom-Json -AsHashtable)
+    $ret = $inBoundRaw.routing.($Type.Tolower())
 
     return $ret
 }
@@ -83,20 +76,13 @@ function Get-SM365OutboundConnectorSettings
     [CmdletBinding()]
     Param
     (
-        [SM365.ConfigVersion] $Version = [SM365.ConfigVersion]::Latest,
-        [SM365.ConfigOption[]] $Option
+        [ValidateSet('Default','Partner')]
+        [String]$Type = 'Default'
     )
 
-    if($Version -ne "None")
-    {Write-Verbose "Loading outbound connector settings for version $Version"}
-    else
-    {Write-Verbose "Loading mandatory outbound connector settings"}
-
-    $json = ConvertFrom-Json (Get-Content -Path "$PSScriptRoot\..\ExOConfig\Connectors\Outbound.json" -Raw)
-
-    $ret = [SM365.OutboundConnectorSettings]::new($json.Name, $Version)
-
-    Set-SM365PropertiesFromConfigJson $ret -Json $json -Version $Version -Option $Option
+    Write-Verbose "Loading outbound connector settings"
+    $outBoundRaw = (Get-Content "$PSScriptRoot\..\ExOConfig\Connectors\OutBound.json" -Raw|Convertfrom-Json -AsHashtable)
+    $ret= $outBoundRaw.version.($Type.ToLower())
 
     return $ret
 }
