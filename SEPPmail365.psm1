@@ -19,6 +19,11 @@ if (!(Test-SM365ConnectionStatus)) {
     Write-Warning "You are not connected to Exchange Online. Use Connect-ExchangeOnline to connect to your tenant"
 }
 
+Write-Verbose "Testing capability to resolve external DNS"
+if ((Resolve-DnsName 8.8.8.8).NameHost -ne 'dns.google') {
+    Write-Error "Cannot resolve 8.8.8.8 (dns.google) externaly - Setup may fail. Try from machine with external name resolution capability."
+}
+
 Write-Verbose 'Test if new moduleversion is available'
 try {
     $onLineVersion = Find-Module -Name 'SEPPmail365'|Select-Object -expandproperty Version
