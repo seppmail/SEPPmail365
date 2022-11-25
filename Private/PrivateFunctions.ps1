@@ -92,70 +92,20 @@ function Get-SM365TransportRuleSettings
     [CmdLetBinding()]
     Param
     (
-        [SM365.ConfigVersion] $Version = [SM365.ConfigVersion]::Latest,
-        [SM365.ConfigOption[]] $Option,
-        [SM365.AvailableTransportRuleSettings[]] $Settings =[SM365.AvailableTransportRuleSettings]::All,
-        [switch] $IncludeSkipped
+        [String]$Version = $Default,
+        $File
     )
-
-    if($Version -ne "None")
-    {Write-Verbose "Loading transport rule settings for version $Version"}
-    else
-    {Write-Verbose "Loading mandatory transport rule settings"}
-
-    $settingsToFetch = 0
-    foreach($set in $Settings)
-    {$settingsToFetch = $settingsToFetch -bor $set}
-
-
-    $configs = array string
-    $ret = array SM365.TransportRuleSettings -Capacity $configs.Count
-    $addSetting = {
-        Param
-        (
-            [string] $FileName,
-            [SM365.AvailableTransportRuleSettings] $Type
-        )
-        $json = ConvertFrom-Json (Get-Content "$PSScriptRoot\..\ExOConfig\Rules\$FileName" -Raw)
-
-        $settings = [SM365.TransportRuleSettings]::new($json.Name, $Version, $Type)
-
-        Set-SM365PropertiesFromConfigJson $settings -Json $json -Version $Version -Option $Option
-
-        if(!$settings.Skip -or ($settings.Skip -and $IncludeSkipped))
-        {$ret.Add($settings)}
+    begin {
+        $ret = $null
+        $raw = $null
     }
-
-    if([SM365.AvailableTransportRuleSettings]::OutgoingHeaderCleaning -band $settingsToFetch)
-    {& $addSetting "X-SM-outgoing-header-cleaning.json" "OutgoingHeaderCleaning"}
-
-    if([SM365.AvailableTransportRuleSettings]::DecryptedHeaderCleaning -band $settingsToFetch)
-    {& $addSetting "X-SM-decrypted-header-cleaning.json" "DecryptedHeaderCleaning"}
-
-    if([SM365.AvailableTransportRuleSettings]::EncryptedHeaderCleaning -band $settingsToFetch)
-    {& $addSetting "X-SM-encrypted-header-cleaning.json" "EncryptedHeaderCleaning"}
-
-    if([SM365.AvailableTransportRuleSettings]::SkipSpfIncoming -band $settingsToFetch)
-    {& $addSetting "Skip-SPF-incoming.json" "SkipSpfIncoming"}
-
-    if([SM365.AvailableTransportRuleSettings]::SkipSpfInternal -band $settingsToFetch)
-    {& $addSetting "Skip-SPF-internal.json" "SkipSpfInternal"}
-
-    if([SM365.AvailableTransportRuleSettings]::Inbound -band $settingsToFetch)
-    {& $addSetting "Inbound.json" "Inbound"}
-
-    if([SM365.AvailableTransportRuleSettings]::Outbound -band $settingsToFetch)
-    {& $addSetting "Outbound.json" "Outbound"}
-
-    # Deactivated, because it seems unnecessary
-    # if([SM365.AvailableTransportRuleSettings]::Internal -band $settingsToFetch)
-    # {& $addSetting "Internal.json" "Internal"}
-
-    # Return the array in reverse SMPriority order, so that they can be created with the
-    # same priority, i.e.:
-    # New-TransportRule @param -Priority 3
-    # But via this sorting, an SMPriority 0 rule will actually be at the top (but at priority 3).
-    $ret | Sort-Object -Property SMPriority -Descending
+    process {
+        $raw = (Get-Content $File -Raw|Convertfrom-Json -AsHashtable)
+        $ret = $raw.routing.($routing.ToLower())
+    }
+    end {
+        return $ret    
+    }
 }
 # SIG # Begin signature block
 # MIIL1wYJKoZIhvcNAQcCoIILyDCCC8QCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
