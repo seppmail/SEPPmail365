@@ -6,18 +6,9 @@
     {
         "Default":
         {
-            "CloudServicesMailEnabled"     : true,
-            "ConnectorSource"              : "Default",
-            "ConnectorType"                : "OnPremises",
-            "Enabled"                      : true,
-            "RequireTls"                   : true,
-            "SenderDomains"                : "*"
-        },
-        "Partner":
-        {
             "CloudServicesMailEnabled"     : false,
             "ConnectorSource"              : "Default",
-            "ConnectorType"                : "Partner",
+            "ConnectorType"                : "OnPremises",
             "Enabled"                      : true,
             "RequireTls"                   : true,
             "SenderDomains"                : "*"
