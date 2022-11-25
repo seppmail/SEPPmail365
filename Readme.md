@@ -77,9 +77,7 @@ We try to adapt to these changes ASAP, but can't guarantee that this module will
 
 _PowerShell Core is the future !_
 
-The module runs on both platforms (Windows PowerShell and PowerShell Core macOS/Windows/Linux) but we *highly recommend* to run this module in *Powershell Core*, (also on Windows). So install PowerShell Core asap on your machine via the Windows Store or the notes here: https://github.com/powershell/powershell
-
-In future versions, we might end support for Windows PowerShell.
+Beginning with version 1.2.5, the module runs only on PowerShell Core on Windows (macOS/Linux in preperation). So install PowerShell Core asap on your machine via the Windows Store or the notes here: https://github.com/powershell/powershell
 
 ## ANNOUNCED FOR 28.November 2022 - Releasenotes 1.2.5
 
@@ -87,7 +85,8 @@ In future versions, we might end support for Windows PowerShell.
 - No more Windows Powershell Support - PowerShell CORE Only !
 - New-SM365ExoReport similar to cloud-module
 - Test-SM365ConnectionStatus similar to cloud-module
-- Removed Backup and Setup Commandlets
+- Removed Backup and Setup CmdLets
+- Add test for external name resolution and write error if it fails.
 
 ## September 2022 - Releasenotes 1.2.3
 
