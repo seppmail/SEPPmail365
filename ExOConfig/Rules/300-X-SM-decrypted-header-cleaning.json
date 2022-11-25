@@ -1,14 +1,11 @@
 {
-    "routing":
+    "version":
     {
-        "inline" :
+
+        "default":
         {
-            
-        },
-        "parallel":
-        {
-            "Name"                  : "[SEPPmail.cloud] - 300 Clean outbound SEPPmail header decrypted",
-            "Comments"              : "Removes decrypted SEPPmail.cloud x-headers from E-Mail.",
+            "Name"                  : "[SEPPmail] - 300 Clean outbound SEPPmail header decrypted",
+            "Comments"              : "Removes decrypted SEPPmail x-headers from E-Mail.",
             "SMPriority"            : 3,
             "FromScope"             : "InOrganization",
             "SentToScope"           : "NotInOrganization",
@@ -18,10 +15,5 @@
             "Mode"                  : "Enforce",
             "SenderAddressLocation" : "Header"
         }
-    },
-    "Option":
-        {
-            
-        }
-
+    }
 }

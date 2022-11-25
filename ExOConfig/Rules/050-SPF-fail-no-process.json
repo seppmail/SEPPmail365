@@ -1,14 +1,10 @@
 {
-    "routing":
+    "version":
     {
-        "inline" :
+        "default" :
         {
-            
-        },
-        "parallel" :
-        {
-          "Name"                                    : "[SEPPmail.cloud] - 050 on SPF fail - no SEPPmail.Cloud",
-          "Comments"                                : "E-mails sent from outside the organization and SPF failed are NOT routed to the SEPPmail.cloud for crypto-processing.",
+          "Name"                                    : "[SEPPmail] - 050 on SPF fail - no SEPPmail",
+          "Comments"                                : "E-mails sent from outside the organization and SPF failed, are NOT routed to the SEPPmail for crypto-processing.",
           "SMPriority"                              : 0,
           "FromScope"                               : "NotInOrganization",
           "SentToScope"                             : "InOrganization",
@@ -21,9 +17,5 @@
           "Mode"                                    : "Enforce",
           "SenderAddressLocation"                   : "Header"
         }
-    },
-    "Option":
-        {
-            
-        }
+    }
 }
