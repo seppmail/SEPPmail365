@@ -60,7 +60,7 @@ function Get-SM365InboundConnectorSettings
     [CmdletBinding()]
     Param
     (
-        [SM365.ConfigVersion] $Version = [SM365.ConfigVersion]::Latest,
+        [String]$Version,
         [SM365.ConfigOption[]] $Option
     )
 

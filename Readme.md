@@ -2,7 +2,7 @@
 	- [Abstract](#abstract)
 	- [General Note](#general-note)
 	- [PowerShell Platform](#powershell-platform)
-	- [November 2022 - Releasenotes 1.2.5](#november-2022---releasenotes-125)
+	- [ANNOUNCED FOR 28.November 2022 - Releasenotes 1.2.5](#announced-for-28november-2022---releasenotes-125)
 	- [September 2022 - Releasenotes 1.2.3](#september-2022---releasenotes-123)
 	- [January 2022 - Releasenotes 1.2.2](#january-2022---releasenotes-122)
 	- [November 2021 - Releasenotes 1.2.1](#november-2021---releasenotes-121)
@@ -81,9 +81,10 @@ The module runs on both platforms (Windows PowerShell and PowerShell Core macOS/
 
 In future versions, we might end support for Windows PowerShell.
 
-## November 2022 - Releasenotes 1.2.5
+## ANNOUNCED FOR 28.November 2022 - Releasenotes 1.2.5
 
 - Add Support for ExchangeOnlineManagement 3.0.0
+- No more Windows Powershell Support - PowerShell CORE Only !
 - New-SM365ExoReport similar to cloud-module
 - Test-SM365ConnectionStatus similar to cloud-module
 - Removed Backup and Setup Commandlets
