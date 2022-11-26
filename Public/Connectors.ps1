@@ -26,16 +26,15 @@ function Get-SM365Connectors
         $inbound = Get-SM365InboundConnectorSettings
         $outbound = Get-SM365OutboundConnectorSettings
     
-        if (Get-OutboundConnector | Where-Object Identity -eq $($outbound.Name))
+        if (Get-OutboundConnector -outvariable obc | Where-Object Identity -eq $($outbound.Name))
         {
             $obc|select-object Name,Enabled,WhenCreated,SmartHosts
         }
         else {
             Write-Warning "No SEPPmail Outbound Connector with name `"$($outbound.Name)`" found"
         }
-        if (Get-InboundConnector | Where-Object Identity -eq $($inbound.Name))
+        if (Get-InboundConnector -outvariable ibc | Where-Object Identity -eq $($inbound.Name))
         {
-            $ibc = Get-InboundConnector $inbound.Name
             $ibc|select-object Name,Enabled,WhenCreated,SenderIPAddress
         }
         else 
@@ -157,6 +156,18 @@ function New-SM365Connectors
         [Alias('SMIP','SMIPAddress')]
         [string] $SEPPmailIP,
         #endregion IP
+
+        #region NoAntiSpamWhiteListing
+        [Parameter(
+            HelpMessage = 'Do not Add SEPPmailIP to the HostedConnectionFilterPolicy',
+            ParameterSetName = 'FqdnTls'
+        )]
+        [Parameter(
+            HelpMessage = 'Do not Add SEPPmailIP to the HostedConnectionFilterPolicy',
+            ParameterSetName = 'FqdnNoTls'
+        )]
+        [switch]$NoAntiSpamWhiteListing = $false,
+        #endRegion
 
         <#region Option
         [Parameter(
@@ -312,7 +323,7 @@ function New-SM365Connectors
         }
 
         Write-Verbose "Read existing SEPPmail outbound connector"
-        $existingSMOutboundConn = $allOutboundConnectors | Where-Object Name -EQ $outbound.Name
+        $existingSMOutboundConn = $allOutboundConnectors | Where-Object Name -like '`[SEPPmail`]*'
         # only $false if the user says so interactively
         
         [bool]$createOutBound = $true #Set Default Value
@@ -396,11 +407,12 @@ function New-SM365Connectors
         }
 
         Write-Verbose "Setting SEPPmail IP Address(es) $SEPPmailIP for EFSkipIP´s and Anti-SPAM Whitelist"
-        [string[]]$SEPPmailIprange = $SEPPmailIP
-        $inbound.EFSkipIPs.AddRange($SEPPmailIPRange)
+        [string[]]$SEPPmailIpRange = $SEPPmailIP
+        $inbound.EFSkipIPs = $SEPPmailIpRange
+        #$inbound.EFSkipIPs.AddRange($SEPPmailIpRange)
 
         Write-Verbose "Read existing SEPPmail Inbound Connector from Exchange Online"
-        $existingSMInboundConn = $allInboundConnectors | Where-Object Name -EQ $inbound.Name
+        $existingSMInboundConn = $allInboundConnectors | Where-Object Name -like '`[SEPPmail`]*'
 
         # only $false if the user says so interactively
         [bool]$createInbound = $true
@@ -447,7 +459,7 @@ function New-SM365Connectors
         if($createInbound)
         {
             # necessary assignment for splatting
-            $param = $inbound.ToHashtable()
+            $param = $inbound
 
             Write-Verbose "Modify params based on ParameterSet"
             Write-Verbose "IP based Config, using $SenderIPAdresses"
@@ -488,7 +500,7 @@ function New-SM365Connectors
                     throw $error[0]
                 } else {
                     #region - Add SMFQDN to hosted Connection Filter Policy Whitelist
-                    if ($option[0] -ne 'NoAntiSpamWhiteListing')
+                    if ($NoAntiSpamWhiteListing -eq $true)
                     {
                         Write-Verbose "Adding SEPPmail Appliance to wWhitelist in 'Hosted Connection Filter Policy'"
                         Write-Verbose "Collecting existing WhiteList"
