@@ -1,5 +1,6 @@
 [CmdLetBinding()]
 
+$Informationpreference = 'Continue'
 $ModulePath = $PSScriptRoot
 $InteractiveSession = [System.Environment]::UserInteractive
 
@@ -14,17 +15,17 @@ Write-Verbose 'Loading Module Files'
 . $ModulePath\Public\Rules.ps1
 . $ModulePath\Public\Connectors.ps1
 
-Write-Verbose "Testing Exchange Online connectivity"
+Write-Information "Testing Exchange Online connectivity"
 if (!(Test-SM365ConnectionStatus)) {
     Write-Warning "You are not connected to Exchange Online. Use Connect-ExchangeOnline to connect to your tenant"
 }
-
-Write-Verbose "Testing capability to resolve external DNS"
+<#
+Write-Information "Testing capability to resolve external DNS by resolving 8.8.8.8"
 if ((Resolve-DnsName 8.8.8.8).NameHost -ne 'dns.google') {
     Write-Error "Cannot resolve 8.8.8.8 (dns.google) externaly - Setup may fail. Try from machine with external name resolution capability."
 }
 
-Write-Verbose 'Test if new moduleversion is available'
+Write-Information 'Test if new module version is available'
 try {
     $onLineVersion = Find-Module -Name 'SEPPmail365'|Select-Object -expandproperty Version
     $offLineVersion = Test-ModuleManifest (Join-Path $ModulePath -ChildPath seppmail365.psd1) |Select-Object -ExpandProperty Version 
@@ -35,6 +36,7 @@ try {
 catch {
     Write-Error "Could not determine newest module version due to exception $($_.Exception.Message)"
 }
+#>
 
 Export-ModuleMember -Alias * -Function *
 
