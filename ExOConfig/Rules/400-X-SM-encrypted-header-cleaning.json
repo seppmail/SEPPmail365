@@ -1,19 +1,15 @@
 {
-    "version":
+    "default":
     {
-
-        "default":
-        {
-            "Name"                  : "[SEPPmail] - 400 Clean outbound SEPPmail header encrypted",
-            "Comments"              : "Removes encrypted SEPPmail x-headers from E-Mail.",
-            "SMPriority"            : 4,
-            "FromScope"             : "InOrganization",
-            "SentToScope"           : "NotInOrganization",
-            "RemoveHeader"          : "X-SM-encrypted",
-            "Priority"              : 0,
-            "SetAuditSeverity"      : "DoNotAudit",
-            "Mode"                  : "Enforce",
-            "SenderAddressLocation" : "Header"
-        }
+        "Name"                  : "[SEPPmail] - 400 Clean outbound SEPPmail header encrypted",
+        "Comments"              : "Removes encrypted SEPPmail x-headers from E-Mail.",
+        "SMPriority"            : 4,
+        "FromScope"             : "InOrganization",
+        "SentToScope"           : "NotInOrganization",
+        "RemoveHeader"          : "X-SM-encrypted",
+        "Priority"              : 0,
+        "SetAuditSeverity"      : "DoNotAudit",
+        "Mode"                  : "Enforce",
+        "SenderAddressLocation" : "Header"
     }
 }

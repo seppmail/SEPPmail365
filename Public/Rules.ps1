@@ -47,13 +47,8 @@ function New-SM365Rules
     (
         [Parameter(Mandatory=$false,
                    HelpMessage='Should the new rules be placed before or after existing ones (if any)')]
-        [SM365.PlacementPriority] $PlacementPriority = [SM365.PlacementPriority]::Top,
-
-        <#
-        [Parameter(Mandatory=$false,
-                   HelpMessage='Additional config options to activate')]
-        [SM365.ConfigOption[]] $Option,
-        #>
+        [ValidateSet('Top','Bottom')]
+                   [String]$PlacementPriority = 'Top',
 
         [Parameter(Mandatory=$false,
                    HelpMessage='E-Mail domains you want to exclude from beeing routed throu the SEPPmail Appliance')]
@@ -81,6 +76,8 @@ function New-SM365Rules
 
         Write-Information "Connected to Exchange Organization `"$Script:ExODefaultDomain`"" -InformationAction Continue
 
+        $ExistingTransportrules = Get-TransportRule
+
         $outboundConnectors = Get-OutboundConnector | Where-Object { $_.Name -match "^\[SEPPmail\]" }
         if(!($outboundConnectors))
         {
@@ -96,9 +93,9 @@ function New-SM365Rules
         try
         {
             Write-Verbose "Read existing custom transport rules"
-            $existingTransportRules = Get-TransportRule | Where-Object Name -NotMatch '^\[SEPPmail\].*$'
-            [int] $placementPrio = @(0, $existingTransportRules.Count)[!($PlacementPriority -eq "Top")] <# Poor man's ternary operator #>
-            if ($existingTransportRules)
+            $existingNonSMTransportRules = $ExistingTransportrules | Where-Object Name -NotMatch '^\[SEPPmail\].*$'
+            [int] $placementPrio = @(0, $existingNonSMTransportRules.Count)[!($PlacementPriority -eq "Top")] <# Poor man's ternary operator #>
+            if ($existingNonSMTransportRules)
             {
                 if($InteractiveSession -and !$PSBoundParameters.ContainsKey("PlacementPriority") <# Prio already set, so no need to ask #>)
                 {
@@ -134,7 +131,7 @@ function New-SM365Rules
             Write-Verbose "Placement priority is $placementPrio"
 
             Write-Verbose "Read existing SEPPmail transport rules"
-            $existingSMTransportRules = Get-TransportRule | Where-Object Name -Match '^\[SEPPmail\].*$'
+            $existingSMTransportRules = $ExistingTransportrules | Where-Object Name -Match '^\[SEPPmail\].*$'
             [bool] $createRules = $true
             if ($existingSMTransportRules)
             {
@@ -168,36 +165,34 @@ function New-SM365Rules
 
             if($createRules)
             {
-                Get-SM365TransportRuleSettings -Version 'Default' -Option $Option | Foreach-Object {
-                    $setting = $_
+                $TransPortRuleFiles = Get-Childitem -Path "$PSScriptroot\..\ExoConfig\Rules\*.json"
+                Foreach ($File in $TransPortRuleFiles) {
 
-                    $setting.Priority = $placementPrio
-                    if ($Disabled -eq $true) {$setting.Enabled = $false}
-
-                    if (($ExcludeEmailDomain.count -ne 0) -and ($Setting.Name -eq '[SEPPmail] - Route incoming e-mails to SEPPmail')) {
+                    $setting = Get-SM365TransportRuleSettings -File $File
+					$setting.Priority = $placementPrio + $setting.SMPriority
+					$setting.Remove('SMPriority')
+                    if ($Disabled -eq $true) {
+                        $setting.Enabled = $false
+                    }
+                    if (($ExcludeEmailDomain.count -ne 0) -and ($Setting.Name -eq '[SEPPmail] - 100 Route incoming e-mails to SEPPmail')) {
                         Write-Verbose "Excluding Inbound E-Mails domains $ExcludeEmailDomain"
                         $Setting.ExceptIfRecipientDomainIs = $ExcludeEmailDomain
                     }
-
-                    if (($ExcludeEmailDomain.count -ne 0) -and ($Setting.Name -eq '[SEPPmail] - Route outgoing e-mails to SEPPmail')) {
+                    if (($ExcludeEmailDomain.count -ne 0) -and ($Setting.Name -eq '[SEPPmail] - 200 Route outgoing e-mails to SEPPmail')) {
                         Write-Verbose "Excluding Outbound E-Mail domains $ExcludeEmailDomain"
                         $Setting.ExceptIfSenderDomainIs = $ExcludeEmailDomain
                     }
-
                     if ($PSCmdlet.ShouldProcess($setting.Name, "Create transport rule"))
                     {
-                        $param = $setting.ToHashtable()
-
-                        Write-Debug "Transport rule settings:"
-                        $param.GetEnumerator() | Foreach-Object {
-                            Write-Debug "$($_.Key) = $($_.Value)"
-                        }
-                        Write-Verbose "Adding Timestamp to Comment"
                         $Now = Get-Date
-                        $param.Comments += "`n#Created with SEPPmail365 PowerShell Module on $now"
-                        New-TransportRule @param
+                        Write-Verbose "Adding Timestamp $now to Comment"
+                        $ModuleVersion = $myInvocation.MyCommand.Version
+                        Write-Verbose "Adding ModuleVersion $ModuleVersion to Comment"
+                        $setting.Comments += "`n#Created with SEPPmail365 PowerShell Module version $ModuleVersion on $Now"
+                        Write-Verbose "Creating rule with name $($Setting.Name)"
+                        New-TransportRule @setting
                     }
-                }
+                }                            
             }
         }
         catch {
@@ -235,7 +230,6 @@ function Remove-SM365Rules {
                   )]
     param
     (
-        
     )
 
     if (!(Test-SM365ConnectionStatus))
@@ -246,17 +240,17 @@ function Remove-SM365Rules {
     Write-Information "Connected to Exchange Organization `"$Script:ExODefaultDomain`"" -InformationAction Continue
 
     Write-Verbose "Removing current version module rules"
-    $settings = Get-SM365TransportRuleSettings -Version 'Default'
-    foreach($setting in $settings)
-    {
-        if($PSCmdlet.ShouldProcess($setting.Name, "Remove transport rule"))
-        {
-            $rule = Get-TransportRule $setting.Name -ErrorAction SilentlyContinue
-            if($rule)
-                {$rule | Remove-TransportRule -Confirm:$false}
-            else
-                {Write-Verbose "Rule $($setting.Name) does not exist"}
-        }
+    $TransPortRuleFiles = Get-Childitem -Path "$PSScriptroot\..\ExoConfig\Rules\*.json"
+    Foreach ($File in $TransPortRuleFiles) {
+        $setting = Get-SM365TransportRuleSettings -File $File
+            if($PSCmdlet.ShouldProcess($setting.Name, "Remove transport rule"))
+            {
+                $rule = Get-TransportRule $setting.Name -ErrorAction SilentlyContinue
+                if($rule)
+                    {$rule | Remove-TransportRule -Confirm:$false}
+                else
+                    {Write-Verbose "Rule $($setting.Name) does not exist"}
+            }   
     }
 
     Write-Verbose "Removing module 1.1.x version rules"

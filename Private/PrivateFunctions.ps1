@@ -104,7 +104,7 @@ function Get-SM365TransportRuleSettings
     [CmdLetBinding()]
     Param
     (
-        [String]$Version = $Default,
+        [Parameter(Mandatory = $true)]
         $File
     )
     begin {
@@ -112,11 +112,11 @@ function Get-SM365TransportRuleSettings
         $raw = $null
     }
     process {
-        $raw = (Get-Content $File -Raw|Convertfrom-Json -AsHashtable)
-        $ret = $raw.routing.($routing.ToLower())
+            $raw = (Get-Content $file -Raw|Convertfrom-Json -AsHashtable)
+            $ret = $raw.default
+            return $ret    
     }
     end {
-        return $ret    
     }
 }
 # SIG # Begin signature block

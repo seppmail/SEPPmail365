@@ -1,19 +1,15 @@
 {
-    "version":
+    "default":
     {
-
-        "default":
-        {
-            "Name"                  : "[SEPPmail] - 500 Clean outbound SEPPmail header outgoing",
-            "Comments"              : "Removes outgoing SEPPmail x-headers from E-Mail.",
-            "SMPriority"            : 5,
-            "FromScope"             : "InOrganization",
-            "SentToScope"           : "NotInOrganization",
-            "RemoveHeader"          : "X-SM-outgoing",
-            "Priority"              : 0,
-            "SetAuditSeverity"      : "DoNotAudit",
-            "Mode"                  : "Enforce",
-            "SenderAddressLocation" : "Header"
-        }
+        "Name"                  : "[SEPPmail] - 500 Clean outbound SEPPmail header outgoing",
+        "Comments"              : "Removes outgoing SEPPmail x-headers from E-Mail.",
+        "SMPriority"            : 5,
+        "FromScope"             : "InOrganization",
+        "SentToScope"           : "NotInOrganization",
+        "RemoveHeader"          : "X-SM-outgoing",
+        "Priority"              : 0,
+        "SetAuditSeverity"      : "DoNotAudit",
+        "Mode"                  : "Enforce",
+        "SenderAddressLocation" : "Header"
     }
 }

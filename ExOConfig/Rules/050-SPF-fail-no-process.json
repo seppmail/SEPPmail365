@@ -1,21 +1,18 @@
 {
-    "version":
+    "default" :
     {
-        "default" :
-        {
-          "Name"                                    : "[SEPPmail] - 050 on SPF fail - no SEPPmail",
-          "Comments"                                : "E-mails sent from outside the organization and SPF failed, are NOT routed to the SEPPmail for crypto-processing.",
-          "SMPriority"                              : 0,
-          "FromScope"                               : "NotInOrganization",
-          "SentToScope"                             : "InOrganization",
-          "SetHeaderName"                           : "X-SM-internal",
-          "SetHeaderValue"                          : "yes",
-          "HeaderContainsMessageHeader"             : "Authentication-Results",
-          "HeaderContainsWords"                     : "spf=fail",
-          "Priority"                                : 0,
-          "SetAuditSeverity"                        : "DoNotAudit",
-          "Mode"                                    : "Enforce",
-          "SenderAddressLocation"                   : "Header"
-        }
+      "Name"                                    : "[SEPPmail] - 050 on SPF fail - no SEPPmail",
+      "Comments"                                : "E-mails sent from outside the organization and SPF failed, are NOT routed to the SEPPmail for crypto-processing.",
+      "SMPriority"                              : 0,
+      "FromScope"                               : "NotInOrganization",
+      "SentToScope"                             : "InOrganization",
+      "SetHeaderName"                           : "X-SM-internal",
+      "SetHeaderValue"                          : "yes",
+      "HeaderContainsMessageHeader"             : "Authentication-Results",
+      "HeaderContainsWords"                     : "spf=fail",
+      "Priority"                                : 0,
+      "SetAuditSeverity"                        : "DoNotAudit",
+      "Mode"                                    : "Enforce",
+      "SenderAddressLocation"                   : "Header"
     }
 }
