@@ -69,7 +69,7 @@ function New-SM365Rules
             Mandatory = $false,
             HelpMessage = 'Should the rules be created active or inactive'
         )]
-        [switch]$Disabled
+        [bool]$Disabled = $true
     )
 
     begin
