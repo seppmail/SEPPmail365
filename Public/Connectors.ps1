@@ -1,3 +1,5 @@
+$ModuleVersion = $myInvocation.MyCommand.Version
+
 <#
 .SYNOPSIS
     Read existing SEPPmail Exchange Online connectors
@@ -21,49 +23,25 @@ function Get-SM365Connectors
     else {
         Write-Information "Connected to Exchange Organization `"$Script:ExODefaultDomain`"" -InformationAction Continue
 
-        $inbound = Get-SM365InboundConnectorSettings -Version "None"
-        $outbound = Get-SM365OutboundConnectorSettings -Version "None"
+        $inbound = Get-SM365InboundConnectorSettings
+        $outbound = Get-SM365OutboundConnectorSettings
     
         if (Get-OutboundConnector | Where-Object Identity -eq $($outbound.Name))
         {
-            $obc = Get-OutboundConnector $outbound.Name
-            $obOutputHT = [ordered]@{
-                   OutBoundConnectorName = $obc.Name
-             OutBoundConnectorSmartHosts = $obc.SmartHosts
-              OutBoundConnectorTlsDomain = $obc.TlsDomain
-            OutBoundConnectorTlsSettings = $obc.TlsSettings
-                OutBoundConnectorEnabled = $obc.Enabled
-            }
-            $obOutputConnector = New-Object -TypeName PSObject -Property $obOutputHt
-            Write-Output $obOutputConnector
-
+            $obc|select-object Name,Enabled,WhenCreated,SmartHosts
         }
         else {
             Write-Warning "No SEPPmail Outbound Connector with name `"$($outbound.Name)`" found"
         }
-    
-    
         if (Get-InboundConnector | Where-Object Identity -eq $($inbound.Name))
         {
             $ibc = Get-InboundConnector $inbound.Name
-
-            $ibOutputHT = [ordered]@{
-                                InboundConnectorName = $ibc.Name
-                   InboundConnectorSenderIPAddresses = $ibc.SenderIPAddresses
-            InboundConnectorTlsSenderCertificateName = $ibc.TlsSenderCertificateName
-                          InboundConnectorRequireTLS = $ibc.RequireTLS
-                             InboundConnectorEnabled = $ibc.Enabled
-            }
-            $ibOutputConnector = New-Object -TypeName PSObject -Property $ibOutputHt
-            Write-Output $ibOutputConnector
-
+            $ibc|select-object Name,Enabled,WhenCreated,SenderIPAddress
         }
         else 
         {
             Write-Warning "No SEPPmail Inbound Connector with Name `"$($inbound.Name)`" found"
         }
-    
-    
     }
 }
 
@@ -180,7 +158,7 @@ function New-SM365Connectors
         [string] $SEPPmailIP,
         #endregion IP
 
-        #region Option
+        <#region Option
         [Parameter(
             Mandatory = $false,
             HelpMessage = 'Which configuration option to use',
@@ -197,9 +175,9 @@ function New-SM365Connectors
             ParameterSetName = 'Ip'
         )]
         [SM365.ConfigOption[]]$Option = 'Default',
-        #endregion Option
+        #endregion Option#>
 
-        #region Version
+        <#region Version
         [Parameter(
             Mandatory = $false,
             HelpMessage = 'Which configuration version to use',
@@ -216,8 +194,7 @@ function New-SM365Connectors
             ParameterSetName = 'Ip'
         )]
         [SM365.ConfigVersion[]]$Version = 'Default',
-        #endregion Version
-
+        #endregion Version #>
 
         #region disabled
         [Parameter(
@@ -310,8 +287,7 @@ function New-SM365Connectors
     process
     {
         #region OutboundConnector
-        $outbound = Get-SM365OutboundConnectorSettings -Version $Version -Option $Option
-        $param = $outbound.ToHashtable()
+        $param = Get-SM365OutboundConnectorSettings
         if ($PsCmdLet.ParameterSetname -like 'fqdn*') {
             $param.SmartHosts = $SEPPmailFQDN            
         } else {
@@ -392,7 +368,7 @@ function New-SM365Connectors
                 }
 
                 $Now = Get-Date
-                $param.Comment += "`n#Created with SEPPmail365 PowerShell Module on $now"
+                $param.Comment += "`n#Created with SEPPmail365 PowerShell Module version $ModuleVersion on $now"
 
                 if ($TLSCertificateName.Length -gt 0) {
                     $param.TlsDomain = $TLSCertificateName
@@ -408,7 +384,7 @@ function New-SM365Connectors
 
         #region - Inbound Connector
         Write-Verbose "Read Inbound Connector Settings"
-        $inbound = Get-SM365InboundConnectorSettings -Version $Version -Option $Option
+        $inbound = Get-SM365InboundConnectorSettings
         
         if ($PSCmdLet.ParametersetName -eq 'FqdnTls') {
             $inbound.TlsSenderCertificateName = $InboundTlsDomain
@@ -474,7 +450,7 @@ function New-SM365Connectors
             $param = $inbound.ToHashtable()
 
             Write-Verbose "Modify params based on ParameterSet"
-            Write-verbose "IP based Config, using $SenderIPAdresses"
+            Write-Verbose "IP based Config, using $SenderIPAdresses"
             if ($PSCmdLet.ParameterSetName -eq 'Ip') {
                 $param.SenderIPAddresses = $SenderIPAddresses
                 $param.RequireTls = $false
@@ -505,7 +481,7 @@ function New-SM365Connectors
                     Write-Debug "$($_.Key) = $($_.Value)"
                 }
                 $Now = Get-Date
-                $param.Comment += "`n#Created with SEPPmail365 PowerShell Module on $now"
+                $param.Comment += "`n#Created with SEPPmail365 PowerShell Module version $ModuleVersion on $now"
                 [void](New-InboundConnector @param)
 
                 if(!$?) {
