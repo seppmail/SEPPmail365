@@ -1,21 +1,13 @@
 {
-    "Name"                         : "[SEPPmail] Appliance -> ExchangeOnline",
-    "Comment"                      : "Accept E-Mails from SEPPmail Appliance",
-
-    "Version":
+    "Default":
     {
-        "Default":
-        {
-            "CloudServicesMailEnabled"     : false,
-            "ConnectorSource"              : "Default",
-            "ConnectorType"                : "OnPremises",
-            "Enabled"                      : true,
-            "RequireTls"                   : true,
-            "SenderDomains"                : "*"
-        }
-    },
-    "Option":
-    {
-       "NoAntiSpamWhiteListing": false
+        "Name"                         : "[SEPPmail] Appliance -> ExchangeOnline",
+        "Comment"                      : "Accept E-Mails from SEPPmail Appliance",
+        "CloudServicesMailEnabled"     : false,
+        "ConnectorSource"              : "Default",
+        "ConnectorType"                : "OnPremises",
+        "Enabled"                      : true,
+        "RequireTls"                   : true,
+        "SenderDomains"                : "*"
     }
 }

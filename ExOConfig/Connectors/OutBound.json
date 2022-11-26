@@ -1,21 +1,13 @@
 {
-    "Name"                     : "[SEPPmail] ExchangeOnline -> Appliance",
-    "Comment"                  : "Based on rules, E-Mails that have not been processed by SEPPmail appliance are routed there.",
-
-    "Version":
+    "Default":
     {
-        "Default":
-        {
-            "ConnectorSource"          : "Default",
-            "ConnectorType"            : "OnPremises",
-            "IsTransportRuleScoped"    : true,
-            "TlsSettings"              : "DomainValidation",
-            "UseMXRecord"              : false,
-            "CloudServicesMailEnabled" : false
-        }
-    },
-    "Option":
-        {
-            "NoAntiSpamWhiteListing": false
-        }
+        "Name"                     : "[SEPPmail] ExchangeOnline -> Appliance",
+        "Comment"                  : "Based on rules, E-Mails that have not been processed by SEPPmail appliance are routed there.",
+        "ConnectorSource"          : "Default",
+        "ConnectorType"            : "OnPremises",
+        "IsTransportRuleScoped"    : true,
+        "TlsSettings"              : "DomainValidation",
+        "UseMXRecord"              : false,
+        "CloudServicesMailEnabled" : false
+    }
 }
