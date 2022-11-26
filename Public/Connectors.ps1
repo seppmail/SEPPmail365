@@ -552,8 +552,8 @@ function Remove-SM365Connectors
 
     Write-Information "Connected to Exchange Organization `"$Script:ExODefaultDomain`"" -InformationAction Continue
 
-    $inbound = Get-SM365InboundConnectorSettings -Version "None"
-    $outbound = Get-SM365OutboundConnectorSettings -Version "None"
+    $inbound = Get-SM365InboundConnectorSettings
+    $outbound = Get-SM365OutboundConnectorSettings
     $hcfp = Get-HostedConnectionFilterPolicy
 
     if($PSCmdlet.ShouldProcess($outbound.Name, "Remove SEPPmail outbound connector $($Outbound.Name)"))
@@ -613,52 +613,6 @@ function Remove-SM365Connectors
 .EXAMPLE
     Backup-SM365Connectors -OutFolder "C:\temp"
 #>
-function Backup-SM365Connectors
-{
-    [CmdletBinding()]
-    param
-    (
-        [Parameter(
-             Mandatory = $true,
-             HelpMessage = 'Folder in which the backed up configuration will be stored'
-         )]
-        [Alias('Folder','Path')]
-        [String] $OutFolder
-    )
-
-    begin
-    {
-        if (!(Test-SM365ConnectionStatus))
-        { throw [System.Exception] "You're not connected to Exchange Online - please connect prior to using this CmdLet" }
-
-        Write-Information "Connected to Exchange Organization `"$Script:ExODefaultDomain`"" -InformationAction Continue
-    }
-
-    process
-    {
-        if(!(Test-Path $OutFolder))
-        {New-Item $OutFolder -ItemType Directory}
-
-        Get-InboundConnector | foreach-object{
-            $n = $_.Name
-            $n = $n -replace "[\[\]*\\/?:><`"]"
-
-            $p = "$OutFolder\inbound_connector_$n.json"
-
-            Write-Verbose "Backing up $($_.Name) to $p"
-            ConvertTo-Json -InputObject $_ | Out-File $p
-        }
-
-        Get-OutboundConnector | foreach-object {
-            $n = $_.Name
-            $n = $n -replace "[\[\]*\\/?:><`"]"
-
-            $p = "$OutFolder\outbound_connector_$n.json"
-            Write-Verbose "Backing up $($_.Name) to $p"
-            ConvertTo-Json -InputObject $_ | Out-File $p
-        }
-    }
-}
 
 if (!(Get-Alias 'Set-SM365Connectors' -ErrorAction SilentlyContinue)) {
     New-Alias -Name Set-SM365Connectors -Value New-SM365Connectors
