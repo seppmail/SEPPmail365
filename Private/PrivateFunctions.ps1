@@ -1,5 +1,3 @@
-. $PSScriptRoot\SetupTypes.ps1
-
 # Generic function to avoid code duplication
 function Set-SM365PropertiesFromConfigJson
 {
@@ -63,12 +61,18 @@ function Get-SM365InboundConnectorSettings
         [ValidateSet('Default','Partner')]
         [String]$Type = 'Default'
     )
-
-    Write-Verbose "Loading inbound connector settings for routingtype $Routing"
-    $inBoundRaw = (Get-Content "$PSScriptRoot\..\ExOConfig\Connectors\InBound.json" -Raw|Convertfrom-Json -AsHashtable)
-    $ret = $inBoundRaw.routing.($Type.Tolower())
-
-    return $ret
+    begin {
+        $ret = $null
+        $raw = $null
+    }
+    process {
+        Write-Verbose "Loading inbound connector settings for routingtype $Routing"
+        $raw = (Get-Content "$PSScriptRoot\..\ExOConfig\Connectors\Inbound.json" -Raw|Convertfrom-Json -AsHashtable)
+        $ret = $raw.$Type    
+    }
+    end {
+        return $ret
+    }
 }
 
 function Get-SM365OutboundConnectorSettings
@@ -80,11 +84,19 @@ function Get-SM365OutboundConnectorSettings
         [String]$Type = 'Default'
     )
 
-    Write-Verbose "Loading outbound connector settings"
-    $outBoundRaw = (Get-Content "$PSScriptRoot\..\ExOConfig\Connectors\OutBound.json" -Raw|Convertfrom-Json -AsHashtable)
-    $ret= $outBoundRaw.version.($Type.ToLower())
-
-    return $ret
+    begin {
+        $ret = $null
+        $raw = $null
+    }
+    process {
+        Write-Verbose "Loading outbound connector settings"
+        $raw = (Get-Content "$PSScriptRoot\..\ExOConfig\Connectors\Outbound.json" -Raw|Convertfrom-Json -AsHashtable)
+        $ret= $Raw.$Type
+    }
+    end
+    {
+        return $ret
+    }
 }
 
 function Get-SM365TransportRuleSettings
