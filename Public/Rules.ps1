@@ -11,30 +11,33 @@
     {
         Write-Information "Connected to Exchange Organization `"$Script:ExODefaultDomain`"" -InformationAction Continue
 
-        $settings = Get-SM365TransportRuleSettings -Version 'Default'
-        foreach($setting in $settings)
-        {
-            $rule = Get-TransportRule $setting.Name -ErrorAction SilentlyContinue
-        
-            if($rule)
-            {
-                $outputHt = [ordered]@{
-                    Name = $rule.Name
-                    State = $rule.State
-                    Priority = $rule.Priority
-                    ExceptIfSenderDomainIs = $rule.ExceptIfSenderDomainIs
-                    ExceptIfRecipientDomainIs = $rule.ExceptIfRecipientDomainIs
-                    RouteMessageOutboundConnector = $rule.RouteMessageOutboundConnector
-                    Comments = $rule.Comments    
+        $TransPortRuleFiles = Get-Childitem -Path "$PSScriptroot\..\ExoConfig\Rules\*.json"
+        Foreach ($File in $TransPortRuleFiles) {
+            $setting = Get-SM365TransportRuleSettings -File $File
+            #{
+                $rule = Get-TransportRule $setting.Name -ErrorAction SilentlyContinue
+            
+                if($rule)
+                {
+                    $outputHt = [ordered]@{
+                        Name = $rule.Name
+                        State = $rule.State
+                        Priority = $rule.Priority
+                        ExceptIfSenderDomainIs = $rule.ExceptIfSenderDomainIs
+                        ExceptIfRecipientDomainIs = $rule.ExceptIfRecipientDomainIs
+                        RouteMessageOutboundConnector = $rule.RouteMessageOutboundConnector
+                        Comments = $rule.Comments    
+                    }
+                    $outputRule = New-Object -TypeName PSObject -Property $outputHt
+                    Write-Output $outputRule
+                    #return $rule
                 }
-                $outputRule = New-Object -TypeName PSObject -Property $outputHt
-                Write-Output $outputRule
-            }
-            else
-            {
-                Write-Warning "Rule $($setting.Name) does not exist"
-            }
-        }    
+                else
+                {
+                    Write-Warning "Rule $($setting.Name) does not exist"
+                }
+            #}
+        }
     }
 }
 

@@ -55,7 +55,6 @@ function New-SM365ExOReport {
             Write-Information "Connected to Exchange Organization `"$Script:ExODefaultDomain`"" -InformationAction Continue
             Write-verbose 'Defining Function fo read Exo Data and return an info Message in HTML even if nothing is retrieved'
         }
-
         function New-SelfGeneratedReportName {
             Write-Verbose "Creating self-generated report filename."
             return ("{0:HHm-ddMMyyy}" -f (Get-Date)) + (Get-AcceptedDomain|where-object default -eq $true|select-object -expandproperty Domainname) + '.html'

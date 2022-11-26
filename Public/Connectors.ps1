@@ -166,46 +166,12 @@ function New-SM365Connectors
             HelpMessage = 'Do not Add SEPPmailIP to the HostedConnectionFilterPolicy',
             ParameterSetName = 'FqdnNoTls'
         )]
+        [Parameter(
+            HelpMessage = 'Do not Add SEPPmailIP to the HostedConnectionFilterPolicy',
+            ParameterSetName = 'Ip'
+        )]
         [switch]$NoAntiSpamWhiteListing = $false,
         #endRegion
-
-        <#region Option
-        [Parameter(
-            Mandatory = $false,
-            HelpMessage = 'Which configuration option to use',
-            ParameterSetName = 'FqdnTls'
-        )]
-        [Parameter(
-            Mandatory = $false,
-            HelpMessage = 'Which configuration option to use',
-            ParameterSetName = 'FqdnNoTls'
-        )]
-        [Parameter(
-            Mandatory = $false,
-            HelpMessage = 'Which configuration option to use',
-            ParameterSetName = 'Ip'
-        )]
-        [SM365.ConfigOption[]]$Option = 'Default',
-        #endregion Option#>
-
-        <#region Version
-        [Parameter(
-            Mandatory = $false,
-            HelpMessage = 'Which configuration version to use',
-            ParameterSetName = 'FqdnTls'
-        )]
-        [Parameter(
-            Mandatory = $false,
-            HelpMessage = 'Which configuration version to use',
-            ParameterSetName = 'FqdnNoTls'
-        )]
-        [Parameter(
-            Mandatory = $false,
-            HelpMessage = 'Which configuration version to use',
-            ParameterSetName = 'Ip'
-        )]
-        [SM365.ConfigVersion[]]$Version = 'Default',
-        #endregion Version #>
 
         #region disabled
         [Parameter(
@@ -409,7 +375,6 @@ function New-SM365Connectors
         Write-Verbose "Setting SEPPmail IP Address(es) $SEPPmailIP for EFSkipIP´s and Anti-SPAM Whitelist"
         [string[]]$SEPPmailIpRange = $SEPPmailIP
         $inbound.EFSkipIPs = $SEPPmailIpRange
-        #$inbound.EFSkipIPs.AddRange($SEPPmailIpRange)
 
         Write-Verbose "Read existing SEPPmail Inbound Connector from Exchange Online"
         $existingSMInboundConn = $allInboundConnectors | Where-Object Name -like '`[SEPPmail`]*'
@@ -493,6 +458,7 @@ function New-SM365Connectors
                     Write-Debug "$($_.Key) = $($_.Value)"
                 }
                 $Now = Get-Date
+                $ModuleVersion = $myInvocation.MyCommand.Version
                 $param.Comment += "`n#Created with SEPPmail365 PowerShell Module version $ModuleVersion on $now"
                 [void](New-InboundConnector @param)
 
