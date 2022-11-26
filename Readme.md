@@ -83,10 +83,12 @@ Beginning with version 1.2.5, the module runs only on PowerShell Core on Windows
 
 - Add Support for ExchangeOnlineManagement 3.0.0
 - No more Windows Powershell Support - PowerShell CORE Only !
+- Transport rules will be setup DISABLED by default
 - New-SM365ExoReport similar to cloud-module
 - Test-SM365ConnectionStatus similar to cloud-module
 - Removed Backup and Setup CmdLets
 - Add test for external name resolution and write error if it fails.
+- 
 
 ## September 2022 - Releasenotes 1.2.3
 
