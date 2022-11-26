@@ -7,6 +7,12 @@ $InteractiveSession = [System.Environment]::UserInteractive
 Write-Verbose 'Request terminating errors by default'
 $PSDefaultParameterValues['*:ErrorAction'] = [System.Management.Automation.ActionPreference]::Stop
 
+Write-Verbose 'Initialize argument completer scriptblocks'
+$paramDomSB = {
+    # Read Accepted Domains for domain selection
+    Get-AcceptedDomain -Erroraction silentlycontinue|select-Object -ExpandProperty DomainName
+}
+
 Write-Verbose 'Loading Module Files'
 . $ModulePath\Private\PrivateFunctions.ps1
 #. $ModulePath\Private\ConfigBundle.ps1

@@ -80,14 +80,13 @@ FunctionsToExport = @(
        'Get-SM365Connectors'
        'New-SM365Connectors'
     'Remove-SM365Connectors'
-    #'Backup-SM365Rules'
        'Get-SM365Rules'
        'New-SM365Rules'
     'Remove-SM365Rules'
        'New-SM365ExOReport'
       'Test-SM365ConnectionStatus'
-       #'Get-SM365Setup'
-    '#Remove-SM365Setup'
+       'Get-SM365TenantID'
+       'Get-SM365MessageTrace'
     )
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.

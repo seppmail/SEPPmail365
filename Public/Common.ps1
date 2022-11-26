@@ -430,29 +430,136 @@ Function Get-SM365TenantID {
     Return $tenantid
 }
 
-function Remove-SM365Setup {
-    [CmdletBinding()]
-    param()
+function Get-SM365MessageTrace {
+    [CmdLetBinding(
+        HelpURI = 'https://github.com/seppmail/SEPPmail365cloud/blob/main/README.md#setup-the-integration'
+    )]
+    param (
+        [Parameter(Mandatory = $true)]
+        [String]$MessageId,
+        
+        [Parameter(Mandatory = $true)]
+        [Alias('RecipientAddress')]
+        [String]$Recipient
+    )
+    begin {
+        Write-Information "This CmdLet is still under development"
+        Write-Verbose "Retrieving Tenant-Domains"
+        $TenantDomains = (Get-AcceptedDomain).DomainName
 
-    Begin {}
-    Process {
-        Remove-SM365Rules
-        Remove-SM365Connectors
+        Write-Verbose "Retrieving initial Message-Trace id MessageID $MessageId for recipient $Recipient"
+        Write-Progress -Activity "Loading message data" -Status "MessageTrace" -PercentComplete 0 -CurrentOperation "Start"
+        #try {
+
+        Write-Progress -Activity "Loading message data" -Status "MessageTrace" -PercentComplete 40 -CurrentOperation "Messages loaded"
+        $MessageTrace = Get-MessageTrace -MessageId $MessageId -RecipientAddress $Recipient
+        
+        if (!($MessageTrace)) {
+            Write-Error "Could not find Message with ID $MessageID and recipient $recipient. Look for typos. Message too old ? Try Search-MessageTrackingReport"
+            break
+        }
+        try {
+            If ($TenantDomains.Contains(($Recipient -Split '@')[-1])) {
+                $MailDirection = 'InBound'
+            }
+            else {
+                $MailDirection = 'OutBound'
+            }
+        } 
+        catch {
+            Write-Error "Could not detect mail-direction of recipient-address $recipient. Check for typos and see error below."
+            $error[0]
+            break
+        }
+
+        Write-Verbose "Crafting basic MessateTraceInfo"
+        $OutPutObject = [PSCustomObject][ordered]@{
+            Subject                = if ($MessageTrace.count -eq 1) {$MessageTrace.Subject} else {$MessageTrace[0].Subject}
+            Size                   = if ($MessageTrace.count -eq 1) {$MessageTrace.Size} else {$MessageTrace[0].Size} #|{$_/1KB} | ToString('.0') + ' kB'
+            SenderAddresses        = if ($MessageTrace.count -eq 1) {$MessageTrace.SenderAddress} else {$MessageTrace[0].SenderAddress}
+            Recipient              = $Recipient
+            MailDirection          = $MailDirection
+        }
     }
-    End{}
+    
+    process {
+        # NW Looping
+        #reion Receive/Inbound
+        if ($MailDirection -eq 'InBound') {
+            # Im Parallel Mode kommt die Mail 2x, einmal von externem Host und einmal von SEPpmail, Index 0 und 1
+
+            $MessageTraceDetailExternal = Get-MessagetraceDetail -MessageTraceId $MessageTrace[1].MessageTraceId -Recipient $Recipient
+            $MTDExtReceived = $MessageTraceDetailExternal[0]
+            $MTDExtExtSend = $MessageTraceDetailExternal[1]
+            $MessageTraceDetailSEPPmail = Get-MessagetraceDetail -MessageTraceId $MessageTrace[0].MessageTraceId -Recipient $Recipient
+            $MTDSEPPReceived = $MessageTraceDetailSEPPmail[0]
+            $MTDSEPPDelivered = $MessageTraceDetailSEPPmail[1]
+            Write-Verbose "Crafting Inbound Connector Name"
+            try {
+                $ibcName = ((($MTDSEPPReceived).Data).Split(';') | Select-String 'S:InboundConnectorData=Name').ToString().Split('=')[-1]
+            } 
+            catch 
+            {
+                $ibcName = '--- E-Mail did not go over SEPPmail Connector ---'
+            }
+            Write-Verbose "Preparing Output (Receive)Inbound-Parallel"
+            $Outputobject | Add-Member -MemberType NoteProperty -Name ExternalReceivedTime -Value $messageTrace[1].Received
+            $Outputobject | Add-Member -MemberType NoteProperty -Name ExternalReceivedSize -Value $messageTrace[1].Size
+            $Outputobject | Add-Member -MemberType NoteProperty -Name ExternalFromIP -Value $MessageTrace[1].FromIP
+            $Outputobject | Add-Member -MemberType NoteProperty -Name FromExternalSendToIP -Value $messageTrace[1].ToIP
+            $Outputobject | Add-Member -MemberType NoteProperty -Name ExtMessageTraceId -Value $MessageTrace[1].MessageTraceId.Guid
+            $Outputobject | Add-Member -MemberType NoteProperty -Name SEPPMessageTraceId -Value $MessageTrace[0].MessageTraceId.Guid
+            $Outputobject | Add-Member -MemberType NoteProperty -Name 'FullTransportTime(s)' -Value (New-TimeSpan -Start $MTDExtReceived.Date -End $MTDSEPPDelivered.Date).Seconds
+            $Outputobject | Add-Member -MemberType NoteProperty -Name 'ExoTransportTime(s)' -Value (New-TimeSpan -Start $MTDExtReceived.Date -End $MTDExtExtSend.Date).Seconds
+            $Outputobject | Add-Member -MemberType NoteProperty -Name 'SEPPTransportTime(s)' -Value (New-TimeSpan -Start $MTDSEPPReceived.Date -End $MTDSEPPDelivered.Date).Seconds
+            $Outputobject | Add-Member -MemberType NoteProperty -Name ExtSendDetail -Value $MTDExtExtSend.Detail
+            $Outputobject | Add-Member -MemberType NoteProperty -Name InboundConnectorName -Value $ibcName
+        }
+        #Enregion Receive/Inbound
+        
+        #Region Send/Outbound
+
+        if ($MailDirection -eq 'OutBound') {
+            
+            #ExternalToIP           = if ($MessageTrace.count -eq 1) {$MessageTrace[0].ToIp} else {'BETA: needs brain'} ## Try in Parallel Modeelse {   $MessageTrace[0].MessageTraceId.Guid}
+            $MessageTraceDetailSEPPmail = Get-MessagetraceDetail -MessageTraceId $MessageTrace[1].MessageTraceId -Recipient $Recipient
+            
+            $MTDSEPPReceive = $MessageTraceDetailSEPPmail[0]
+            #$MTDSEPPSubmit = $MessageTraceDetailSEPPmail[1]
+            $MTDSEPPExtSend = $MessageTraceDetailSEPPmail[2]
+            
+            $MessageTraceDetailExternal = Get-MessagetraceDetail -MessageTraceId $MessageTrace[0].MessageTraceId -Recipient $Recipient
+            $MTDExtReceive = $MessageTraceDetailExternal[0]
+            $MTDExtExtSend = $MessageTraceDetailExternal[1]
+            try {
+                $obcName = (((($MTDSEPPExtSend.Data -Split '<') -replace ('>','')) -split (';') | select-String 'S:Microsoft.Exchange.Hygiene.TenantOutboundConnectorCustomData').ToString()).Split('=')[-1]
+            }catch {
+                $obcName = "--- E-Mail did not go via a SEPPmail Connector ---"
+            }
+            $Outputobject | Add-Member -MemberType NoteProperty -Name FromExternalSendToIP -Value $messageTrace[1].ToIP
+            $Outputobject | Add-Member -MemberType NoteProperty -Name SEPPmailReceivedFromIP -Value $messageTrace[0].FromIP
+            $Outputobject | Add-Member -MemberType NoteProperty -Name 'ExoTransPortTime(s)' -Value (New-TimeSpan -Start $MTDExtReceive.Date -End $MTDExtExtSend.Date).Seconds
+            $Outputobject | Add-Member -MemberType NoteProperty -Name 'SEPPmailTransPortTime(s)' -Value 'BETA-needs Brainware' # (New-TimeSpan -Start $MTDSEPPReceive.Date -End $MTDSEPPExtSend.Date).Seconds
+            $Outputobject | Add-Member -MemberType NoteProperty -Name 'FullTransPortTime(s)' -Value (New-TimeSpan -Start $MTDSEPPReceive.Date -End $MTDExtExtSend.Date).Seconds
+            $Outputobject | Add-Member -MemberType NoteProperty -Name SEPPReceiveDetail -Value $MTDSEPPReceive.Detail
+            $Outputobject | Add-Member -MemberType NoteProperty -Name SEPPSendExtDetail -Value $MTDSEPPExtSend.Detail
+            $Outputobject | Add-Member -MemberType NoteProperty -Name ExtReceiveDetail -Value $MTDExtReceive.Detail
+            $Outputobject | Add-Member -MemberType NoteProperty -Name ExtSendDetail -Value $MTDExtExtSend.Detail
+            $Outputobject | Add-Member -MemberType NoteProperty -Name OutboundConnectorName -Value $obcName
+            $Outputobject | Add-Member -MemberType NoteProperty -Name ExternalSendLatency -Value (((($MTDExtExtSend.Data -Split '<') -replace ('>','')) -split (';') | select-String 'S:ExternalSendLatency').ToString()).Split('=')[-1]
+            
+        }
+        #endregion Send/Outbound
+    }
+    end {
+        #$SC365MessageTrace = New-Object -TypeName pscustomobject -ArgumentList $SC365MessageTraceHT
+        return $OutPutObject
+        #$SC365MessageTraceHT
+    }
 }
 
-function Get-SM365Setup {
-    [CmdletBinding()]
-    param()
+Register-ArgumentCompleter -CommandName Get-SM365TenantId -ParameterName MailDomain -ScriptBlock $paramDomSB
 
-    Begin {}
-    Process {
-        Get-SM365Connectors
-        Get-SM365Rules
-    }
-    End{}
-}
 
 # SIG # Begin signature block
 # MIIL1wYJKoZIhvcNAQcCoIILyDCCC8QCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
