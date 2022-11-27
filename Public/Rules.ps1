@@ -183,8 +183,8 @@ function New-SM365Rules
                 $TransPortRuleFiles = Get-Childitem -Path "$PSScriptroot\..\ExoConfig\Rules\*.json"
                 
                 Write-Verbose "Building List of excluded Domains for outbound rule"
-                [System.Connections.ArrayList]$ExcludeEmailDomain = (Get-AcceptedDomain).DomainName
-                $SEPPmailCloudDomain|Foreach-Object {$ExcludeEmailDomain.Remove($_)}
+                [System.Collections.ArrayList]$ExcludeEmailDomain = (Get-AcceptedDomain).DomainName
+                $SEPPmailDomains|Foreach-Object {$ExcludeEmailDomain.Remove($_)}
 
                 Foreach ($File in $TransPortRuleFiles) {
 
@@ -303,6 +303,8 @@ function Remove-SM365Rules {
 if (!(Get-Alias 'Set-SM365rules' -ErrorAction SilentlyContinue)) {
     New-Alias -Name Set-SM365Rules -Value New-SM365Rules
 }
+
+Register-ArgumentCompleter -CommandName New-SM365Rules -ParameterName SEPPmailDomains -ScriptBlock $paramDomSB
 
 # SIG # Begin signature block
 # MIIL1wYJKoZIhvcNAQcCoIILyDCCC8QCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
