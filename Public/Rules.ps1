@@ -75,7 +75,7 @@ function New-SM365Rules
             }
             )]
         [Alias('Managedomains')]           
-        [String[]]$SEPPmailDomains,
+        [String[]]$SEPPmailDomain,
 
         [Parameter(
             Mandatory = $false,
@@ -184,7 +184,7 @@ function New-SM365Rules
                 
                 Write-Verbose "Building List of excluded Domains for outbound rule"
                 [System.Collections.ArrayList]$ExcludeEmailDomain = (Get-AcceptedDomain).DomainName
-                $SEPPmailDomains|Foreach-Object {$ExcludeEmailDomain.Remove($_)}
+                $SEPPmailDomain|Foreach-Object {$ExcludeEmailDomain.Remove($_)}
 
                 Foreach ($File in $TransPortRuleFiles) {
 

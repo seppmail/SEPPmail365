@@ -212,7 +212,8 @@ Get-SM365Connectors # Shows existing SEPPmail Connectors
 ### Generate an Exchange Online Report
 
 ```powershell
-New-SC365ExoReport ~\Desktop # generates a report on the desktop
+New-SM365ExoReport ~\Desktop # generates a report on the desktop
+New-SM365ExoReport # generates a report in the users home directory
 ```
 
 ### Cleanup environment
@@ -262,11 +263,11 @@ New-SM365Connectors [-SEPPmailIP] <String> [-NoAntiSpamWhiteList] [-Disabled] [-
 
 When inbound- and outbound connectors are established, we need mailflow rules to route E-Mails via the SEPPmail appliance if necessary. The New-SM365Rules CmdLet handles this for you. The most convenient way to do this is running the following code:
 ```powershell
-New-SM365Rules 
+New-SM365Rules $SEPPmailDomain 'contoso.eu','contoso.ch'
 
 # If you want to know what happens in detail, run command with the verbose option
 
-New-SM365Rules -Verbose
+New-SM365Rules $SEPPmailDomain 'contoso.eu','contoso.ch' -Disabled:$false -Verbose
 
 ```
 
@@ -389,12 +390,12 @@ Allows for the rules to be created in an active state, in case you want to activ
 **Examples:**  
 
 ```powershell
-New-SM365Rules -SEPPmailDomains 'contoso.ch','contoso.de'
+New-SM365Rules -SEPPmailDomain 'contoso.ch','contoso.de'
 ```
 
 ```powershell
 # Create the transport rules in an active state
-New-SM365Rules -SEPPmailDomains 'contoso.ch','contoso.de' -disabled
+New-SM365Rules -SEPPmailDomain 'contoso.ch','contoso.de' -disabled
 ```
 
 ## Remove-SM365Rules
@@ -427,7 +428,7 @@ The current version only supports the usage of one SEPPmail per Connector-comman
 
 6.) Create Connectors "New-SM365Connectors"
 
-7.) Create Rules "New-SM365Rules -SEPPmailDomains 'fabrikam.eu'
+7.) Create Rules "New-SM365Rules -SEPPmailDomain 'fabrikam.eu'
 
 # Dealing with aliases and multiple domains in Exchange online
 
