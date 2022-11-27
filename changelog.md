@@ -15,6 +15,7 @@
 - Test-SM365ConnectionStatus similar to cloud-module
 - Removed Backup and Setup CmdLets
 - Add test for external name resolution and write error if it fails.
+- BETA CmdLet: Get-SM365MessageTrace to get detailed info on the mailflow through Exchange and SEPPmail
 
 ## September 2022 - Releasenotes 1.2.3
 

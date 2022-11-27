@@ -20,7 +20,8 @@
 		- [Option 1: FQDN with full SSL and optional "AllowSelfsigned" Option](#option-1-fqdn-with-full-ssl-and-optional-allowselfsigned-option)
 		- [Option 2: FQDN and NoTLS Option](#option-2-fqdn-and-notls-option)
 		- [Option 3: IP Option](#option-3-ip-option)
-	- [4 - Addin Mailflow-Rules](#4---addin-mailflow-rules)
+	- [4 - Adding Mailflow-Rules](#4---adding-mailflow-rules)
+	- [BETA 5 - Tracing Mailflow with Get-SM365MessageTrace](#beta-5---tracing-mailflow-with-get-sm365messagetrace)
 - [Using the Commandlets](#using-the-commandlets)
 	- [New-SM365Connectors](#new-sm365connectors)
 		- [Default with IP](#default-with-ip)
@@ -242,7 +243,7 @@ If you want that Exchange Online talks to SEPPmail via an IP-addresss use this o
 New-SM365Connectors [-SEPPmailIP] <String> [-NoAntiSpamWhiteList] [-Disabled] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
-## 4 - Addin Mailflow-Rules
+## 4 - Adding Mailflow-Rules
 
 When inbound- and outbound connectors are established, we need mailflow rules to route E-Mails via the SEPPmail appliance if necessary. The New-SM365Rules CmdLet handles this for you. The most convenient way to do this is running the following code:
 ```powershell
@@ -254,8 +255,22 @@ New-SM365Rules $SEPPmailDomain 'contoso.eu','contoso.ch' -Disabled:$false -Verbo
 
 ```
 
+## BETA 5 - Tracing Mailflow with Get-SM365MessageTrace
 
-For more info read details below.
+Microsoft stores information about the messageflow in tracelogs and tracelogdetaillogs. This logs can be used with the native CmdLets Get-Messagetrace and Get-MessagetraceDetails. For your convinience, we added a CmdLet that does this for you.
+
+You need 2 pieces of data.
+
+The *MessageID* and the *RecipientAddress*, independent if the message is send inbound or outbound. Use 
+```powershell
+Get-MessageTrace | Select-Object Messageid,RecipientAddress
+
+# This delivers messageids and recipient mailaddresses you can use with the new CmdLet.
+
+Get-SM365MessageTrace -MessageId '4b3a2890-f91b-d781-0308-3447459413fb@domain.com' -Recipient 'someone@fabrikam.com'
+```
+
+For more info on the other CmdLets read details below.
 
 # Using the Commandlets
 
@@ -391,7 +406,6 @@ Removes the SEPPmail transport rules.
 ```powershell
 Remove-SM365Rules
 ```
-
 
 # Clustering and multi-host configurations
 
