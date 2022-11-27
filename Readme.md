@@ -61,7 +61,8 @@
 
 ## Changlog.md
 
-See changelog [here](link)
+See updates and changes on the github [ChangeLog.MD](https://github.com/seppmail/SEPPmail365/blob/master/changelog.md) file.
+
 ## Abstract
 
 The SEPPmail365 PowerShell module helps customers and partners to smoothly integrate their SEPPmail appliance with Exchange Online.  
@@ -80,15 +81,16 @@ We try to adapt to these changes ASAP, but can't guarantee that this module will
 
 _PowerShell Core is the future !_
 
-Beginning with version 1.2.5, the module runs only on PowerShell Core on Windows (macOS/Linux in preperation). So install PowerShell Core asap on your machine via the Windows Store or the notes here: https://github.com/powershell/powershell
+** BREAKING CHANGE ** 
 
+Beginning with version 1.2.5, the module runs only on PowerShell Core on Windows (macOS/Linux in preperation). So install PowerShell Core asap on your machine via the Windows Store or the notes here: https://github.com/powershell/powershell
 
 # Prerequisites
 
-The module requires at least PowerShell 5.1 (64bit) and the  
-[ExchangeOnlineManagement](https://www.powershellgallery.com/packages/ExchangeOnlineManagement/2.0.5) module of version 2.0.5 or higher.  
+The module requires at least PowerShell Core 7.2 (64bit) and the  
+[ExchangeOnlineManagement](https://www.powershellgallery.com/packages/ExchangeOnlineManagement/3.0.0) module of version 3.0.0 or higher.  
 
-The module was developed on macOS and runs also on PowerShell Core 7.1.5+
+The module was developed on Windows 11 and macOS 11.7.
 
 _Note on PowerShell on debian_: There are scenarios where module installation fails with an error on incorrect module maifest. We are currently investigating this. Please try to run it on PowerShell Core on Windows or macOS.
 
@@ -129,8 +131,7 @@ Import-Module "C:\path\to\module\SEPPmail365.psd1"
 
 # Preparation
 
-Prior to using this module you need to connect to your Exchange Online  
-organization.  
+Prior to using this module you need to connect to your Exchange Online organization.  
 Use either one of the following commands, depending on whether multi factor  
 authentication is enabled for your account or not:  
 
@@ -138,7 +139,7 @@ authentication is enabled for your account or not:
 
 ```powershell
 Import-Module ExchangeOnlineManagement
-$UserCredential = Get-Credential #Enter Exchange Admin userName and Password
+$UserCredential = Get-Credential #Enter Exchange Admin UserName and Password
 Connect-ExchangeOnline -Credential $UserCredential -ShowProgress $true
 
 # If you have stored your credentials in Secretmanagement it would read:
@@ -194,6 +195,7 @@ None
 
 ```powershell
 Test-SM365ConnectionStatus
+# returns true/false
 ```
 
 <a id="orgb92507f"></a>
@@ -235,21 +237,25 @@ In this part we create inbound and outbound connectors to allow E-Mail-flow betw
 Full SSL is the recommended setting for production environments. All else is for test and demo purposes.
 
 ```powershell
-New-SM365Connectors [-SEPPmailFQDN] <String> [-TLSCertificateName] <String> [-AllowSelfSignedCertificates] [-Option {None | AntiSpamWhiteList}] [-Disabled] [-WhatIf] 
+New-SM365Connectors [-SEPPmailFQDN] <String> [-TLSCertificateName] <String> [-AllowSelfSignedCertificates] [-NoAntiSpamWhiteList] [-Disabled] [-WhatIf] 
 [-Confirm] [<CommonParameters>]
 ```
 
 ### Option 2: FQDN and NoTLS Option
 
+If you want that Exchange Online talks to SEPPmail via an FQDN but do not want to use TLS check, use this option.
+
 ```powershell
-New-SM365Connectors [-SEPPmailFQDN] <String> [-NoOutBoundTlsCheck] [-Option {None | AntiSpamWhiteList}] [-Disabled] [-WhatIf] [-Confirm] 
+New-SM365Connectors [-SEPPmailFQDN] <String> [-NoOutBoundTlsCheck] [-NoAntiSpamWhiteList] [-Disabled] [-WhatIf] [-Confirm] 
 [<CommonParameters>]
 ```
 
 ### Option 3: IP Option
 
+If you want that Exchange Online talks to SEPPmail via an IP-addresss use this option.
+
 ```powershell
-New-SM365Connectors [-SEPPmailIP] <String> [-Option {None | AntiSpamWhiteList}] [-Disabled] [-WhatIf] [-Confirm] [<CommonParameters>]
+New-SM365Connectors [-SEPPmailIP] <String> [-NoAntiSpamWhiteList] [-Disabled] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## 4 - Addin Mailflow-Rules
@@ -258,7 +264,7 @@ When inbound- and outbound connectors are established, we need mailflow rules to
 ```powershell
 New-SM365Rules 
 
-# If you want to know what happens in detail, run
+# If you want to know what happens in detail, run command with the verbose option
 
 New-SM365Rules -Verbose
 
@@ -357,7 +363,7 @@ Remove-SM365Connector # Cleans up IP Adresses from hosted connection filter poli
 ```powershell
 -disabled # Is be used to create "disabled" connectors. Makes sense for sensitive environment with step-by-step implementation.
 
--Option NoAntiSpamWhiteListing # Is used to disable whitelisting
+-NoAntiSpamWhiteListing # Is used to disable whitelisting
 ```
 
 **Note on Disable/enable:** To enable the connectors, either recreate them, use the admin interface of Exchange Online or use the native Exchange Online PowerShell CmdLets `Set-InboundConnector` and `Set-OutBoundConnector`.
@@ -367,31 +373,28 @@ Remove-SM365Connector # Cleans up IP Adresses from hosted connection filter poli
 **Synopsis:**  
 Creates the required transport rules needed to correctly handle mails from and to the SEPPmail appliance.  
 
+!Important: Beginning with Version 1.2.5, rules are created DISABLED by default. We did this for smoother integration in production environments. You may create them enabled with the -Disabled:$false switch on creation.
+
 **Parameter List:**  
-`-PlacementPriority [SM365.PlacementPriority] (optional)`  
+`-PlacementPriority`  
 Specifies whether new rules should be put in front or behind existing transport rules (if any). If not provided and in an interactive session, the CmdLet will ask for this information interactively.  
 
-`-ExcludeEmailDomain [String[]] (optional)`  
-Specifies one or more (comma-seperated) E-Mail domains that should be excluded in SEPPmail traffic. 
+`-SEPPmailDomain [String[]] (Mandatory)`  
+Specifies one or more (comma-seperated) E-Mail domains that will be include in SEPPmail cryptographic management. 
 
 
 `-Disabled [Switch] (optional)`  
-Allows for the rules to be created in an inactive state, in case you just want to prepare your environment.  
+Allows for the rules to be created in an active state, in case you want to activate them immediately.  
 
 **Examples:**  
 
 ```powershell
-New-SM365Rules
+New-SM365Rules -SEPPmailDomains 'contoso.ch','contoso.de'
 ```
 
 ```powershell
-# Create the transport rules in an inactive state
-New-SM365Rules -disabled
-```
-
-```powershell
-# Create rules and exclude domains
-New-SM365Rules -ExcludeEmailDomain 'contosode.onmicrosoft.com','testdomain.de'
+# Create the transport rules in an active state
+New-SM365Rules -SEPPmailDomains 'contoso.ch','contoso.de' -disabled
 ```
 
 ## Remove-SM365Rules
@@ -402,50 +405,9 @@ Removes the SEPPmail transport rules.
 **Examples:**  
 
 ```powershell
-Remove-SM365Rules -Whatif
+Remove-SM365Rules
 ```
 
-## Backup-SM365Connectors
-
-**Synopsis:**  
-Performs a backup of all connectors found to individual json files for every connector. **There is no Restore-SM365Connectors** CmdLet, because the JSON provided cannot be used to recreate connectors. The backup JSON-files can be used as written source to recreate connectors with the native Exchange Online CmdLets or the SEPPmail365 module.  
-
-**Parameter List:**  
-`-OutFolder [string] (mandatory)`  
-The folder in which to store the connector information.  
-
-**Examples:**  
-
-## BACKUP connector settings
-
-```powershell
-Backup-SM365Connectors -OutFolder /Users/roman/Desktop/ExoBackup
-$backupfiles = Get-ChildItem /Users/roman/Desktop/ExoBackup
-foreach ($file in $backupfiles) {Get-Content $file}
-```
-
-## Backup-SM365Rules
-
-**Synopsis:**  
-Performs a backup of all transport rules found to individual json files for every rule.  **There is no Restore-SM365rules** CmdLet, because the JSON provided cannot be used to recreate connectors. The backup JSON-files can be used as written source to recreate rules with the native Exchange Online CmdLets. 
-
-**Parameter List:**  
-`-OutFolder [string] (mandatory)`  
-The folder in which to store the transport rule information.  
-
-**Examples:**  
-
-```powershell
-Backup-SM365Rules -OutFolder /Users/roman/Desktop/ExoBackup
-$backupfiles = Get-ChildItem /Users/roman/Desktop/ExoBackup
-foreach ($file in $backupfiles) {Get-Content $file}
-```
-
-*_A note on RESTORING Connectors and Rules_*
-
-The native Exchange Online CommandLets provide a way to read connector/rule settings, but emit everything a connector/rule contains. This makes it great to rebuild by hand, but difficult to build valid connector rule combinations in software.
-
-For Restore, we recommend to manually read the JSON-exports and build the connectors/rules out of this information from scratch.
 
 # Clustering and multi-host configurations
 
@@ -453,19 +415,19 @@ The current version only supports the usage of one SEPPmail per Connector-comman
 
 # Upgrading from a previous version
 
-1.) Backup and Connectors and Rules.
+1.) Optionally Backup Connectors and Rules with native ExchangeOnlineManagement Module commands
 
-2.) Uninstall old SEPPMail365 Module
+2.) Uninstall old SEPPMail365 Module "uninstall-module SEPPmail365"
 
-3.) Install newest module
+3.) Install newest module with "Install-Module SEPPmail365"
 
-4.) Remove SEPPmail Transport-Rules
+4.) Remove SEPPmail Transport-Rules "Remove-SM365rules"
 
-5.) Remove SEPPmail Connectors
+5.) Remove SEPPmail Connectors "Remove-SM365Connectors"
 
-6.) Create Connectors
+6.) Create Connectors "New-SM365Connectors"
 
-7.) Create Rules
+7.) Create Rules "New-SM365Rules -SEPPmailDomains 'fabrikam.eu'
 
 # Dealing with aliases and multiple domains in Exchange online
 
