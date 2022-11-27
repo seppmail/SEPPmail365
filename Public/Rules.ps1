@@ -54,7 +54,7 @@ function New-SM365Rules
                    [String]$PlacementPriority = 'Top',
 
         [Parameter(Mandatory=$false,
-                   HelpMessage='E-Mail domains you want to exclude from beeing routed throu the SEPPmail Appliance')]
+                   HelpMessage='E-Mail domains you want to INCLUDE into cryptographic processing through the SEPPmail Appliance')]
         [ValidateScript(
             {   if (Get-AcceptedDomain -Identity $_ -Erroraction silentlycontinue) {
                     $true
@@ -62,8 +62,9 @@ function New-SM365Rules
                     Write-Error "Domain $_ could not get validated, please check accepted domains with 'Get-AcceptedDomains'"
                 }
             }
-            )]           
-        [String[]]$ExcludeEmailDomain,
+            )]
+        [Alias('Managedomains')]           
+        [String[]]$SEPPmailDomains,
 
         [Parameter(
             Mandatory = $false,
@@ -169,6 +170,11 @@ function New-SM365Rules
             if($createRules)
             {
                 $TransPortRuleFiles = Get-Childitem -Path "$PSScriptroot\..\ExoConfig\Rules\*.json"
+                
+                Write-Verbose "Building List of excluded Domains for outbound rule"
+                [System.Connections.ArrayList]$ExcludeEmailDomain = (Get-AcceptedDomain).DomainName
+                $SEPPmailCloudDomain|Foreach-Object {$ExcludeEmailDomain.Remove($_)}
+
                 Foreach ($File in $TransPortRuleFiles) {
 
                     $setting = Get-SM365TransportRuleSettings -File $File
