@@ -137,7 +137,7 @@ function New-SM365ExOReport {
             $ReportFilename = Split-Path $FinalPath -Leaf
             $moduleVersion = "<p><body>SEPPmail365cloud Module Version: $mv</body><p>"
             $reportTenantID = Get-SM365TenantID -maildomain (Get-AcceptedDomain|where-object InitialDomain -eq $true|select-object -expandproperty Domainname)
-            $TenantInfo = "<p><body>Microsoft O/M365 AzureAD Tenant ID: $reportTenantID</body><p>"
+            $TenantInfo = "<p><body>Microsoft Tenant ID: $reportTenantID</body><p>"
             Write-Verbose "Collecting Accepted Domains"
             $hSplitLine = '<p><h2>---------------------------------------------------------------------------------------------------------------------------</h2><p>'
             #region General infos

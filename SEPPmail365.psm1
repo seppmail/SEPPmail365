@@ -29,7 +29,7 @@ if ((Resolve-DnsName 8.8.8.8).NameHost -ne 'dns.google') {
     Write-Error "Cannot resolve 8.8.8.8 (dns.google) externaly - Setup may fail. Try from machine with external name resolution capability."
 }
 
-Write-Information 'Test if new module version is available'
+Write-Information 'Test if a newer module version is available'
 try {
     $onLineVersion = Find-Module -Name 'SEPPmail365'|Select-Object -expandproperty Version
     $offLineVersion = Test-ModuleManifest (Join-Path $ModulePath -ChildPath seppmail365.psd1) |Select-Object -ExpandProperty Version 

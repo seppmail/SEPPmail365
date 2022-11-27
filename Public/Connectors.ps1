@@ -35,7 +35,7 @@ function Get-SM365Connectors
         }
         if (Get-InboundConnector -outvariable ibc | Where-Object Identity -eq $($inbound.Name))
         {
-            $ibc|select-object Name,Enabled,WhenCreated,SenderIPAddress
+            $ibc|select-object Name,Enabled,WhenCreated,TlsSenderCertificateName
         }
         else 
         {
@@ -545,12 +545,17 @@ function Remove-SM365Connectors
                 $InboundSEPPmailIP = $InboundConnector.SenderIPAddresses[0]
             } 
             if ($inboundConnector.TlsSenderCertificateName) {
-                $InboundSEPPmailIP = ([System.Net.Dns]::GetHostAddresses($($inboundConnector.TlsSenderCertificateName)).IPAddressToString)
+                try {
+                    $InboundSEPPmailIP = ([System.Net.Dns]::GetHostAddresses($($inboundConnector.TlsSenderCertificateName)).IPAddressToString)
+                }
+                catch {
+                    $InboundSEPPmailIP = $null
+                }
             }
             Remove-InboundConnector $inbound.Name
 
             Write-Verbose "If Inbound Connector has been removed, remove also Whitelisted IPs"
-            if ((!($leaveAntiSpamWhiteList)) -and (!(Get-InboundConnector | Where-Object Identity -eq $($inbound.Name))))
+            if ((!($leaveAntiSpamWhiteList)) -and (!(Get-InboundConnector | Where-Object Identity -eq $($inbound.Name))) -and ($InboundSEPPmailIP))
             {
                     Write-Verbose "Remove SEPPmail Appliance IP from Whitelist in 'Hosted Connection Filter Policy'"
                     
@@ -571,14 +576,6 @@ function Remove-SM365Connectors
     }
 }
 
-<#
-.SYNOPSIS
-    Backs up all existing connectors to individual json files
-.DESCRIPTION
-    Convenience function to perform a backup of all existing connectors
-.EXAMPLE
-    Backup-SM365Connectors -OutFolder "C:\temp"
-#>
 
 if (!(Get-Alias 'Set-SM365Connectors' -ErrorAction SilentlyContinue)) {
     New-Alias -Name Set-SM365Connectors -Value New-SM365Connectors
