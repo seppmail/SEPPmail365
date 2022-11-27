@@ -1,22 +1,8 @@
 - [Introduction](#introduction)
+	- [Changelog.md](#changelogmd)
 	- [Abstract](#abstract)
 	- [General Note](#general-note)
 	- [PowerShell Platform](#powershell-platform)
-	- [ANNOUNCED FOR 28.November 2022 - Releasenotes 1.2.5](#announced-for-28november-2022---releasenotes-125)
-	- [September 2022 - Releasenotes 1.2.3](#september-2022---releasenotes-123)
-	- [January 2022 - Releasenotes 1.2.2](#january-2022---releasenotes-122)
-	- [November 2021 - Releasenotes 1.2.1](#november-2021---releasenotes-121)
-		- [Simplification based on best practices](#simplification-based-on-best-practices)
-			- [Only parameters that make sense](#only-parameters-that-make-sense)
-			- [Domain limitation only in Transport-Rules](#domain-limitation-only-in-transport-rules)
-			- [Alias-CmdLets for Set-\*](#alias-cmdlets-for-set-)
-			- [No Restore](#no-restore)
-			- [General note on simplification](#general-note-on-simplification)
-		- [More fliexible connectivity for test and demo environments](#more-fliexible-connectivity-for-test-and-demo-environments)
-		- [Adapt to Exchange Online Features](#adapt-to-exchange-online-features)
-			- [Anti-SPAM IP Whitelisting](#anti-spam-ip-whitelisting)
-		- [No SPF Rules anymore](#no-spf-rules-anymore)
-		- [No EFSKIP connection parameters in Connectors](#no-efskip-connection-parameters-in-connectors)
 - [Prerequisites](#prerequisites)
 - [Module Installation](#module-installation)
 	- [Installation on Windows](#installation-on-windows)
@@ -50,16 +36,13 @@
 	- [Final Note on connectors-parameters you can use in **ANY** parameterset](#final-note-on-connectors-parameters-you-can-use-in-any-parameterset)
 	- [New-SM365Rules](#new-sm365rules)
 	- [Remove-SM365Rules](#remove-sm365rules)
-	- [Backup-SM365Connectors](#backup-sm365connectors)
-	- [BACKUP connector settings](#backup-connector-settings)
-	- [Backup-SM365Rules](#backup-sm365rules)
 - [Clustering and multi-host configurations](#clustering-and-multi-host-configurations)
 - [Upgrading from a previous version](#upgrading-from-a-previous-version)
 - [Dealing with aliases and multiple domains in Exchange online](#dealing-with-aliases-and-multiple-domains-in-exchange-online)
 
 # Introduction
 
-## Changlog.md
+## Changelog.md
 
 See updates and changes on the github [ChangeLog.MD](https://github.com/seppmail/SEPPmail365/blob/master/changelog.md) file.
 
@@ -81,7 +64,7 @@ We try to adapt to these changes ASAP, but can't guarantee that this module will
 
 _PowerShell Core is the future !_
 
-** BREAKING CHANGE ** 
+*** BREAKING CHANGE *** 
 
 Beginning with version 1.2.5, the module runs only on PowerShell Core on Windows (macOS/Linux in preperation). So install PowerShell Core asap on your machine via the Windows Store or the notes here: https://github.com/powershell/powershell
 

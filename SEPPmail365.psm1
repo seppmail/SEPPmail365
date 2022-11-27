@@ -23,7 +23,7 @@ Write-Information "Testing Exchange Online connectivity"
 if (!(Test-SM365ConnectionStatus)) {
     Write-Warning "You are not connected to Exchange Online. Use Connect-ExchangeOnline to connect to your tenant"
 }
-<#
+
 Write-Information "Testing capability to resolve external DNS by resolving 8.8.8.8"
 if ((Resolve-DnsName 8.8.8.8).NameHost -ne 'dns.google') {
     Write-Error "Cannot resolve 8.8.8.8 (dns.google) externaly - Setup may fail. Try from machine with external name resolution capability."
@@ -40,7 +40,7 @@ try {
 catch {
     Write-Error "Could not determine newest module version due to exception $($_.Exception.Message)"
 }
-#>
+
 
 Export-ModuleMember -Alias * -Function *
 

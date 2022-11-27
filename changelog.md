@@ -7,7 +7,7 @@
 - Add Support for ExchangeOnlineManagement 3.0.0
 - No more Windows Powershell Support - PowerShell CORE Only !
 - New-SM365Rules: Transport rules will be setup DISABLED by default
-- New-SM365Rules: Domains specified are not the exclusion, you ned to specify the INCLUDE-list (similar to the cloud module)
+- New-SM365Rules: Domains specified are not the exclusion, you need to specify the INCLUDE-list (similar to the cloud module)
 
 ### Enhancements
 
@@ -15,8 +15,6 @@
 - Test-SM365ConnectionStatus similar to cloud-module
 - Removed Backup and Setup CmdLets
 - Add test for external name resolution and write error if it fails.
-
-
 
 ## September 2022 - Releasenotes 1.2.3
 
