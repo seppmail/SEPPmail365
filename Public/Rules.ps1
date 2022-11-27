@@ -19,7 +19,7 @@
             
                 if($rule)
                 {
-                    $outputHt = [ordered]@{
+                    <#$outputHt = [ordered]@{
                         Name = $rule.Name
                         State = $rule.State
                         Priority = $rule.Priority
@@ -31,6 +31,17 @@
                     $outputRule = New-Object -TypeName PSObject -Property $outputHt
                     Write-Output $outputRule
                     #return $rule
+                    #>
+					if ($rule.Identity -like '*100*') {
+						$rule|Select-Object Identity,Priority,State,@{Name = 'ExcludedDomains'; Expression={$_.ExceptIfRecipientDomainIs}}
+					}
+					elseif ($rule.Identity -like '*200*') {
+						$rule|Select-Object Identity,Priority,State,@{Name = 'ExcludedDomains'; Expression={$_.ExceptIfSenderDomainIs}}
+					}
+					else {
+						$rule|Select-Object Identity,Priority,State,ExcludedDomains
+					}
+
                 }
                 else
                 {
