@@ -131,43 +131,7 @@ PrivateData = @{
         IconUri = 'https://avatars1.githubusercontent.com/u/55975553?s=400&u=ab22c52a439397dca458e58dfcec9f0a9dd347db&v=4'
 
         # ReleaseNotes of this module
-        ReleaseNotes = 
-@'
-26.08.20    1.0.0 Fixing final issues and ready to release.
-
-03.12.20    1.1.0 Incoming mails don't land in Junk folders anymore.
-                  Add Set-SM365Connectors and Set-SM365Rules CmdLets to update configuration.
-                  Add Remove-SM365Connectors and Remove-SM365Rules CmdLets.
-                  Add detailed documentation (HTML and Markdown) on Github Page.
-
-04.12.20    1.1.1 Minor fix - add missing action to new transport rules.
-
-05.07.21    1.1.2 Minor fix - include transport rules in New-SM365ExOReport
-
-09.09.21    1.1.3 Minor update - add new config version that disables rules which set the SCL to -1
-
-31.10.21    1.2.0 beta1 - New whitelist filter policy,
-                  Tighter report
-                  Evolution-step config versions
-                  Connectors without domain limitation
-                  Renamed rules - which make clearer what they actually do
-
-25.11.21    1.2.0 beta2 - Feedback from Support and simplification of code.
-                  Rules -ExcludeDomain Feature to route only specific domains to SEPPmail
-
-03.12.21    1.2.0 RC1 - Internal:Get-SM365Rules and Get-SM365Connectors, bugfixes
-
-09.12.21    1.2.0 RC2 - Public RC: Add Remove-SM365Setup, polish for Gallery-Release
-
-21.12.21    1.2.0 Production Release, includes -TLSCertName Parameter for connectors wildcard certificates
-
-07.01.22    1.2.1 Published release with file handling on reports and fix for -TLSCertname
-
-21.01.22    1.2.2 Outbound connectors are created before inbound connectors.
-                  "Module update" available check and notification on module init
-
-'@
-
+        ReleaseNotes = 'Link to Changelog.md on github'
         # Prerelease string of this module
         # Prerelease = ''
 
