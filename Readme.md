@@ -338,7 +338,7 @@ Get-SM365Connectors #Shows disabled
 ### Default with FQDN and no ANTISPAM Whitelisting
 
 ```powershell
-New-SM365Connectors -SEPPmailFQDN securemail.contoso.com -Option NoAntiSpamWhiteListing
+New-SM365Connectors -SEPPmailFQDN securemail.contoso.com NoAntiSpamWhiteListing
 (Get-HostedConnectionFilterpolicy).IpAllowList # Show IP Whitelist
 Get-SM365Connectors
 ```
@@ -393,7 +393,7 @@ New-SM365Rules -SEPPmailDomain 'contoso.ch','contoso.de'
 
 ```powershell
 # Create the transport rules in an active state
-New-SM365Rules -SEPPmailDomain 'contoso.ch','contoso.de' -disabled
+New-SM365Rules -SEPPmailDomain 'contoso.ch','contoso.de' -disabled:$false
 ```
 
 ## Remove-SM365Rules
