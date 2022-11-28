@@ -21,7 +21,8 @@
 		- [Option 2: FQDN and NoTLS Option](#option-2-fqdn-and-notls-option)
 		- [Option 3: IP Option](#option-3-ip-option)
 	- [4 - Adding Mailflow-Rules](#4---adding-mailflow-rules)
-	- [BETA 5 - Tracing Mailflow with Get-SM365MessageTrace](#beta-5---tracing-mailflow-with-get-sm365messagetrace)
+	- [5 - Controlling SPAM and SEPPmail Appliance handling](#5---controlling-spam-and-seppmail-appliance-handling)
+	- [BETA 1.2.5 - Tracing Exchange Online Mailflow with Get-SM365MessageTrace](#beta-125---tracing-exchange-online-mailflow-with-get-sm365messagetrace)
 - [Using the Commandlets](#using-the-commandlets)
 	- [New-SM365Connectors](#new-sm365connectors)
 		- [Default with IP](#default-with-ip)
@@ -246,6 +247,7 @@ New-SM365Connectors [-SEPPmailIP] <String> [-NoAntiSpamWhiteList] [-Disabled] [-
 ## 4 - Adding Mailflow-Rules
 
 When inbound- and outbound connectors are established, we need mailflow rules to route E-Mails via the SEPPmail appliance if necessary. The New-SM365Rules CmdLet handles this for you. The most convenient way to do this is running the following code:
+
 ```powershell
 New-SM365Rules -SEPPmailDomain 'contoso.eu','contoso.ch'
 
@@ -255,13 +257,27 @@ New-SM365Rules -SEPPmailDomain 'contoso.eu','contoso.ch' -Disabled:$false -Verbo
 
 ```
 
-## BETA 5 - Tracing Mailflow with Get-SM365MessageTrace
+## 5 - Controlling SPAM and SEPPmail Appliance handling
 
-Microsoft stores information about the messageflow in tracelogs and tracelogdetaillogs. This logs can be used with the native CmdLets Get-Messagetrace and Get-MessagetraceDetails. For your convinience, we added a CmdLet that does this for you.
+When Exchange Online protection of Defender classifies an E-mail it sets a so-called "SCL"-Value. If this happens, wen do not want those e-Mails flow through the SEPpmail Appliance.
+Therefor, beginning with version 1.2.5, all SCL-tagged e-mails with value >=5 are excluded from mailflow to SEPPmail.
+
+To change the default value of 5 to 9, use the following example.
+
+```powershell
+New-SM365Rules -SEPPmailDomain 'contoso.eu','contoso.ch' -SCLInboundValue 9
+```
+
+In rare cases, SEPPmail domain encrypted messages are classified as SPAM. Use the above parameter to adapt your mailflow.
+
+## BETA 1.2.5 - Tracing Exchange Online Mailflow with Get-SM365MessageTrace
+
+Microsoft stores information about the messageflow in tracelogs and tracedetaillogs. This logs can be used with the native CmdLets Get-Messagetrace and Get-MessagetraceDetails. For your convinience, we added a CmdLet that does this for you.
 
 You need 2 pieces of data.
 
-The *MessageID* and the *RecipientAddress*, independent if the message is send inbound or outbound. Use 
+The *MessageID* and the *RecipientAddress*, independent if the message is send inbound or outbound. Use:
+
 ```powershell
 Get-MessageTrace | Select-Object Messageid,RecipientAddress
 
@@ -302,7 +318,7 @@ Get-SM365Connectors
 ### Default with FQDN and wildcard certificate
 
 ```powershell
-New-SM365Connectors -SEPPmailFQDN securemail.contoso.com -TLSCertificatename *.contoso.com
+New-SM365Connectors -SEPPmailFQDN securemail.contoso.com -TLSCertificatename '*.contoso.com'
 Get-SM365Connectors # Shows DomainValidation
 ```
 
@@ -318,6 +334,7 @@ Get-SM365Connectors # Shows DomainValidation
 
 ```powershell
 New-SM365Connectors -SEPPmailFQDN securemail.contoso.com -AllowSelfSignedCertificates
+New-SM365Connectors -SEPPmailFQDN securemail.contoso.com -TLSCertificatename '*.contoso.com' -AllowSelfSignedCertificates
 Get-SM365Connectors # Shows EncryptionOnly
 ```
 
@@ -338,8 +355,8 @@ Get-SM365Connectors #Shows disabled
 ### Default with FQDN and no ANTISPAM Whitelisting
 
 ```powershell
-New-SM365Connectors -SEPPmailFQDN securemail.contoso.com NoAntiSpamWhiteListing
-(Get-HostedConnectionFilterpolicy).IpAllowList # Show IP Whitelist
+New-SM365Connectors -SEPPmailFQDN securemail.contoso.com -NoAntiSpamWhiteListing
+(Get-HostedConnectionFilterPolicy).IpAllowList # Show IP Whitelist
 Get-SM365Connectors
 ```
 
@@ -380,7 +397,6 @@ Specifies whether new rules should be put in front or behind existing transport 
 
 `-SEPPmailDomain [String[]] (Mandatory)`  
 Specifies one or more (comma-seperated) E-Mail domains that will be include in SEPPmail cryptographic management. 
-
 
 `-Disabled [Switch] (optional)`  
 Allows for the rules to be created in an active state, in case you want to activate them immediately.  
