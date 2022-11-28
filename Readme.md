@@ -259,7 +259,7 @@ New-SM365Rules -SEPPmailDomain 'contoso.eu','contoso.ch' -Disabled:$false -Verbo
 
 ## 5 - Controlling SPAM and SEPPmail Appliance handling
 
-When Exchange Online protection of Defender classifies an E-mail it sets a so-called "SCL"-Value. If this happens, wen do not want those e-Mails flow through the SEPpmail Appliance.
+When Exchange Online protection of Defender classifies an E-mail it sets a so-called "SCL"-Value. If this happens, wen do not want those e-Mails flow through the SEPPmail Appliance.
 Therefor, beginning with version 1.2.5, all SCL-tagged e-mails with value >=5 are excluded from mailflow to SEPPmail.
 
 To change the default value of 5 to 9, use the following example.
@@ -272,7 +272,7 @@ In rare cases, SEPPmail domain encrypted messages are classified as SPAM. Use th
 
 ## BETA 1.2.5 - Tracing Exchange Online Mailflow with Get-SM365MessageTrace
 
-Microsoft stores information about the messageflow in tracelogs and tracedetaillogs. This logs can be used with the native CmdLets Get-Messagetrace and Get-MessagetraceDetails. For your convinience, we added a CmdLet that does this for you.
+Microsoft stores information about the messageflow in TraceLogs and TraceDetailLogs. This logs can be used with the native CmdLets Get-Messagetrace and Get-MessagetraceDetails. For your convenience, we added a CmdLet that does this for you.
 
 You need 2 pieces of data.
 
