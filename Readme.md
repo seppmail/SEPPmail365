@@ -247,11 +247,11 @@ New-SM365Connectors [-SEPPmailIP] <String> [-NoAntiSpamWhiteList] [-Disabled] [-
 
 When inbound- and outbound connectors are established, we need mailflow rules to route E-Mails via the SEPPmail appliance if necessary. The New-SM365Rules CmdLet handles this for you. The most convenient way to do this is running the following code:
 ```powershell
-New-SM365Rules $SEPPmailDomain 'contoso.eu','contoso.ch'
+New-SM365Rules -SEPPmailDomain 'contoso.eu','contoso.ch'
 
 # If you want to know what happens in detail, run command with the verbose option
 
-New-SM365Rules $SEPPmailDomain 'contoso.eu','contoso.ch' -Disabled:$false -Verbose
+New-SM365Rules -SEPPmailDomain 'contoso.eu','contoso.ch' -Disabled:$false -Verbose
 
 ```
 

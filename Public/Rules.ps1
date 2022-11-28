@@ -74,7 +74,7 @@ function New-SM365Rules
                 }
             }
             )]
-        [Alias('Managedomains')]           
+        [Alias('Managedomain')]           
         [String[]]$SEPPmailDomain,
 
         [Parameter(
