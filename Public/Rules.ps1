@@ -77,6 +77,12 @@ function New-SM365Rules
         [Alias('Managedomain')]           
         [String[]]$SEPPmailDomain,
 
+
+        [Parameter(Mandatory=$false,
+        HelpMessage='SCL Value for inbound Mails which should NOT be processed by SEPPmail.Cloud. Default is 5')]
+        [ValidateSet('-1','0','5','6','8','9')]
+        [int]$SCLInboundValue=5,        
+
         [Parameter(
             Mandatory = $false,
             HelpMessage = 'Should the rules be created active or inactive'
@@ -197,7 +203,12 @@ function New-SM365Rules
                     if (($ExcludeEmailDomain.count -ne 0) -and ($Setting.Name -eq '[SEPPmail] - 100 Route incoming e-mails to SEPPmail')) {
                         Write-Verbose "Excluding Inbound E-Mails domains $ExcludeEmailDomain"
                         $Setting.ExceptIfRecipientDomainIs = $ExcludeEmailDomain
+						if ($SCLInboundValue -ne 5) {
+							Write-Verbose "Setting Value $SCLInboundValue to Inbound flowing to SEPPmail.cloud"
+						$Setting.ExceptIfSCLOver = $SCLInboundValue
+						}
                     }
+
                     if (($ExcludeEmailDomain.count -ne 0) -and ($Setting.Name -eq '[SEPPmail] - 200 Route outgoing e-mails to SEPPmail')) {
                         Write-Verbose "Excluding Outbound E-Mail domains $ExcludeEmailDomain"
                         $Setting.ExceptIfSenderDomainIs = $ExcludeEmailDomain
