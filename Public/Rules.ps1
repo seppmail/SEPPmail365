@@ -1,4 +1,13 @@
-﻿function Get-SM365Rules {
+﻿<#
+.SYNOPSIS
+    Reads existing SEPPmail transport rules from Exchange Online
+.DESCRIPTION
+    Get-SM365Rules
+    Reads TransportRules from Exchange Online which are similar to the ones we deploy.
+.LINK
+    https://github.com/seppmail/SEPPmail365/blob/master/Readme.md
+#>
+function Get-SM365Rules {
     [CmdletBinding()]
     param
     ()
@@ -19,19 +28,7 @@
             
                 if($rule)
                 {
-                    <#$outputHt = [ordered]@{
-                        Name = $rule.Name
-                        State = $rule.State
-                        Priority = $rule.Priority
-                        ExceptIfSenderDomainIs = $rule.ExceptIfSenderDomainIs
-                        ExceptIfRecipientDomainIs = $rule.ExceptIfRecipientDomainIs
-                        RouteMessageOutboundConnector = $rule.RouteMessageOutboundConnector
-                        Comments = $rule.Comments    
-                    }
-                    $outputRule = New-Object -TypeName PSObject -Property $outputHt
-                    Write-Output $outputRule
-                    #return $rule
-                    #>
+
 					if ($rule.Identity -like '*100*') {
 						$rule|Select-Object Identity,Priority,State,@{Name = 'ExcludedDomains'; Expression={$_.ExceptIfRecipientDomainIs}}
 					}
@@ -52,6 +49,29 @@
     }
 }
 
+<#
+.SYNOPSIS
+    Creates necessary rules for SEPPmail Appliance integration
+.DESCRIPTION
+    SEPPmail Appiance integration needs a couple of transport rules to route the e-mails for encryption/decryption.
+.LINK
+    https://github.com/seppmail/SEPPmail365/blob/master/Readme.md
+.EXAMPLE
+    New-SM365Rules -SEPPmailDomain 'contoso.eu' -disabled:$false
+    Creates mailflow rules to direct all mails for the contoso.eu domain in and out via SEPPmail for cryptographic processing and ENABLES them.
+.EXAMPLE
+    New-SM365Rules -SEPPmailDomain 'contoso.eu'
+    Creates mailflow rules to direct all mails for the contoso.eu domain in and out via SEPPmail for cryptographic processing DISABLED.
+.EXAMPLE
+    New-SM365Rules -SEPPmailDomain 'contoso.eu' -Placementpriority Bottom
+    Creates mailflow rules to direct all mails for the contoso.eu domain in and out via SEPPmail for cryptographic processing and places the rules at the very last place of the existing non-SEPPmail rules.
+.EXAMPLE
+    New-SM365Rules -SEPPmailDomain 'contoso.eu','contoso.ch'
+    Creates mailflow rules to direct all mails for both the contoso.eu and the contoso.ch domain in and out via SEPPmail for cryptographic processing.
+.EXAMPLE
+    New-SM365Rules -SEPPmailDomain 'contoso.eu' -SCLInboundvalue 0
+    Creates mailflow rules to direct all mails for both the contoso.eu domain in and out via SEPPmail for cryptographic processing and takes all e-Mails (SCL 0), independent of their SPAM level.
+#>
 function New-SM365Rules
 {
     [CmdletBinding(SupportsShouldProcess = $true,
@@ -239,21 +259,20 @@ function New-SM365Rules
 
 <#
 .SYNOPSIS
-    Updates existing SEPPmail transport rules to default values
+    Removes the SEPPmail inbound and outbound rules
 .DESCRIPTION
-    The -Version parameter can be used to update to a specific ruleset version
-    matching your SEPPmail appliance.
+    Convenience function to remove the SEPPmail rules with one command
+.LINK
+    https://github.com/seppmail/SEPPmail365/blob/master/Readme.md
 .EXAMPLE
-    Set-SM365Rules -Version Default
-#>
-
-<#
-.SYNOPSIS
-    Removes the SEPPmail inbound and outbound connectors
-.DESCRIPTION
-    Convenience function to remove the SEPPmail connectors
+    Remove-SM365Rules -whatif
+    Simulates the removal
 .EXAMPLE
-    Remove-SM365Connectors
+    Remove-SM365Rules -verbose
+    Adds extra output
+.EXAMPLE
+    Remove-SM365Rules
+    Removes all [SEPPmail] rules
 #>
 function Remove-SM365Rules {
     [CmdletBinding(SupportsShouldProcess = $true,
@@ -316,6 +335,7 @@ if (!(Get-Alias 'Set-SM365rules' -ErrorAction SilentlyContinue)) {
 }
 
 Register-ArgumentCompleter -CommandName New-SM365Rules -ParameterName SEPPmailDomains -ScriptBlock $paramDomSB
+
 
 # SIG # Begin signature block
 # MIIL/AYJKoZIhvcNAQcCoIIL7TCCC+kCAQExDzANBglghkgBZQMEAgEFADB5Bgor
