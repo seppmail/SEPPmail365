@@ -6,7 +6,6 @@ $ModuleVersion = $myInvocation.MyCommand.Version
 .DESCRIPTION
     SEPPmail uses 2 Connectors to transfer messages between SEPPmail and Exchange Online
     This commandlet will show existing connectors.
-
 .EXAMPLE
     Get-SM365Connectors
 #>
@@ -55,36 +54,27 @@ function Get-SM365Connectors
     To use a wildcard certifiacate, use the -TLSCertName parameter.
 
 .EXAMPLE
-    Takes the Exchange Online environment settings and creates Inbound and Outbound connectors to a SEPPmail Appliance with a wildcard TLS certificate
-
     New-SM365Connectors -SEPPmailFQDN 'securemail.contoso.com' -TLSCertName '*.contoso.com'
+    Takes the Exchange Online environment settings and creates Inbound and Outbound connectors to a SEPPmail Appliance with a wildcard TLS certificate
 .EXAMPLE
+    New-SM365Connectors -SEPPmailFQDN 'securemail.contoso.com'
     Takes the Exchange Online environment settings and creates Inbound and Outbound connectors to a SEPPmail Appliance.
     Assumes that the TLS certificate is identical with the SEPPmail FQDN
-
-    New-SM365Connectors -SEPPmailFQDN 'securemail.contoso.com'
 .EXAMPLE
-    Same as above, just no officially trusted certificate needed
-    
     New-SM365Connectors -SEPPmailFQDN 'securemail.contoso.com' -AllowSelfSignedCertificates
+    Same as above, just no officially trusted certificate needed.
 .EXAMPLE
-    Same as the default config, just with no TLS encryption at all.
-
     New-SM365Connectors -SEPPmailFQDN securemail.contoso.com -NoOutBoundTlsCheck
+    Same as the default config, just with no TLS encryption at all.
 .EXAMPLE
-    If you want to create the connectors, but just disable them on creation, use the -Disabled switch.
-
     New-SM365Connectors -SEPPmailFQDN securemail.contoso.com -Disabled
-
+    Use this option if you want to create the connectors, but just disable them on creation, use the -Disabled switch.
 .EXAMPLE
-    If your SEPPmail is just accessible via an IP Address, use the -SEPPmailIP parameter.
-
     New-SM365Connectors -SEPPmailIp '51.144.46.62'
-
+    Use this if your SEPPmail is just accessible via an IP Address, use the -SEPPmailIP parameter.
 .EXAMPLE 
+    New-SM365Connectors -SEPPmailFQDN securemail.contoso.com -NoAntiSpamWhiteListing
     To avoid, adding the SEPPmail to the ANTI-SPAM WHiteList of Microsoft Defender use the example below
-     
-    New-SM365Connectors -SEPPmailFQDN securemail.contoso.com -Option NoAntiSpamWhiteListing
 #>
 function New-SM365Connectors
 {
@@ -503,6 +493,9 @@ function New-SM365Connectors
     Convenience function to remove the SEPPmail connectors
 .EXAMPLE
     Remove-SM365Connectors
+.EXAMPLE
+    Remove-SM365Connectors -leaveAntiSpamWhiteList
+    Removes the connectors but leaves the IP Adress of the SEPPmail appliance in the ansiSpam Allowlist.
 #>
 function Remove-SM365Connectors
 {
