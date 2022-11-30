@@ -41,7 +41,6 @@ catch {
     Write-Error "Could not determine newest module version due to exception $($_.Exception.Message)"
 }
 
-
 Export-ModuleMember -Alias * -Function *
 
 # SIG # Begin signature block
