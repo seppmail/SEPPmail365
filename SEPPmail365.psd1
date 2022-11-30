@@ -12,10 +12,10 @@
 RootModule = 'SEPPmail365.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.2.5'
+ModuleVersion = '1.2.5.1'
 
 # Supported PSEditions
-CompatiblePSEditions = @('Desktop','Core')
+CompatiblePSEditions = @('Core')
 
 # ID used to uniquely identify this module
 GUID = '485013db-02ab-4bf7-9161-7119e152c297'

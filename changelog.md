@@ -13,6 +13,8 @@
 
 - New-SM365ExoReport similar to cloud-module
 - Test-SM365ConnectionStatus similar to cloud-module
+- New-SM365Rules has -SCL Parameter now. By default we do not route detected SPAM by Microsoft (SCL >=5), you may change this during creation.
+- New-SM365Rules parameter for Domains is now called 'SEPPmailDomain'
 - Removed Backup and Setup CmdLets
 - Add test for external name resolution and write error if it fails.
 - BETA CmdLet: Get-SM365MessageTrace to get detailed info on the mailflow through Exchange and SEPPmail
