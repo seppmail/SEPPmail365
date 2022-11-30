@@ -1,6 +1,21 @@
 # CHANGES in SEPPmail365 Module
 
-## ANNOUNCED FOR 28.November 2022 - Releasenotes 1.2.5
+
+## December 2022 - Release notes 1.2.5.1
+
+### Enhancements
+
+- CmdLet Help updated. i.e. Get-help New-SM365Rules will provide valuable details and examples now.
+
+## Bugfixes
+
+none
+
+## Maintenance
+
+- Typos in manifest cleared.
+
+## November 2022 - Release notes 1.2.5
 
 ### BREAKING Changes
 
