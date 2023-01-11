@@ -48,7 +48,7 @@ PowerShellVersion = '7.2.0'
 # ClrVersion = ''
 
 # Processor architecture (None, X86, Amd64) required by this module
-ProcessorArchitecture = 'Amd64'
+# ProcessorArchitecture = 'Amd64'
 
 # Modules that must be imported into the global environment prior to importing this module
 RequiredModules = @(

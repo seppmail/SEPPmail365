@@ -137,7 +137,7 @@ function New-SM365ExOReport {
             $RepCreationDateTime = "<p><body>Report created on: $now</body><p>"
             $RepCreatedBy = "<p><body>Report created by: $repUser</body><p>"
             $ReportFilename = Split-Path $FinalPath -Leaf
-            $moduleVersion = "<p><body>SEPPmail365cloud Module Version: $mv</body><p>"
+            $moduleVersion = "<p><body>SEPPmail365 Module Version: $mv</body><p>"
             $reportTenantID = Get-SM365TenantID -maildomain (Get-AcceptedDomain|where-object InitialDomain -eq $true|select-object -expandproperty Domainname)
             $TenantInfo = "<p><body>Microsoft Tenant ID: $reportTenantID</body><p>"
             Write-Verbose "Collecting Accepted Domains"
