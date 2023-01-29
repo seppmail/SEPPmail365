@@ -1,3 +1,5 @@
+![](./visuals/Appliance-RM.jpg)
+
 - [Introduction](#introduction)
 	- [Changelog.md](#changelogmd)
 	- [Abstract](#abstract)
