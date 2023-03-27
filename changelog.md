@@ -1,5 +1,11 @@
 # CHANGES in SEPPmail365 Module
 
+## March 2023 - Release Notes 1.2.6
+
+## Maintenance
+
+- Update Code Signing Certificate to avoid install-Module errors
+- Removed Processor Architecture in manifest to avoid issues on macOS
 
 ## December 2022 - Release notes 1.2.5.1
 
