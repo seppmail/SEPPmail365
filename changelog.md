@@ -1,5 +1,35 @@
 # CHANGES in SEPPmail365 Module
 
+## November 2023 - Info on Appliance Version 13.0.8++
+
+### ARC-Sealing support
+
+ARC-Sealing is the technology we leverage when a SEPPmail Appliance is connected in parallel to Exchange Online. Messages sent to the SEPPmail-Appliance for cryptographic processing are sealed with an signature so that failed SPF and DKIM checks can be avoided.
+
+If you want to use ARC-Sealing, you have to configure trusted ARC-sealers in Exchange Online of the target tenant. Use the following command:
+
+```powershell
+Set-ARCconfig -Identity Default -ArcTrustedSealers 'yourseppmailfqdn.domain.tld'
+```
+
+More info and a detailed explanation of this CmdLet and its impacts van be found on [Microsoft learn](https://learn.microsoft.com/en-us/microsoft-365/security/office-365-security/email-authentication-arc-configure?view=o365-worldwide).
+
+See [Extended Release Notes](https://downloads.seppmail.com/extrelnotes/130/ERN13.0.html#arc-sealing--signing-of-emails-possible) and the [SEPPmail online manual](https://docs.seppmail.com/de/index.html?07_mi_06_ms_04_aemd__add-edit-managed-domain.htm#arcsettings)
+
+### Certificate based connectors
+
+Especially in MSP environments, its important to have a trustworthy connection between Exchange Online and a SEPPmail-Appliance. Therefore its now possible to create a separate SSL-certificate per managed domain.
+
+If you do this you need to configure this specific certificate in the connectors.
+
+In the OnPremise-Inbound Connector specify the certificate under "Edit sent email identity".
+![Alt text](<./visuals/CBC-Inbound.png>)
+
+The Outbound-Connector stays untouched, the certificate which is presented by the SEPPmail-Appliance is not relevant n this case because the appliance accepts traffic from Exchange online anyway.
+
+See [Extended Release Notes](https://downloads.seppmail.com/extrelnotes/130/ERN13.0.html#separate-certificate-for-each-managed-domain-for-encrypting-smtp-traffic-via-tls) or the [SEPPmail online manual](https://docs.seppmail.com/de/index.html?07_mi_06_ms_04_aemd__add-edit-managed-domain.htm)
+
+
 ## March 2023 - Release Notes 1.2.6
 
 ## Maintenance
