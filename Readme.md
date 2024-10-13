@@ -1,5 +1,4 @@
 ![](./visuals/Appliance-RM.jpg)
-
 - [Introduction](#introduction)
 	- [Changelog.md](#changelogmd)
 	- [Abstract](#abstract)
@@ -20,6 +19,7 @@
 		- [Report on Exchange Online Environment](#report-on-exchange-online-environment)
 	- [3 - Build Connectivity between Exchange Online and SEPPmail](#3---build-connectivity-between-exchange-online-and-seppmail)
 		- [Option 1: FQDN with full SSL and optional "AllowSelfsigned" Option](#option-1-fqdn-with-full-ssl-and-optional-allowselfsigned-option)
+		- [Option 1a: Option 1 in an MSP environment](#option-1a-option-1-in-an-msp-environment)
 		- [Option 2: FQDN and NoTLS Option](#option-2-fqdn-and-notls-option)
 		- [Option 3: IP Option](#option-3-ip-option)
 	- [4 - Adding Mailflow-Rules](#4---adding-mailflow-rules)
@@ -226,6 +226,15 @@ Full SSL is the recommended setting for production environments. All else is for
 
 ```powershell
 New-SM365Connectors [-SEPPmailFQDN] <String> [-TLSCertificateName] <String> [-AllowSelfSignedCertificates] [-NoAntiSpamWhiteList] [-Disabled] [-WhatIf] 
+[-Confirm] [<CommonParameters>]
+```
+
+### Option 1a: Option 1 in an MSP environment
+
+If you run a customers-enabled SEPPmail appliance and manage multiple customers with multiple managed domains, you need to use certificate-based connectors to ensure that mail-transport from, to an inbetween your Exchange Online tenants works well. Therefor you need a certificate for each managed domain which you can specify with the -CBCcertName paramater.
+
+```powershell
+New-SM365Connectors [-SEPPmailFQDN] <String> [-TLSCertificateName] [-CBCCertName] <String> [-Disabled] [-WhatIf] 
 [-Confirm] [<CommonParameters>]
 ```
 

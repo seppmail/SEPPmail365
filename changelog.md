@@ -1,5 +1,21 @@
 # CHANGES in SEPPmail365 Module
 
+## October 2024 - Support ARC and CBC-Connectors
+
+### Exchange online ARC requires EFSkipLastIP Setting #40957
+
+The change to CBC requires the setting EFSkipLastIP to be set to true on the inbound connector and EFSKipIPs needs to be empty.
+Module version 1.2.7 includes the inbound connector to have this setting set by default upon initial installation. Existing installations can be analyzed with the command "Get-SM365EFSkipSetting" and changed with "Set-SM365EFSkipSetting".
+
+### ARC in MSP Setups required to use managed domain certificates - new parameter -CBCCertName
+
+In ARC Setups with multiple customers using M365, the ExO-Inbound Connector requires to use the machine-certificate (securemail.greatmsp.com), but the ExO-Outbound Connector need to use the managed domain certificate, (i.e. manageddomain.fabrikam.com). Use the Parameter -CBCCertName to apply this configuration.
+
+i.e. New-SM365connectors -SEPPmailFQND 'securemail.greatmsp.com' -CBCCertName 'manageddomain.fabrikam.com'
+
+### Changed Default Auditseverity from "DoNotAudit" to "Low" to see details in MS-Logs
+
+
 ## November 2023 - Info on Appliance Version 13.0.8++
 
 ### ARC-Sealing support

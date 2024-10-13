@@ -169,6 +169,10 @@ function New-SM365ExOReport {
             Foreach ($AcceptedDomain in $oTemp.DomainName) {
                     $O += (Get-MxRecordReport -Domain $AcceptedDomain|Select-Object -Unique|Select-Object HighestPriorityMailhost,HighestPriorityMailhostIpAddress,Domain|Convertto-HTML -Fragment)
             }
+            # Get ARCConfig Info
+            $hO1 = '<p><h3>Tusted ARC Sealers</h3><p>'
+            $O1 = $Null
+            $O1 = (Get-ARCConfig |Convertto-HTML -Fragment)
             #endregion
 
             #region Security 
@@ -215,7 +219,7 @@ function New-SM365ExOReport {
             
             Write-Verbose "InboundConnectors"
             $hL = '<p><h3>Inbound Connectors</h3><p>'
-            $L = Get-ExoHTMLData -ExoCmd 'Get-InboundConnector |Select-Object Identity,Enabled,SenderDomains,SenderIPAddresses,OrganizationalUnitRootInternal,TlsSenderCertificateName,OriginatingServer,IsValid'
+            $L = Get-ExoHTMLData -ExoCmd 'Get-InboundConnector |Select-Object Identity,Enabled,SenderDomains,SenderIPAddresses,OrganizationalUnitRootInternal,TlsSenderCertificateName,OriginatingServer,EFSkipLastIP,EFSkipIPs,IsValid'
             
             Write-Verbose "OutboundConnectors"
             $hM = '<p><h3>Outbound Connectors</h3><p>'
@@ -238,7 +242,7 @@ function New-SM365ExOReport {
             $hEndOfReport = '<p><h2>--- End of Report ---</h2><p>'
             $style = Get-Content -Path $PSScriptRoot\..\HTML\SEPPmailReport.css
             $finalreport = Convertto-HTML -Body "$LogoHTML $Top $RepCreationDatetime $RepCreatedBy $moduleVersion $TenantInfo`
-                   $hSplitLine $hGeneral $hSplitLine $hA $a $hB $b $hO $o`
+                   $hSplitLine $hGeneral $hSplitLine $hA $a $hB $b $hO $o $ho1 $o1`
                   $hSplitLine $hSecurity $hSplitLine $hC $c $hd $d $hE $e $hP $P $hH $H $hK $k $hJ $j $hJ1 $J1 `
                  $hSplitLine $hOtherConn $hSplitLine $hG $g $hI $i `
                 $hSplitLine $hConnectors $hSplitLine $hL $l $hM $m `
@@ -430,6 +434,132 @@ Function Get-SM365TenantID {
     $uri = 'https://login.windows.net/' + $maildomain + '/.well-known/openid-configuration'
     $TenantId = (Invoke-WebRequest $uri| ConvertFrom-Json).token_endpoint.Split('/')[3]
     Return $tenantid
+}
+
+<#
+.SYNOPSIS
+    Read Enhanced Filtering Settings of existing Inbound Connector
+.DESCRIPTION
+    The Enhanced filter setting impacts mailflow. It must be set to EFSkipLastIP when you use CBC
+.EXAMPLE
+    PS C:\> Get-SM365EFSkipSetting
+    Outouts the setting
+.INPUTS
+    none
+.OUTPUTS
+    A String depending on the setting
+.NOTES
+    See https://github.com/seppmail/SEPPmail365/blob/main/README.md for more
+#>
+Function Get-SM365ARCSetting {
+    [CmdLetBinding(
+        HelpURI = 'https://github.com/seppmail/SEPPmail365/blob/main/README.md'
+    )]
+    param (
+    )
+
+    begin {
+        Write-Verbose "Query Inbound Connector Setting"
+        $ib = Get-Inboundconnector -Identity '[SEPPmail] Appliance -> ExchangeOnline'
+        $hcfp = Get-HostedConnectionFilterPolicy
+        $arcdom = (Get-ArcConfig).ArcTrustedSealers
+    }
+
+    process {
+        if ($ib) {
+            if (!($ib.EFSkipIPs)) {
+                Write-Information "ARC setting OK - EfSkipIPs setting has no IP range"
+            } else {
+                Write-Information "ARC setting BAD - EfSkipIPs has values"
+            }
+            if (!($hcfp.IPAllowList)) {
+                Write-Information "ARC setting OK - Hosted Connection Filter Policy is empty"
+            } else {
+                Write-Information "ARC setting BAD - Hosted Connection Filter Policy has values"
+            }
+            if (($ib.EFSkipLastIp) -eq $true) {
+                Write-Information "ARC setting OK - EfSkipLastIP is enabled"
+            } else {
+                Write-Information "ARC setting BAD - EFSkipLastIP is disabled"
+            }
+            if ($arcdom) {
+                Write-Information "ARC setting OK - Trusted ARC-Sealers is set to $arcdom"
+            } else {
+                Write-Information "ARC setting BAD - No trusted ARC sealers configured"
+            }
+        }
+        else {
+            Write-Information "Could not find an Inbound Connector with the name '[SEPPmail] Appliance -> ExchangeOnline'. Install connectors as required." 
+        }
+    }
+    end {
+    }
+}
+
+<#
+.SYNOPSIS
+    Set Enhanced Filtering settings of an existing SEPpmail parallel Inbound Connector
+.DESCRIPTION
+    This CmdLet can change the setting if a SEPPmail Inbound Connector wether if the SEPPmail Appliance is set to use CBC or not. You can switch between the modes.
+.EXAMPLE
+    PS C:\> Set-SM365EFSkipSetting -CBC $false
+    Sets the Inbound Connector to rather work with a NON-CBC configured Appliance
+
+    PS C:\> Set-SM365EFSkipSetting -CBC $true
+    Sets the Inbound Connector to rather work with a CBC configured Appliance
+.INPUTS
+    none
+.OUTPUTS
+    Information, warning or error messages
+.NOTES
+    See https://github.com/seppmail/SEPPmail365/blob/main/README.md for more
+#>
+Function Set-SM365ARCSetting {
+    [CmdLetBinding(
+        HelpURI = 'https://github.com/seppmail/SEPPmail365/blob/main/README.md'
+    )]
+    param (
+    )
+
+    begin {
+        Write-Verbose "Query Inbound Connector Setting"
+        $ib = Get-Inboundconnector -Identity '[SEPPmail] Appliance -> ExchangeOnline'
+        $hcfp = Get-HostedConnectionFilterPolicy
+    }
+    process {
+        if ($ib) {
+            Write-Verbose "Setting the Inbound Connector EfSkipIPs to null and EfSkipLastIP to enabled to support ARC"
+            Set-InboundConnector -Identity $ib.Identity -EFSkipLastIP $true -EFSkipIPs $null
+            
+            Write-Verbose "Setting Hosted Connection Filter Policy withName $hcfp.Identity to null"
+            Set-HostedConnectionFilterPolicy -Identity $hcfp.Identity -IPAllowList $null
+
+            #FIXME ARC Setting eintragen mit manueller Abfrage oder zwingendem Parameter 
+
+        } else {
+            Write-Information "Could not find an Inbound Connector with the name '[SEPPmail] Appliance -> ExchangeOnline'. Install Connectors as required."
+        }
+    }
+
+    end {
+        Get-SM365ARCSetting
+    }
+}
+
+function Remove-IPv6Address {
+    [CmdLetBinding(
+        HelpURI = 'https://github.com/seppmail/SEPPmail365cloud/blob/main/README.md#setup-the-integration'
+    )]
+    param (
+        [Parameter(Mandatory=$true)]
+        [string[]]$IPArray
+    )
+    # Regex for IPv6
+    $ipv6Pattern = "(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9])?[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9])?[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9])?[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9])?[0-9]))"
+
+    # Filter of IPv4-Adresses
+    $ipv4Array = $IPArray | Where-Object { $_ -notmatch $ipv6Pattern }
+    return $ipv4Array
 }
 
 function Get-SM365MessageTrace {

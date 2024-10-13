@@ -12,7 +12,7 @@
 RootModule = 'SEPPmail365.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.2.6'
+ModuleVersion = '1.2.7'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Core')
@@ -86,9 +86,10 @@ FunctionsToExport = @(
        'New-SM365ExOReport'
       'Test-SM365ConnectionStatus'
        'Get-SM365TenantID'
+       'Get-SM365ARCSetting'
+       'Set-SM365ARCSetting'
        'Get-SM365MessageTrace'
     )
-
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
 

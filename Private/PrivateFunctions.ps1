@@ -119,6 +119,33 @@ function Get-SM365TransportRuleSettings
     end {
     }
 }
+
+function Get-IPAddressArray {
+    [CmdLetBinding()]
+    param (
+        [Parameter(
+            Mandatory=$true,
+            HelpMessage="Geben Sie die Anzahl der Adressen ein, die sie eingeben wollen."
+        )]
+        [int]$Count
+    )
+    $ipArray = @()
+
+    for ($i = 1; $i -le $Count; $i++) {
+        $ip = Read-Host -Prompt "Geben Sie IP-Adresse Nr. $i ein"
+        
+        # Validierung der IP-Adresse (optionale einfache Validierung)
+        if ($ip -match '^([0-9]{1,3}\.){3}[0-9]{1,3}$') {
+            $ipArray += $ip
+        } else {
+            Write-Host "Ungültige IP-Adresse: $ip. Bitte geben Sie eine gültige IP-Adresse ein."
+            $i-- # Wiederhole diese Schleifenrunde für eine erneute Eingabe
+        }
+    }
+    return $ipArray
+}
+
+
 # SIG # Begin signature block
 # MIIVzAYJKoZIhvcNAQcCoIIVvTCCFbkCAQExDzANBglghkgBZQMEAgEFADB5Bgor
 # BgEEAYI3AgEEoGswaTA0BgorBgEEAYI3AgEeMCYCAwEAAAQQH8w7YFlLCE63JNLG

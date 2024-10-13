@@ -7,6 +7,7 @@
         "ConnectorSource"              : "Default",
         "ConnectorType"                : "OnPremises",
         "Enabled"                      : true,
+        "EFSkipLastIP"                 : true,
         "RequireTls"                   : true,
         "SenderDomains"                : "*"
     }

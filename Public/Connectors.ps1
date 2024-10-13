@@ -48,7 +48,7 @@ function Get-SM365Connectors
     Adds SEPPmail Exchange Online connectors
 .DESCRIPTION
     SEPPmail uses 2 Connectors to transfer messages between SEPPmail and Exchange Online
-    This commandlet will create the connectors for you.
+    This commandlet will create the two connectors for you.
 
     The -SEPPmailFQDN must point to a SEPPmail Appliance with a valid certificate to establish the TLS connection.
     To use a wildcard certifiacate, use the -TLSCertName parameter.
@@ -60,6 +60,11 @@ function Get-SM365Connectors
     New-SM365Connectors -SEPPmailFQDN 'securemail.contoso.com'
     Takes the Exchange Online environment settings and creates Inbound and Outbound connectors to a SEPPmail Appliance.
     Assumes that the TLS certificate is identical with the SEPPmail FQDN
+.EXAMPLE
+    New-SM365Connectors -SEPPmailFQDN 'securemail.contoso.com' -CBCCertName 'inbound.contoso.com'
+    For MSP Setups with Certificate Based Connectors (CBC) we need different certificates for inbound and coutbound connectors.
+    Takes the Exchange Online environment settings and creates Inbound and Outbound connectors to a SEPPmail Appliance.
+    Uses the FQDN as certificate name for the outbound connector and takes the -CBCCertName as the certificate name for the inbound connector
 .EXAMPLE
     New-SM365Connectors -SEPPmailFQDN 'securemail.contoso.com' -AllowSelfSignedCertificates
     Same as above, just no officially trusted certificate needed.
@@ -74,7 +79,7 @@ function Get-SM365Connectors
     Use this if your SEPPmail is just accessible via an IP Address, use the -SEPPmailIP parameter.
 .EXAMPLE 
     New-SM365Connectors -SEPPmailFQDN securemail.contoso.com -NoAntiSpamWhiteListing
-    To avoid, adding the SEPPmail to the ANTI-SPAM WHiteList of Microsoft Defender use the example below
+    To avoid, adding the SEPPmail to the ANTI-SPAM WhiteList of Microsoft Defender use the example below
 #>
 function New-SM365Connectors
 {
@@ -160,7 +165,7 @@ function New-SM365Connectors
             HelpMessage = 'Do not Add SEPPmailIP to the HostedConnectionFilterPolicy',
             ParameterSetName = 'Ip'
         )]
-        [switch]$NoAntiSpamWhiteListing = $false,
+        [switch]$NoAntiSpamWhiteListing,
         #endRegion
 
         #region disabled
@@ -179,9 +184,18 @@ function New-SM365Connectors
            HelpMessage = 'Disable the connectors on creation',
            ParameterSetName = 'Ip'
         )]
-        [switch]$Disabled
+        [switch]$Disabled,
         #endregion disabled
 
+        #region MSP-CBC
+        [Parameter(
+            Mandatory = $false,
+            HelpMessage = 'MSP setup requires a second certificate',
+            ParameterSetName = 'FqdnTls',
+            Position = 0
+        )]
+        [string]$CBCcertName
+        #endregion
     )
 
     begin
@@ -206,7 +220,11 @@ function New-SM365Connectors
         Write-Verbose "Prepare Values out of Parametersets"
         If (($PsCmdLet.ParameterSetName -like 'FqdnTls') -or ($PsCmdLet.ParameterSetName -eq 'FqdnTls')) {
                 $InboundTlsDomain = $SEPPmailFQDN
-                $OutboundTlsDomain = $SEPPmailFQDN
+                if ($cbccertName) {
+                    $OutboundTlsDomain = $SEPPmailFQDN
+                }else {
+                    $OutboundTlsDomain = $CBCcertName
+                }
             }
         else {
             [string[]]$SenderIPAddresses = $SEPPmailIP
@@ -362,9 +380,14 @@ function New-SM365Connectors
             $inbound.Enabled = $false
         }
 
-        Write-Verbose "Setting SEPPmail IP Address(es) $SEPPmailIP for EFSkipIP´s and Anti-SPAM Whitelist"
-        [string[]]$SEPPmailIpRange = $SEPPmailIP
-        $inbound.EFSkipIPs = $SEPPmailIpRange
+        # Due to ARC Setup of Exo tenants and EFSkipLastIP is $true by default, EFSKipIP´s must be empty in certain setups.
+        if ($PsCmdLet.ParameterSetName -ne 'FqdnTls') {
+            Write-Verbose "Setting SEPPmail IP Address(es) $SEPPmailIP for EFSkipIP´s and Anti-SPAM Whitelist"
+            
+            # Remove all IPv6 addresses
+            [string[]]$SEPPmailIpRange = Remove-IPv6Address -IPArray $SEPPmailIP
+            $inbound.EFSkipIPs = $SEPPmailIpRange
+        }
 
         Write-Verbose "Read existing SEPPmail Inbound Connector from Exchange Online"
         $existingSMInboundConn = $allInboundConnectors | Where-Object Name -like '`[SEPPmail`]*'
@@ -421,6 +444,7 @@ function New-SM365Connectors
             if ($PSCmdLet.ParameterSetName -eq 'Ip') {
                 $param.SenderIPAddresses = $SenderIPAddresses
                 $param.RequireTls = $false
+                $param.EFSkipLastIP = $false
             } 
             Write-Verbose "FQDN and Self Signed certificates, TLSCertificatename = $SEPPmailFQDN"
             if (($PSCmdLet.ParameterSetName -eq 'FQDNTls') -and ($AllowSelfSignedCertificates)) {
@@ -458,7 +482,7 @@ function New-SM365Connectors
                     #region - Add SMFQDN to hosted Connection Filter Policy Whitelist
                     if ($NoAntiSpamWhiteListing -eq $true)
                     {
-                        Write-Verbose "Adding SEPPmail Appliance to wWhitelist in 'Hosted Connection Filter Policy'"
+                        Write-Verbose "Adding SEPPmail Appliance to allowlist in 'Hosted Connection Filter Policy'"
                         Write-Verbose "Collecting existing WhiteList"
                         $hcfp = Get-HostedConnectionFilterPolicy
                         [string[]]$existingAllowList = $hcfp.IPAllowList
@@ -467,7 +491,7 @@ function New-SM365Connectors
                             $FinalIPList = ($existingAllowList + $SEPPmailIP)|sort-object -Unique
                         }
                         else {
-                            $FinalIPList = $SEPPmailIP
+                            $FinalIPList = Remove-IPv6Address -IPArray $SEPPmailIP
                         }
                         Write-verbose "Adding IPaddress list with content $finalIPList to Policy $($hcfp.Id)"
                         if ($FinalIPList) {

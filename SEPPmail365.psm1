@@ -25,7 +25,18 @@ if (!(Test-SM365ConnectionStatus)) {
 }
 
 Write-Information "Testing capability to resolve external DNS by resolving 8.8.8.8"
-if ((Resolve-DnsName 8.8.8.8).NameHost -ne 'dns.google') {
+if (!(Get-Module DNSClient-PS -ListAvailable)) {
+    try {
+        Write-Information "Installing required module DNSClient-PS" -InformationAction Continue
+        Install-Module DNSCLient-PS -WarningAction SilentlyContinue
+        Import-Module DNSClient-PS -Force
+    } 
+    catch {
+        Write-Error "Could not install required module 'DNSClient-PS'. Please install manually from the PowerShell Gallery"
+    }
+}
+
+if ((resolve-dns -QueryType PTR 8.8.8.8).Answers.PTRDomainname.Value -ne 'dns.google.') {
     Write-Error "Cannot resolve 8.8.8.8 (dns.google) externaly - Setup may fail. Try from machine with external name resolution capability."
 }
 
