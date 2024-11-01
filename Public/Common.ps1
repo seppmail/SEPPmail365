@@ -442,7 +442,7 @@ Function Get-SM365TenantID {
 .DESCRIPTION
     The Enhanced filter setting impacts mailflow. It must be set to EFSkipLastIP when you use CBC
 .EXAMPLE
-    PS C:\> Get-SM365EFSkipSetting
+    PS C:\> Get-SM365ARCSetting
     Outouts the setting
 .INPUTS
     none
@@ -502,10 +502,7 @@ Function Get-SM365ARCSetting {
 .DESCRIPTION
     This CmdLet can change the setting if a SEPPmail Inbound Connector wether if the SEPPmail Appliance is set to use CBC or not. You can switch between the modes.
 .EXAMPLE
-    PS C:\> Set-SM365EFSkipSetting -CBC $false
-    Sets the Inbound Connector to rather work with a NON-CBC configured Appliance
-
-    PS C:\> Set-SM365EFSkipSetting -CBC $true
+    PS C:\> Set-SM365ARCSetting
     Sets the Inbound Connector to rather work with a CBC configured Appliance
 .INPUTS
     none
@@ -524,20 +521,28 @@ Function Set-SM365ARCSetting {
     begin {
         Write-Verbose "Query Inbound Connector Setting"
         $ib = Get-Inboundconnector -Identity '[SEPPmail] Appliance -> ExchangeOnline'
+        $ob = Get-OutboundConnector -Identity '[SEPPmail] ExchangeOnline -> Appliance'
         $hcfp = Get-HostedConnectionFilterPolicy
     }
     process {
-        if ($ib) {
+        if ($ib -and $ob -and $hcfp) {
             Write-Verbose "Setting the Inbound Connector EfSkipIPs to null and EfSkipLastIP to enabled to support ARC"
             Set-InboundConnector -Identity $ib.Identity -EFSkipLastIP $true -EFSkipIPs $null
             
             Write-Verbose "Setting Hosted Connection Filter Policy withName $hcfp.Identity to null"
             Set-HostedConnectionFilterPolicy -Identity $hcfp.Identity -IPAllowList $null
 
-            #FIXME ARC Setting eintragen mit manueller Abfrage oder zwingendem Parameter 
+            Write-Verbose "Setting TrustedArcSealers to InboudConn TLSCertName $ib.TlsSenderCertificateName and OutBoundConn TLSDomain $ob.TLSDomain"
+            [string[]]$existingArcsealers = (get-arcconfig).arcTrustedsealers
+            [string[]]$NewArcsealers = @($ib.TlsSenderCertificateName , $ob.TLSDomain)
+            $ArcTrustedSealers = Add-UniqueStringsToArray -ExistingArray $existingArcsealers -NewStrings $NewArcsealers
+            Set-ArcConfig -Identity Default -ArcTrustedSealers $ArcTrustedSealers
+
+            Write-Verbose "Setting HostedConnectionFilterpolicy with name $hcfp.Identity to an empty IPAllowList"
+            Set-HostedConnectionFilterPolicy -Identity $hcfp.Identity -IPAllowList $null
 
         } else {
-            Write-Information "Could not find an Inbound Connector with the name '[SEPPmail] Appliance -> ExchangeOnline'. Install Connectors as required."
+            Write-Information "SEPPmail Appliance Connectors not fully configured. Inbound or Outbound Connectors are missing. (Re)Install with New-SM365Connectors"
         }
     }
 

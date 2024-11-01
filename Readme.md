@@ -75,11 +75,11 @@ Beginning with version 1.2.5, the module runs only on PowerShell Core on Windows
 # Prerequisites
 
 The module requires at least PowerShell Core 7.2 (64bit) and the  
-[ExchangeOnlineManagement](https://www.powershellgallery.com/packages/ExchangeOnlineManagement/3.0.0) module of version 3.0.0 or higher.  
+[ExchangeOnlineManagement](https://www.powershellgallery.com/packages/ExchangeOnlineManagement/3.0.0) module of version 3.6.0 or higher.  
 
 The module was developed on Windows 11 and macOS 11.7.
 
-_Note on PowerShell on debian_: There are scenarios where module installation fails with an error on incorrect module maifest. We are currently investigating this. Please try to run it on PowerShell Core on Windows or macOS.
+_Note on PowerShell on debian_: There are scenarios where module installation fails with an error on incorrect module manifest. We are currently investigating this. Please try to run it on PowerShell Core on Windows or macOS.
 
 _Note on Windows PowerShell_: Make sure you have the latest version of PowerShellGet installed.
 

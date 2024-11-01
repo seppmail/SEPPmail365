@@ -220,10 +220,10 @@ function New-SM365Connectors
         Write-Verbose "Prepare Values out of Parametersets"
         If (($PsCmdLet.ParameterSetName -like 'FqdnTls') -or ($PsCmdLet.ParameterSetName -eq 'FqdnTls')) {
                 $InboundTlsDomain = $SEPPmailFQDN
-                if ($cbccertName) {
-                    $OutboundTlsDomain = $SEPPmailFQDN
+                if ($CBCcertName) {
+                    $OutboundTlsDomain = $CBCCertName
                 }else {
-                    $OutboundTlsDomain = $CBCcertName
+                    $OutboundTlsDomain = $SEPPmailFQDN
                 }
             }
         else {
