@@ -1,4 +1,42 @@
 # Generic function to avoid code duplication
+<#
+.SYNOPSIS
+Sets properties on an input object from a configuration stored in a JSON object.
+
+.DESCRIPTION
+The Set-SM365PropertiesFromConfigJson function takes an input object and a JSON configuration object 
+and sets properties on the input object based on the JSON data. It can also set version-specific 
+and option-specific properties as required.
+
+.PARAMETER InputObject
+The object on which the properties will be set. This object will be modified based on the properties 
+found in the provided JSON configuration.
+
+.PARAMETER Json
+The JSON object containing configuration data. This should include both general properties and 
+version-specific or option-specific properties if applicable.
+
+.PARAMETER Version
+Specifies the configuration version to use when setting properties. If no version is specified, 
+the default behavior will be applied. The parameter defaults to `[SM365.ConfigVersion]::None`.
+
+.PARAMETER Option
+An array of configuration options that can be used to set option-specific properties from the JSON 
+configuration.
+
+.EXAMPLE
+$inputObject = New-Object PSObject -Property @{ Name = "Sample" }
+$jsonConfig = Get-Content -Path "C:\config.json" -Raw | ConvertFrom-Json
+Set-SM365PropertiesFromConfigJson -InputObject $inputObject -Json $jsonConfig -Version "V1" -Option @("Option1", "Option2")
+
+This example reads a JSON configuration file, parses it, and sets the properties on an input object 
+based on the configuration data for version "V1" and the specified options.
+
+.NOTES
+The function assumes that the JSON structure includes a "Version" section for version-specific properties 
+and an "Option" section for option-specific settings. It skips setting properties if the specified version 
+does not exist in the JSON structure.
+#>
 function Set-SM365PropertiesFromConfigJson
 {
     [CmdLetBinding()]
@@ -10,13 +48,6 @@ function Set-SM365PropertiesFromConfigJson
         [SM365.ConfigOption[]] $Option
     )
 
-    # use the latest if the requested version is not supplied (for overriding specific aspects only)
-    #if(!$json.Version.$Version)
-    #{
-    #    $Version = [SM365.ConfigVersion]::Latest
-    #}
-
-    # skip if the requested version isn't available
     if(!$json.Version.$version) {
         $InputObject.Skip = $true;
     }
@@ -50,9 +81,33 @@ function Set-SM365PropertiesFromConfigJson
     }
 }
 
-# Essentially a factory function for either an empty
-# settings object, filled with necessary attributes to identify
-# the O365 object (i.e. the Name), or version specific settings.
+<#
+.SYNOPSIS
+Retrieves inbound connector settings from a JSON configuration file.
+
+.DESCRIPTION
+The Get-SM365InboundConnectorSettings function reads inbound connector settings from a JSON file located 
+in the specified path and returns the settings based on the specified connector type (e.g., Default or Partner).
+
+.PARAMETER Type
+Specifies the type of connector settings to retrieve. The valid values are 'Default' and 'Partner'. 
+The parameter defaults to 'Default' if not specified.
+
+.EXAMPLE
+Get-SM365InboundConnectorSettings -Type 'Partner'
+
+This example retrieves the inbound connector settings for the 'Partner' type from the JSON configuration file.
+
+.EXAMPLE
+Get-SM365InboundConnectorSettings
+
+This example retrieves the default inbound connector settings, as the Type parameter defaults to 'Default'.
+
+.NOTES
+The function assumes that the JSON configuration file `Inbound.json` is located in the `..\ExOConfig\Connectors` 
+directory relative to the script's location. The JSON structure should have keys corresponding to the 
+valid types ('Default', 'Partner') for correct data retrieval.
+#>
 function Get-SM365InboundConnectorSettings
 {
     [CmdletBinding()]
@@ -75,6 +130,34 @@ function Get-SM365InboundConnectorSettings
     }
 }
 
+<#
+.SYNOPSIS
+Retrieves outbound connector settings from a JSON configuration file.
+
+.DESCRIPTION
+The Get-SM365OutboundConnectorSettings function reads outbound connector settings from a JSON file 
+located in the specified path and returns the settings based on the specified connector type 
+(e.g., Default or Partner).
+
+.PARAMETER Type
+Specifies the type of connector settings to retrieve. The valid values are 'Default' and 'Partner'. 
+The parameter defaults to 'Default' if not specified.
+
+.EXAMPLE
+Get-SM365OutboundConnectorSettings -Type 'Partner'
+
+This example retrieves the outbound connector settings for the 'Partner' type from the JSON configuration file.
+
+.EXAMPLE
+Get-SM365OutboundConnectorSettings
+
+This example retrieves the default outbound connector settings, as the Type parameter defaults to 'Default'.
+
+.NOTES
+The function assumes that the JSON configuration file `Outbound.json` is located in the `..\ExOConfig\Connectors` 
+directory relative to the script's location. The JSON structure should have keys corresponding to the 
+valid types ('Default', 'Partner') for correct data retrieval.
+#>
 function Get-SM365OutboundConnectorSettings
 {
     [CmdletBinding()]
@@ -99,6 +182,31 @@ function Get-SM365OutboundConnectorSettings
     }
 }
 
+
+<#
+.SYNOPSIS
+Retrieves transport rule settings from a JSON file and returns them as a hashtable.
+
+.DESCRIPTION
+The Get-SM365TransportRuleSettings function reads a JSON file specified by the user, 
+parses its contents, and returns the transport rule settings found within the `default` 
+section of the JSON as a hashtable.
+
+.PARAMETER File
+Specifies the path to the JSON file that contains the transport rule settings. This parameter 
+is mandatory.
+
+.EXAMPLE
+Get-SM365TransportRuleSettings -File "C:\path\to\settings.json"
+
+This example reads the specified JSON file, extracts the `default` section, and returns it as 
+a hashtable.
+
+.NOTES
+The function assumes that the JSON file is properly formatted and that it includes a `default` 
+key at the top level. The function reads the entire file as a raw string and converts it into 
+a hashtable for easy access and processing.
+#>
 function Get-SM365TransportRuleSettings
 {
     [CmdLetBinding()]
@@ -120,6 +228,31 @@ function Get-SM365TransportRuleSettings
     }
 }
 
+<#
+.SYNOPSIS
+Prompts the user to input a specified number of IP addresses and returns them as an array.
+
+.DESCRIPTION
+The Get-IPAddressArray function allows the user to enter a specified number of IP addresses.
+Each input is validated to ensure it matches the basic format of an IPv4 address. If an invalid 
+IP address is entered, the function prompts the user to re-enter a valid IP address for that 
+iteration. The function returns an array containing all the valid IP addresses provided.
+
+.PARAMETER Count
+The number of IP addresses the user wishes to input. This parameter is mandatory.
+
+.EXAMPLE
+Get-IPAddressArray -Count 3
+
+This example prompts the user to enter three IP addresses. If the user enters any invalid 
+IP address, they are prompted to enter it again until a valid address is provided. The 
+function returns an array of the entered IP addresses.
+
+.NOTES
+This function performs a basic validation for IPv4 addresses using a regular expression. 
+For more complex or accurate validation, consider using built-in .NET methods or modules 
+for IP address parsing.
+#>
 function Get-IPAddressArray {
     [CmdLetBinding()]
     param (
@@ -145,6 +278,54 @@ function Get-IPAddressArray {
     return $ipArray
 }
 
+<#
+.SYNOPSIS
+Adds unique strings to an existing string array only if they do not already exist in the array.
+
+.DESCRIPTION
+The Add-UniqueStringsToArray function takes an existing string array and an array of new strings.
+It checks each new string to see if it already exists in the existing array. If a string is not 
+already present, it adds the string to the array. The function returns the updated array.
+
+.PARAMETER ExistingArray
+The existing string array to which new unique strings will be added. If null or empty, the array 
+is initialized as an empty array.
+
+.PARAMETER NewStrings
+The array of new strings to be added to the existing array if they do not already exist in it.
+
+.EXAMPLE
+$existingArray = @('example.com', 'test.com')
+$newStrings = @('test.com', 'newdomain.com', 'sample.org')
+$updatedArray = Add-UniqueStringsToArray -ExistingArray $existingArray -NewStrings $newStrings
+Write-Host "Updated Array: $updatedArray"
+
+This example takes an array containing 'example.com' and 'test.com', and adds 'newdomain.com' 
+and 'sample.org' while skipping 'test.com' since it already exists in the existing array. 
+The output will be:
+Updated Array: example.com test.com newdomain.com sample.org
+#>
+function Add-UniqueStringsToArray {
+    param (
+        [string[]]$ExistingArray,
+        [string[]]$NewStrings
+    )
+
+    # Wenn das vorhandene Array null oder leer ist, initialisieren wir es
+    if (-not $ExistingArray) {
+        $ExistingArray = @()
+    }
+
+    # Durchlaufen der neuen Strings und Hinzufügen, wenn sie nicht bereits existieren
+    foreach ($string in $NewStrings) {
+        if ($ExistingArray -notcontains $string) {
+            $ExistingArray += $string
+        }
+    }
+
+    # Rückgabe des aktualisierten Arrays
+    return $ExistingArray
+}
 
 # SIG # Begin signature block
 # MIIVzAYJKoZIhvcNAQcCoIIVvTCCFbkCAQExDzANBglghkgBZQMEAgEFADB5Bgor
