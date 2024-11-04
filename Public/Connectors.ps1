@@ -218,12 +218,12 @@ function New-SM365Connectors
         }
 
         Write-Verbose "Prepare Values out of Parametersets"
-        If (($PsCmdLet.ParameterSetName -like 'FqdnTls') -or ($PsCmdLet.ParameterSetName -eq 'FqdnTls')) {
+        If ($PsCmdLet.ParameterSetName -like 'FqdnTls') {
                 $InboundTlsDomain = $SEPPmailFQDN
                 if ($CBCcertName) {
-                    $OutboundTlsDomain = $CBCCertName
+                    $InboundTlsDomain = $CBCcertName
                 }else {
-                    $OutboundTlsDomain = $SEPPmailFQDN
+                    $InboundTlsDomain = $SEPPmailFQDN
                 }
             }
         else {
@@ -280,7 +280,7 @@ function New-SM365Connectors
         }
         Write-Verbose "Set Tls outbound domain depending in ParameterSetName $PsCmdLet.ParameterSetName"
         if ($PsCmdLet.ParameterSetName -eq 'FqdnTls') {
-            $param.TlsDomain = $OutboundTlsDomain
+            $param.TlsDomain = $SEPPmailFQDN
             if ($AllowSelfSignedCertificates) {
                 $param.TlsSettings = 'EncryptionOnly'
                 $param.Remove('TlsDomain')
@@ -447,16 +447,16 @@ function New-SM365Connectors
                 $param.EFSkipLastIP = $false
             } 
             Write-Verbose "FQDN and Self Signed certificates, TLSCertificatename = $SEPPmailFQDN"
-            if (($PSCmdLet.ParameterSetName -eq 'FQDNTls') -and ($AllowSelfSignedCertificates)) {
+            if (($PSCmdLet.ParameterSetName -eq 'FqdnTls') -and ($AllowSelfSignedCertificates)) {
                 $param.RestrictDomainsToCertificate = $false
                 $param.TlsSenderCertificateName = $SEPPmailFQDN
             }
-            Write-Verbose "FQDN and certificatename equals FQDN, using $SEPpmailFQDN as TLSCertificateName"
-            if (($PSCmdLet.ParameterSetName -eq 'FQDNTls') -and ($TLSCertificateName.Length -eq 0)) {
+            Write-Verbose "FQDN and certificatename equals FQDN, using $SEPPmailFQDN as TLSCertificateName"
+            if (($PSCmdLet.ParameterSetName -eq 'FqdnTls') -and ($TLSCertificateName.Length -eq 0) -and (!($CBCCertName))) {
                 $param.TlsSenderCertificateName = $SEPPmailFQDN
             }
             Write-Verbose "FQDN and certificatename specified, using $TlscertificateName as TLSCertificateName"
-            if (($PSCmdLet.ParameterSetName -eq 'FQDNTls') -and ($TLSCertificateName.Length -gt 0)) {
+            if (($PSCmdLet.ParameterSetName -eq 'FqdnTls') -and ($TLSCertificateName.Length -gt 0)) {
                 $param.TlsSenderCertificateName = $TLSCertificateName
             }
             Write-Verbose "NoTls, using $SEPPmailFQDN as TLSCertificateName"
