@@ -132,10 +132,10 @@ PrivateData = @{
         IconUri = 'https://avatars1.githubusercontent.com/u/55975553?s=400&u=ab22c52a439397dca458e58dfcec9f0a9dd347db&v=4'
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'Link to Changelog.md on github'
+        ReleaseNotes = 'https://github.com/seppmail/SEPPmail365/blob/master/changelog.md'
         
         # Prerelease string of this module
-        Prerelease = ''
+        # Prerelease = ''
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         # RequireLicenseAcceptance = $false
