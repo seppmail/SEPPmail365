@@ -11,7 +11,11 @@ Module version 1.2.7 includes the inbound connector to have this setting set by 
 
 In ARC Setups with multiple customers using M365, the ExO-Inbound Connector requires to use the machine-certificate (securemail.greatmsp.com), but the ExO-Outbound Connector need to use the managed domain certificate, (i.e. manageddomain.fabrikam.com). Use the Parameter -CBCCertName to apply this configuration.
 
-i.e. New-SM365connectors -SEPPmailFQND 'securemail.greatmsp.com' -CBCCertName 'manageddomain.fabrikam.com'
+Example:
+
+```powershell
+New-SM365Connectors -SEPPmailFQDN 'securemail.contoso.com' -TLSCertName '*.contoso.com' -CBCCertname '*.contoso.com'
+```
 
 See <https://docs.seppmail.com/de/09_ht_mso365_ssl_certificate.html?q=CBC> for the SEPPmail manual to setup CBC.
 
