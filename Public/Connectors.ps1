@@ -65,6 +65,7 @@ function Get-SM365Connectors
     For MSP Setups with Certificate Based Connectors (CBC) we need different certificates for inbound and coutbound connectors.
     Takes the Exchange Online environment settings and creates Inbound and Outbound connectors to a SEPPmail Appliance.
     Uses the FQDN as certificate name for the outbound connector and takes the -CBCCertName as the certificate name for the inbound connector
+    See the SEPPmail online manual for details on how to setup ARC/CBC here https://docs.seppmail.com/de/09_ht_mso365_ssl_certificate.html?q=CBC
 .EXAMPLE
     New-SM365Connectors -SEPPmailFQDN 'securemail.contoso.com' -AllowSelfSignedCertificates
     Same as above, just no officially trusted certificate needed.
