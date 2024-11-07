@@ -2,3 +2,4 @@ experiments/*
 test/*
 signing/*
 .vscode
+.git
