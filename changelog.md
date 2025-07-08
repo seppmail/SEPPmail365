@@ -1,5 +1,11 @@
 # CHANGES in SEPPmail365 Module
 
+## Version 1.2.8: July 2025 - Fix for 100 inbound rule
+
+### Inbound Rule 100 should match on Header or Envelope
+
+Based on SEPPmail internal ticket #1932 the value was changed from Header to HeaderorEnvelope
+
 ## Version 1.2.7: November 2024 - Support ARC and CBC-Connectors
 
 ### Exchange online ARC requires EFSkipLastIP Setting #40957
