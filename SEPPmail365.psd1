@@ -54,7 +54,7 @@ PowerShellVersion = '7.2.0'
 RequiredModules = @(
     @{
         ModuleName = 'ExchangeOnlineManagement'
-        ModuleVersion = '3.0.0'
+        ModuleVersion = '3.8.0'
         GUID = 'B5ECED50-AFA4-455B-847A-D8FB64140A22'
     }
 )

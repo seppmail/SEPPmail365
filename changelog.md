@@ -1,10 +1,14 @@
 # CHANGES in SEPPmail365 Module
 
-## Version 1.2.8: July 2025 - Fix for 100 inbound rule
+## Version 1.2.9: July 2025 - Fix for 100 inbound rule
 
 ### Inbound Rule 100 should match on Header or Envelope
 
 Based on SEPPmail internal ticket #1932 the value was changed from Header to HeaderorEnvelope
+
+### ExchangeOnlineManagement Module version changed to 3.8.0
+
+## Version 1.2.8: Git Maintenance Release
 
 ## Version 1.2.7: November 2024 - Support ARC and CBC-Connectors
 
