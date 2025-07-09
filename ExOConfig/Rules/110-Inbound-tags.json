@@ -1,0 +1,23 @@
+{
+    "default" :
+    {
+      "Name"                                    : "[SEPPmail] - 110 Route incoming tagged e-mails to SEPPmail",
+      "Comments"                                : "E-mails sent from outside the organization are tag-checked and are sent to the SEPPmail for crypto-processing.",
+      "RouteMessageOutboundConnector"           : "[SEPPmail] ExchangeOnline -> Appliance",
+      "SMPriority"                              : 2,
+      "FromScope"                               : "NotInOrganization",
+      "SentToScope"                             : "InOrganization",
+      "SetHeaderName"                           : "X-SM-maildirection",
+      "SetHeaderValue"                          : "inbound",
+      "ExceptIfHeaderMatchesMessageHeader"      : "X-SM-internal",
+      "ExceptIfHeaderMatchesPatterns"           : "yes",
+      "ExceptIfHeaderContainsMessageHeader"     : "X-SM-incoming",
+      "ExceptIfHeaderContainsWords"             : "yes",
+      "ExceptIfSCLOver"                         : 5,
+      "Priority"                                : 0,
+      "SetAuditSeverity"                        : "Low",
+      "Mode"                                    : "Enforce",
+      "SenderAddressLocation"                   : "HeaderOrEnvelope",
+      "StopRuleProcessing"                      : true
+    }
+}

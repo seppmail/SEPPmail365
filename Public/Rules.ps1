@@ -94,9 +94,14 @@ function New-SM365Rules
                 }
             }
             )]
-        [Alias('Managedomain')]           
+        [Alias('ManagedDomain')]           
         [String[]]$SEPPmailDomain,
 
+        [Parameter(
+		Mandatory = $false,
+			HelpMessage = 'Rule 100/110 will only send e-mails to SEPPmail Appliance which requires cryptographic processing'
+		)]
+		[bool]$CryptoContentOnly = $true,
 
         [Parameter(Mandatory=$false,
         HelpMessage='SCL Value for inbound Mails which should NOT be processed by SEPPmail.Cloud. Default is 5')]
@@ -227,6 +232,18 @@ function New-SM365Rules
 							Write-Verbose "Setting Value $SCLInboundValue to Inbound flowing to SEPPmail.cloud"
 						$Setting.ExceptIfSCLOver = $SCLInboundValue
 						}
+                    }
+
+                    #1978 LimitInbound traffic to cryptographic e-mails.
+                    if (($cryptoContentOnly) -and ($Setting.Name -eq '[SEPPmail] - 100 Route incoming e-mails to SEPPmail')) {
+                        Write-Verbose "Setting HeaderContains* for crypto content only"
+                        $Setting.HeaderContainsMessageHeader = 'content-type'
+						$Setting.HeaderContainsWords = "application/x-pkcs7-mime","application/pkcs7-mime","application/x-pkcs7-signature","application/pkcs7-signature","multipart/signed","application/pgp-signature","multipart/encrypted","application/pgp-encrypted","application/octet-stream"			
+                    }
+
+                    if (($cryptoContentOnly) -and ($Setting.Name -eq '[SEPPmail] - 110 Route incoming tagged e-mails to SEPPmail')) {
+                        Write-Verbose "Setting HeaderContains* for crypto content only"
+						$setting.SubjectOrBodyContainsWords += '-----BEGIN PGP'
                     }
 
                     if (($ExcludeEmailDomain.count -ne 0) -and ($Setting.Name -eq '[SEPPmail] - 200 Route outgoing e-mails to SEPPmail')) {
