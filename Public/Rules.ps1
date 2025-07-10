@@ -224,6 +224,8 @@ function New-SM365Rules
 					$setting.Remove('SMPriority')
                     if ($Disabled -eq $true) {
                         $setting.Enabled = $false
+                    } else {
+                        $setting.Enabled = $true
                     }
                     if (($ExcludeEmailDomain.count -ne 0) -and ($Setting.Name -eq '[SEPPmail] - 100 Route incoming e-mails to SEPPmail')) {
                         Write-Verbose "Excluding Inbound E-Mails domains $ExcludeEmailDomain"
