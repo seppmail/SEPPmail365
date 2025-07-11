@@ -2,9 +2,21 @@
 
 ## Version 1.2.9: July 2025 - Fix for 100 inbound rule
 
-### Inbound Rule 100 should match on Header or Envelope
+### Inbound Rule 100 now matches on Header or Envelope
 
 Based on SEPPmail internal ticket #1932 the value was changed from Header to HeaderorEnvelope
+
+### Inbound Rule 100 checks for crypto-content by default
+
+From now on, only E-Mails that require cryptographic handling are sent to the appliance.
+
+### New Rule 110 for PGP detection and Header spoof-blocking
+
+This new rule checks if there are any keywords in the subject ([secure] or [HIN]) and sends those e-Mails to the appliance to clean them before delivery to the mailbox. Furthermore it checks if there are e-mails that are cryptographically handled by PGP "BGP----..." and sends them to the appliance for decryption.
+
+### New parameter -cryptocontentonly on new-sm365rules
+
+This parameter is $true by default, so only e-mails that require appliance.based handling are sent to the appliance inbound. If you switch this OFF by setting it to $false, all E-Mails will be sent to the appliance.
 
 ### ExchangeOnlineManagement Module version changed to 3.8.0
 
