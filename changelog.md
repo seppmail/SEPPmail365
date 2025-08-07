@@ -1,5 +1,9 @@
 # CHANGES in SEPPmail365 Module
 
+## Version 1.2.9.1
+
+Maintenance release of 1.2.9. This version was not correctly signed.
+
 ## Version 1.2.9: July 2025 - Fix for 100 inbound rule
 
 ### Inbound Rule 100 now matches on Header or Envelope
