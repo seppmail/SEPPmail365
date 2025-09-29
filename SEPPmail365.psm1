@@ -7,10 +7,10 @@ $InteractiveSession = [System.Environment]::UserInteractive
 Write-Verbose 'Request terminating errors by default'
 $PSDefaultParameterValues['*:ErrorAction'] = [System.Management.Automation.ActionPreference]::Stop
 
-Write-Verbose 'Initialize argument completer scriptblocks'
+Write-Verbose 'Initialize argument completer ScriptBlocks'
 $paramDomSB = {
     # Read Accepted Domains for domain selection
-    Get-AcceptedDomain -Erroraction silentlycontinue|select-Object -ExpandProperty DomainName
+    Get-AcceptedDomain -ErrorAction SilentlyContinue|select-Object -ExpandProperty DomainName
 }
 
 Write-Verbose 'Loading Module Files'
@@ -28,7 +28,7 @@ Write-Information "Testing capability to resolve external DNS by resolving 8.8.8
 if (!(Get-Module DNSClient-PS -ListAvailable)) {
     try {
         Write-Information "Installing required module DNSClient-PS" -InformationAction Continue
-        Install-Module DNSCLient-PS -WarningAction SilentlyContinue
+        Install-Module DNSClient-PS -WarningAction SilentlyContinue
         Import-Module DNSClient-PS -Force
     } 
     catch {
@@ -37,13 +37,13 @@ if (!(Get-Module DNSClient-PS -ListAvailable)) {
 }
 
 if ((resolve-dns -QueryType PTR 8.8.8.8).Answers.PTRDomainname.Value -ne 'dns.google.') {
-    Write-Error "Cannot resolve 8.8.8.8 (dns.google) externaly - Setup may fail. Try from machine with external name resolution capability."
+    Write-Error "Cannot resolve 8.8.8.8 (dns.google) externally - Setup may fail. Try from machine with external name resolution capability."
 }
 
 Write-Information 'Test if a newer module version is available'
 try {
-    $onLineVersion = Find-Module -Name 'SEPPmail365'|Select-Object -expandproperty Version
-    $offLineVersion = Test-ModuleManifest (Join-Path $ModulePath -ChildPath seppmail365.psd1) |Select-Object -ExpandProperty Version 
+    [version]$onLineVersion = Find-Module -Name 'SEPPmail365'|Select-Object -ExpandProperty Version
+    [version]$offLineVersion = Test-ModuleManifest (Join-Path $ModulePath -ChildPath SEPPmail365.psd1) |Select-Object -ExpandProperty Version 
     if ($onLineVersion -gt $offLineVersion) {
         Write-Warning "You have version $offlineVersion, but there is the new version $onLineVersion of the SEPPmail365 module available on the PowerShell Gallery. Update the module as soon as possible. More info here https://www.powershellgallery.com/packages/SEPPMail365"
     }   

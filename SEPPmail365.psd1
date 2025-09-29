@@ -12,7 +12,7 @@
 RootModule = 'SEPPmail365.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.2.9.1'
+ModuleVersion = '1.2.10'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Core')
@@ -30,7 +30,7 @@ CompanyName = 'SEPPmail AG'
 Copyright = '(c) SEPPmail AG. All rights reserved.'
 
 # Description of the functionality provided by this module
-Description = 'Integrate and maintain SEPPmail in Microsoft 365 and Exchange Online'
+Description = 'Integrate and maintain the integration of a SEPPmail appliance with Microsoft Exchange Online'
 
 # Minimum version of the PowerShell engine required by this module
 PowerShellVersion = '7.2.0'
@@ -54,7 +54,7 @@ PowerShellVersion = '7.2.0'
 RequiredModules = @(
     @{
         ModuleName = 'ExchangeOnlineManagement'
-        ModuleVersion = '3.8.0'
+        ModuleVersion = '3.9.0'
         GUID = 'B5ECED50-AFA4-455B-847A-D8FB64140A22'
     }
 )
@@ -76,7 +76,6 @@ RequiredModules = @(
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = @(    
-    #'Backup-SM365Connectors'
        'Get-SM365Connectors'
        'New-SM365Connectors'
     'Remove-SM365Connectors'
@@ -135,7 +134,7 @@ PrivateData = @{
         ReleaseNotes = 'https://github.com/seppmail/SEPPmail365/blob/master/changelog.md'
         
         # Prerelease string of this module
-        # Prerelease = ''
+        Prerelease = 'beta1'
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         # RequireLicenseAcceptance = $false
@@ -148,7 +147,7 @@ PrivateData = @{
 } # End of PrivateData hashtable
 
 # HelpInfo URI of this module
-HelpInfoURI = 'https://github.com/seppmail/SEPPmail365/blob/master/documentation_seppmail365_1.1.0.html'
+HelpInfoURI = 'https://docs.seppmail.com/ch-en/04_com_powershell.html'
 
 # Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
 # DefaultCommandPrefix = ''
