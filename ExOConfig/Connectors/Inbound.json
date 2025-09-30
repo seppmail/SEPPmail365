@@ -9,6 +9,9 @@
         "Enabled"                      : true,
         "EFSkipLastIP"                 : true,
         "RequireTls"                   : true,
-        "SenderDomains"                : "*"
+        "SenderDomains"                : "*",
+        //"SmartHosts"                   : "",
+        //"TlsSettings"                  : "DomainValidation",
+        //"TlsDomain"                    : ""
     }
 }

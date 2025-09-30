@@ -1,5 +1,22 @@
 # CHANGES in SEPPmail365 Module
 
+## Version 1.3.0 - Production scenarios only
+
+Redesigned Connector-Creation (New-SC365connectors) for production usage only. 
+Removed the scenarios:
+
+- IP
+- NoTLS
+- SelfSignedCertificates
+
+### Maintenance
+
+- CBCCertName was ignored when specified
+- Non-production scenarios removed
+- 
+
+
+
 ## Version 1.2.9.1
 
 Maintenance release of 1.2.9. This version was not correctly signed.

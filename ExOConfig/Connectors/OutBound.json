@@ -6,8 +6,10 @@
         "ConnectorSource"          : "Default",
         "ConnectorType"            : "OnPremises",
         "IsTransportRuleScoped"    : true,
+        "CloudServicesMailEnabled" : false,
+        "SmartHosts"               : "",
+        "TlsDomain"                : "",
         "TlsSettings"              : "DomainValidation",
-        "UseMXRecord"              : false,
-        "CloudServicesMailEnabled" : false
+        "UseMXRecord"              : false
     }
 }

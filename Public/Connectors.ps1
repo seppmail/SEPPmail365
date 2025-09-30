@@ -57,29 +57,16 @@ function Get-SM365Connectors
     New-SM365Connectors -SEPPmailFQDN 'securemail.contoso.com' -TLSCertName '*.contoso.com'
     Takes the Exchange Online environment settings and creates Inbound and Outbound connectors to a SEPPmail Appliance with a wildcard TLS certificate
 .EXAMPLE
-    New-SM365Connectors -SEPPmailFQDN 'securemail.contoso.com'
-    Takes the Exchange Online environment settings and creates Inbound and Outbound connectors to a SEPPmail Appliance.
-    Assumes that the TLS certificate is identical with the SEPPmail FQDN
-.EXAMPLE
-    New-SM365Connectors -SEPPmailFQDN 'securemail.contoso.com' -CBCCertName 'inbound.contoso.com'
+    New-SM365Connectors -SEPPmailFQDN 'securemail.contoso.com' -TLSCertName '*.contoso.com' -CBCCertName 'inbound.contoso.com'
     For MSP Setups with Certificate Based Connectors (CBC) we need different certificates for inbound and outbound connectors.
     Takes the Exchange Online environment settings and creates Inbound and Outbound connectors to a SEPPmail Appliance.
     Uses the FQDN as certificate name for the outbound connector and takes the -CBCCertName as the certificate name for the inbound connector
     See the SEPPmail online manual for details on how to setup ARC/CBC here https://docs.seppmail.com/de/09_ht_mso365_ssl_certificate.html?q=CBC
 .EXAMPLE
-    New-SM365Connectors -SEPPmailFQDN 'securemail.contoso.com' -AllowSelfSignedCertificates
-    Same as above, just no officially trusted certificate needed.
-.EXAMPLE
-    New-SM365Connectors -SEPPmailFQDN securemail.contoso.com -NoOutBoundTlsCheck
-    Same as the default config, just with no TLS encryption at all.
-.EXAMPLE
-    New-SM365Connectors -SEPPmailFQDN securemail.contoso.com -Disabled
+    New-SM365Connectors -SEPPmailFQDN 'securemail.contoso.com' -TLSCertName '*.contoso.com' -Disabled
     Use this option if you want to create the connectors, but just disable them on creation, use the -Disabled switch.
-.EXAMPLE
-    New-SM365Connectors -SEPPmailIp '51.144.46.62'
-    Use this if your SEPPmail is just accessible via an IP Address, use the -SEPPmailIP parameter.
 .EXAMPLE 
-    New-SM365Connectors -SEPPmailFQDN securemail.contoso.com -NoAntiSpamWhiteListing
+    New-SM365Connectors -SEPPmailFQDN 'securemail.contoso.com' -TLSCertName '*.contoso.com' -NoAntiSpamWhitelisting
     To avoid adding the SEPPmail appliance to the ANTI-SPAM WhiteList of Microsoft Defender, use the -NoAntiSpamWhiteListing switch.
 #>
 function New-SM365Connectors
@@ -92,110 +79,43 @@ function New-SM365Connectors
 
     param
     (
-        #region FqdnTls
         [Parameter(
             Mandatory = $true,
             HelpMessage = 'FQDN of the SEPPmail Appliance, i.e. securemail.contoso.com',
-            ParameterSetName = 'FqdnTls',
-            Position = 0
-        )]
-        [Parameter(
-            Mandatory = $true,
-            HelpMessage = 'FQDN of the SEPPmail Appliance, i.e. securemail.contoso.com',
-            ParameterSetName = 'FqdnNoTls',
             Position = 0
         )]
         [ValidatePattern("^(?!:\/\/)(?=.{1,255}$)((.{1,63}\.){1,127}(?![0-9]*$)[a-z0-9-]+\.?)$")]
-        [Alias('FQDN','SMFQDN')]
+        [Alias('FQDN','SMFQDN','SmartHost')]
         [String] $SEPPmailFQDN,
-        #endregion FqdnTls
 
-        #region TLSSenderCertificateName
         [Parameter(
-            Mandatory = $false,
-            HelpMessage = 'Name of the certificate if different from the SEPPmail-FQDN. Read the cetificate name in your SEPPmail under SSL==>Issued to==>Name (CN)',
-            ParameterSetname = 'FqdnTls',
+            Mandatory = $true,
+            HelpMessage = 'Name of the certificate if different from the SEPPmail-FQDN. Read the certificate name in your SEPPmail under SSL==>Issued to==>Name (CN)',
             Position = 1
         )]
         [Alias('TLSCertName','CertName')]
         [String] $TLSCertificateName,
-        #endregion TLSSenderCertificateName
 
-        #region SelfSigned
         [Parameter(
-            Mandatory = $false,
-            HelpMessage = 'OutBound Connector trusts also self signed certificates',
-            ParameterSetName = 'FqdnTls'
-        )]
-        [Alias('AllowSelfSigned','SelfSigned')]
-        [Switch] $AllowSelfSignedCertificates,
-        #endregion SelfSigned
-
-        #region NoOutboundTls
-        [Parameter(
-            Mandatory = $false,
-            HelpMessage = 'OutBound Connector allows also non-TLS conenctions',
-            ParameterSetName = 'FqdnNoTls'
-        )]
-        [Alias('NoTls')]
-        [Switch] $NoOutBoundTlsCheck,
-        #endregion NoTls
-
-        #region IP
-        [Parameter(
-            Mandatory = $true,
-            HelpMessage = 'If SEPPmail has no FQDN and is represented as an IP Address',
-            ParameterSetName = 'Ip',
-            Position = 0
-        )]
-        [ValidatePattern("(\b25[0-5]|\b2[0-4][0-9]|\b[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}")]
-        [Alias('SMIP','SMIPAddress')]
-        [string] $SEPPmailIP,
-        #endregion IP
-
-        #region NoAntiSpamWhiteListing
-        [Parameter(
-            HelpMessage = 'Do not Add SEPPmailIP to the HostedConnectionFilterPolicy',
-            ParameterSetName = 'FqdnTls'
-        )]
-        [Parameter(
-            HelpMessage = 'Do not Add SEPPmailIP to the HostedConnectionFilterPolicy',
-            ParameterSetName = 'FqdnNoTls'
-        )]
-        [Parameter(
-            HelpMessage = 'Do not Add SEPPmailIP to the HostedConnectionFilterPolicy',
-            ParameterSetName = 'Ip'
+            HelpMessage = 'Do not Add SEPPmailIP to the HostedConnectionFilterPolicy'
         )]
         [switch]$NoAntiSpamWhiteListing,
-        #endRegion
 
-        #region disabled
-        [Parameter(
-            Mandatory = $false,
-            HelpMessage = 'Disable the connectors on creation',
-            ParameterSetName = 'FqdnTls'
-         )]
-        [Parameter(
-           Mandatory = $false,
-           HelpMessage = 'Disable the connectors on creation',
-           ParameterSetName = 'FqdnNoTls'
-        )]
-        [Parameter(
-           Mandatory = $false,
-           HelpMessage = 'Disable the connectors on creation',
-           ParameterSetName = 'Ip'
-        )]
-        [switch]$Disabled,
-        #endregion disabled
-
-        #region MSP-CBC
         [Parameter(
             Mandatory = $false,
             HelpMessage = 'MSP setup requires a second certificate',
             ParameterSetName = 'FqdnTls',
             Position = 2
         )]
-        [string]$CBCcertName
+        [Alias('SenderCertificateName')]
+        [string]$CBCcertName,
+
+        [Parameter(
+            Mandatory = $false,
+            HelpMessage = 'Disable the connectors on creation'
+         )]
+        [switch]$Disabled
+
         #endregion
     )
 
@@ -205,7 +125,7 @@ function New-SM365Connectors
         {throw [System.Exception] "You're not connected to Exchange Online - please connect prior to using this CmdLet"}
         Write-Information "Connected to Exchange Organization `"$Script:ExODefaultDomain`"" -InformationAction Continue
 
-        #Resolve IP
+        <#Resolve IP
         if ($PSCmdLet.ParameterSetName -like 'Fqdn*') {
             try {
                 Write-Verbose "Transform $SEPPmailFQDN to IP Address for IP based options"
@@ -216,7 +136,7 @@ function New-SM365Connectors
                 Write-Error "Could not resolve IP Address of $SEPPmailFQDN. Please check SEPPmailFQDN hostname and try again."
                 break
             }
-        }
+        }#>
 
         #region collecting existing connectors
         Write-Verbose "Collecting existing connectors"
@@ -260,6 +180,18 @@ function New-SM365Connectors
 
     process
     {
+        <# TODO:
+        Optionen:
+        2. Erzwingen ==> FQDN mit TLSZertifikatsangabe
+        3. FQDN mit TLSZertifikatsangabe UND CBC CERT.
+        
+        3 PARAMETER:
+        Smarthost ==> Sendeziel vom Outbound COnnector
+        TLS Sendercertificate ==> Validierung des eingehenden Zertifikats (CBC von der Applaince)
+        TLS Domain ==> GLobal in der APpliance für SLL muss matchen mit dem SMarthost name (also z.B. TLS Domain contoso.com, muss Smarthost securemail.contoso.com)
+
+        #>
+        
         #region - Check existing Outbound Connector
         Write-Verbose "Read existing SEPPmail outbound connector"
         $existingSMOutboundConn = $allOutboundConnectors | Where-Object Name -like '`[SEPPmail`]*'
@@ -315,38 +247,10 @@ function New-SM365Connectors
             $outboundParam.Enabled = $false
         }
 
-        switch ($PSCmdLet.ParameterSetName) {
-            'Ip' {
-                Write-Verbose "IP based Config, using $SenderIPAddresses"
-                [string[]]$SenderIPAddresses = $SEPPmailIP
-                $outboundParam.SenderIPAddresses = $SenderIPAddresses
-                $outboundParam.TlsSettings = $null
-            }
-            'FqdnNoTls' {
-                Write-Verbose "NoTls, using $SEPPmailFQDN as SmartHost"
-                $outboundParam.TlsSettings = $null
-                $outboundParam.SmartHosts = $SEPPmailFQDN
-                if ($TLSCertificateName.Length -gt 0) {
-                    $outboundParam.TlsDomain = $TLSCertificateName
-                }
+        Write-Verbose "FQDN and TLS, using $SEPPmailFQDN as SmartHost and $TLSCertificate as TlsDoman"
+        $outboundParam.SmartHosts = $SEPPmailFQDN
+        $outboundParam.TlsDomain = $TLSCertificateName
 
-            }
-            'FqdnTls' {
-                Write-Verbose "FQDN and TLS, using $SEPPmailFQDN as SmartHost"
-                $outboundParam.TlsDomain = $SEPPmailFQDN
-                if ($TLSCertificateName.Length -gt 0) {
-                    $outboundParam.TlsDomain = $TLSCertificateName
-                } elseif ($NoOutBoundTlsCheck) {
-                    Write-Verbose "No TLS required for outbound connector"
-                    $outboundParam.TlsSettings = $null
-                } elseif ($AllowSelfSignedCertificates) {
-                    $outboundParam.TlsSettings = 'EncryptionOnly'
-                    $outboundParam.Remove('TlsDomain')
-                } else {
-                    $outboundParam.TlsSettings = 'DomainValidation'
-                }
-            }
-        }
 
         if($createOutbound)
         {
@@ -444,6 +348,7 @@ function New-SM365Connectors
 
             # Configure inbound connector parameters based on parameter set
             switch ($PSCmdLet.ParameterSetName) {
+                #TODO: IP Option generell entfernen - 
                 'Ip' {
                     Write-Verbose "IP based Config, using $SenderIPAddresses"
                     [string[]]$SenderIPAddresses = $SEPPmailIP
@@ -453,6 +358,7 @@ function New-SM365Connectors
                 }
                 'FqdnTls' {
                     # Handle self-signed certificates
+                    #TODO: Outbound zur Appliance ist da nicht möglich
                     if ($AllowSelfSignedCertificates) {
                         Write-Verbose "FQDN and Self Signed certificates, TLSCertificateName = $SEPPmailFQDN"
                         $inboundParam.RestrictDomainsToCertificate = $false
