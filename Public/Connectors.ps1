@@ -346,44 +346,13 @@ function New-SM365Connectors
         {
             Write-Verbose "Modify params based on ParameterSet"
 
-            # Configure inbound connector parameters based on parameter set
-            switch ($PSCmdLet.ParameterSetName) {
-                #TODO: IP Option generell entfernen - 
-                'Ip' {
-                    Write-Verbose "IP based Config, using $SenderIPAddresses"
-                    [string[]]$SenderIPAddresses = $SEPPmailIP
-                    $inboundParam.SenderIPAddresses = $SenderIPAddresses
-                    $inboundParam.RequireTls = $false
-                    $inboundParam.EFSkipLastIP = $false
-                }
-                'FqdnTls' {
-                    # Handle self-signed certificates
-                    #TODO: Outbound zur Appliance ist da nicht möglich
-                    if ($AllowSelfSignedCertificates) {
-                        Write-Verbose "FQDN and Self Signed certificates, TLSCertificateName = $SEPPmailFQDN"
-                        $inboundParam.RestrictDomainsToCertificate = $false
-                        $inboundParam.TlsSenderCertificateName = $SEPPmailFQDN
-                    }
-                    # Handle CBC certificate name (MSP setup)
-                    elseif ($CBCcertName) {
-                        Write-Verbose "FQDN and CBC CertificateName, using $CBCcertName as TLSCertificateName"
-                        $inboundParam.TlsSenderCertificateName = $CBCcertName
-                    }
-                    # Handle custom TLS certificate name
-                    elseif ($TLSCertificateName.Length -gt 0) {
-                        Write-Verbose "FQDN and CertificateName specified, using $TLSCertificateName as TLSCertificateName"
-                        $inboundParam.TlsSenderCertificateName = $TLSCertificateName
-                    }
-                    # Default case: use FQDN as certificate name
-                    else {
-                        Write-Verbose "FQDN and CertificateName equals FQDN, using $SEPPmailFQDN as TLSCertificateName"
-                        $inboundParam.TlsSenderCertificateName = $SEPPmailFQDN
-                    }
-                }
-                'FqdnNoTls' {
-                    Write-Verbose "NoTls, using $SEPPmailFQDN as TLSCertificateName"
-                    $inboundParam.TlsSenderCertificateName = $SEPPmailFQDN
-                }
+            # Configure inbound connector parameters based CBCCert given yes or no.
+            if ($CBCcertName) {
+                Write-Verbose "FQDN and CBC CertificateName, using $CBCcertName as TLSCertificateName"
+                $inboundParam.TlsSenderCertificateName = $CBCcertName
+            } else {
+                Write-Verbose "FQDN and CertificateName specified, using $TLSCertificateName as TLSCertificateName"
+                $inboundParam.TlsSenderCertificateName = $TLSCertificateName
             }
 
             Write-Verbose "Creating SEPPmail Inbound Connector $($inboundParam.Name)!"
