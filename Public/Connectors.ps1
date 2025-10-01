@@ -125,19 +125,6 @@ function New-SM365Connectors
         {throw [System.Exception] "You're not connected to Exchange Online - please connect prior to using this CmdLet"}
         Write-Information "Connected to Exchange Organization `"$Script:ExODefaultDomain`"" -InformationAction Continue
 
-        <#Resolve IP
-        if ($PSCmdLet.ParameterSetName -like 'Fqdn*') {
-            try {
-                Write-Verbose "Transform $SEPPmailFQDN to IP Address for IP based options"
-                $SEPPmailIP = ([System.Net.Dns]::GetHostAddresses($SEPPmailFQDN).IPAddressToString)
-                Write-Verbose "$SEPPmailFQDN equals the IP(s): $SEPPmailIP"
-            }
-            catch {
-                Write-Error "Could not resolve IP Address of $SEPPmailFQDN. Please check SEPPmailFQDN hostname and try again."
-                break
-            }
-        }#>
-
         #region collecting existing connectors
         Write-Verbose "Collecting existing connectors"
         $allInboundConnectors = Get-InboundConnector
@@ -180,18 +167,6 @@ function New-SM365Connectors
 
     process
     {
-        <# TODO:
-        Optionen:
-        2. Erzwingen ==> FQDN mit TLSZertifikatsangabe
-        3. FQDN mit TLSZertifikatsangabe UND CBC CERT.
-        
-        3 PARAMETER:
-        Smarthost ==> Sendeziel vom Outbound COnnector
-        TLS Sendercertificate ==> Validierung des eingehenden Zertifikats (CBC von der Applaince)
-        TLS Domain ==> GLobal in der APpliance für SLL muss matchen mit dem SMarthost name (also z.B. TLS Domain contoso.com, muss Smarthost securemail.contoso.com)
-
-        #>
-        
         #region - Check existing Outbound Connector
         Write-Verbose "Read existing SEPPmail outbound connector"
         $existingSMOutboundConn = $allOutboundConnectors | Where-Object Name -like '`[SEPPmail`]*'
@@ -339,7 +314,15 @@ function New-SM365Connectors
                 #region Resolve IP addresses
                 try {
                     Write-Verbose "Transform $SEPPmailFQDN to IP Address for IP based options"
-                    $SEPPmailIP = ([System.Net.Dns]::GetHostAddresses($SEPPmailFQDN).IPAddressToString)
+                    $RawIP = ([System.Net.Dns]::GetHostAddresses($SEPPmailFQDN).IPAddressToString)
+                    if ($RawIP.Count -eq 1) {
+                        [string]$SEPPmailIP = $RawIP
+                    } elseif ($RawIP.Count -gt 1) {
+                        [string[]]$SEPPmailIP = $RawIP
+                    } elseif ($RawIP.Count -eq 0) {
+                        throw [System.Exception] "No IP Address found for $SEPPmailFQDN"
+                    }
+                    
                     Write-Verbose "$SEPPmailFQDN equals the IP(s): $SEPPmailIP"
                 }
                 catch {
