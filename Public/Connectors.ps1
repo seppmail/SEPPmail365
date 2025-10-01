@@ -13,7 +13,9 @@ function Get-SM365Connectors
 {
     [CmdletBinding()]
     Param
-    ()
+    (
+    [Switch]$IncludeTestModeConnectors
+    )
 
     if (!(Test-SM365ConnectionStatus))
     { 
@@ -24,15 +26,20 @@ function Get-SM365Connectors
 
         $inbound = Get-SM365InboundConnectorSettings
         $outbound = Get-SM365OutboundConnectorSettings
-    
-        if (Get-OutboundConnector -outvariable obc | Where-Object Identity -eq $($outbound.Name))
+
+        if ($IncludeTestModeConnectors) {
+            Get-OutboundConnector -IncludeTestModeConnectors:$true |where-object {$_.TestMode -eq $true}|select-object Name,Enabled,WhenCreated,SmartHosts
+        }
+
+        if (Get-OutboundConnector -outVariable obc | Where-Object Identity -eq $($outbound.Name))
         {
-            $obc|select-object Name,Enabled,WhenCreated,SmartHosts
+            $obc | Where-Object Identity -eq $($outbound.Name) |select-object Name,Enabled,WhenCreated,SmartHosts
         }
         else {
             Write-Warning "No SEPPmail Outbound Connector with name `"$($outbound.Name)`" found"
         }
-        if (Get-InboundConnector -outvariable ibc | Where-Object Identity -eq $($inbound.Name))
+
+        if (Get-InboundConnector -outVariable ibc | Where-Object Identity -eq $($inbound.Name))
         {
             $ibc|select-object Name,Enabled,WhenCreated,TlsSenderCertificateName
         }
