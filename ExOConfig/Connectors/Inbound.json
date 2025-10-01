@@ -10,6 +10,6 @@
         "EFSkipLastIP"                 : true,
         "RequireTls"                   : true,
         "SenderDomains"                : "*",
-        "TlsCertificateName"            : ""
+        "TlsSenderCertificateName"      : ""
     }
 }

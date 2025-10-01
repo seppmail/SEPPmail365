@@ -251,7 +251,6 @@ function New-SM365Connectors
         $outboundParam.SmartHosts = $SEPPmailFQDN
         $outboundParam.TlsDomain = $TLSCertificateName
 
-
         if($createOutbound)
         {
             Write-Verbose "Creating SEPPmail Outbound Connector $($outboundParam.Name)!"
@@ -266,7 +265,7 @@ function New-SM365Connectors
                     Write-Debug "$($_.Key) = $($_.Value)"
                 }
 
-                #[void](New-OutboundConnector $outboundParam)
+                [void](New-OutboundConnector @outboundParam)
 
                 if(!$?)
                 {throw $error[0]}
@@ -330,21 +329,30 @@ function New-SM365Connectors
             $inboundParam.Enabled = $false
         }
 
-        # Due to ARC Setup of Exo tenants and EFSkipLastIP is $true by default, EFSKipIP´s must be empty in certain setups.
-        #TODO: Check mit Sebastian wann der leer sein muss
-        if ($PsCmdLet.ParameterSetName -ne 'FqdnTls') {
-            Write-Verbose "Setting SEPPmail IP Address(es) $SEPPmailIP for EFSkipIP´s and Anti-SPAM Whitelist"
-            
-            # Remove all IPv6 addresses
-            [string[]]$SEPPmailIpRange = Remove-IPv6Address -IPArray $SEPPmailIP
-            $inboundParam.EFSkipIPs = $SEPPmailIpRange
-        } else {
-            $inboundParam.Remove('EFSkipIPs')
-        }
-
         if($createInbound)
         {
-            Write-Verbose "Modify params based on ParameterSet"
+            Write-Verbose "Modify params based on Parameters given"
+            # Due to ARC Setup of Exo tenants and EFSkipLastIP is $true by default, EFSKipIP´s must be empty in certain setups.
+            #TODO: Check mit Sebastian ob das so stimmt.
+            if ($NoAntiSpamWhiteListing) {
+                Write-Verbose "Setting SEPPmail IP Address(es) $SEPPmailIP for EFSkipIP´s and Anti-SPAM Whitelist"
+                #region Resolve IP addresses
+                try {
+                    Write-Verbose "Transform $SEPPmailFQDN to IP Address for IP based options"
+                    $SEPPmailIP = ([System.Net.Dns]::GetHostAddresses($SEPPmailFQDN).IPAddressToString)
+                    Write-Verbose "$SEPPmailFQDN equals the IP(s): $SEPPmailIP"
+                }
+                catch {
+                    Write-Error "Could not resolve IP Address of $SEPPmailFQDN. Please check SEPPmailFQDN hostname and try again."
+                    break
+                }
+                #endregion resolve IP addresses
+
+                # Remove all IPv6 addresses
+                [string[]]$SEPPmailIpRange = Remove-IPv6Address -IPArray $SEPPmailIP
+                $inboundParam.EFSkipIPs = $SEPPmailIpRange
+                $inboundParam.EFSkipLastIP = $false
+            }
 
             # Configure inbound connector parameters based CBCCert given yes or no.
             if ($CBCcertName) {
@@ -367,7 +375,7 @@ function New-SM365Connectors
                 $inboundParam.GetEnumerator() | Foreach-Object {
                     Write-Debug "$($_.Key) = $($_.Value)"
                 }
-                #[void](New-InboundConnector @inboundParam)
+                [void](New-InboundConnector @inboundParam)
 
                 if(!$?) {
                     throw $error[0]
