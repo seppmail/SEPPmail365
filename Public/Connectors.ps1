@@ -315,34 +315,6 @@ function New-SM365Connectors
         {
             Write-Verbose "Modify params based on Parameters given"
             # Due to ARC Setup of Exo tenants and EFSkipLastIP is $true by default, EFSKipIP´s must be empty in certain setups.
-            #TODO: Check mit Sebastian ob das so stimmt.
-            if ($NoAntiSpamWhiteListing) {
-                Write-Verbose "Setting SEPPmail IP Address(es) $SEPPmailIP for EFSkipIP´s and Anti-SPAM Whitelist"
-                #region Resolve IP addresses
-                try {
-                    Write-Verbose "Transform $SEPPmailFQDN to IP Address for IP based options"
-                    $RawIP = ([System.Net.Dns]::GetHostAddresses($SEPPmailFQDN).IPAddressToString)
-                    if ($RawIP.Count -eq 1) {
-                        [string]$SEPPmailIP = $RawIP
-                    } elseif ($RawIP.Count -gt 1) {
-                        [string[]]$SEPPmailIP = $RawIP
-                    } elseif ($RawIP.Count -eq 0) {
-                        throw [System.Exception] "No IP Address found for $SEPPmailFQDN"
-                    }
-                    
-                    Write-Verbose "$SEPPmailFQDN equals the IP(s): $SEPPmailIP"
-                }
-                catch {
-                    Write-Error "Could not resolve IP Address of $SEPPmailFQDN. Please check SEPPmailFQDN hostname and try again."
-                    break
-                }
-                #endregion resolve IP addresses
-
-                # Remove all IPv6 addresses
-                [string[]]$SEPPmailIpRange = Remove-IPv6Address -IPArray $SEPPmailIP
-                $inboundParam.EFSkipIPs = $SEPPmailIpRange
-                $inboundParam.EFSkipLastIP = $false
-            }
 
             # Configure inbound connector parameters based CBCCert given yes or no.
             if ($CBCcertName) {
@@ -370,10 +342,31 @@ function New-SM365Connectors
                 if(!$?) {
                     throw $error[0]
                 } else {
-                    #region - Add SMFQDN to hosted Connection Filter Policy Whitelist
-                    if ($NoAntiSpamWhiteListing -eq $true)
+                    #region - Add SMFQDN IP to hosted Connection Filter Policy Whitelist
+                    if ($NoAntiSpamWhiteListing)
                     {
-                        Write-Verbose "Adding SEPPmail Appliance to allowlist in 'Hosted Connection Filter Policy'"
+                        #region resolve IP addresses                    
+                        Write-verbose "Resolve IP addresses from $SEPPmailFQDN"
+                        try {
+                            Write-Verbose "Transform $SEPPmailFQDN to IP Address for IP based options"
+                            $RawIP = ([System.Net.Dns]::GetHostAddresses($SEPPmailFQDN).IPAddressToString)
+                            if ($RawIP.Count -eq 1) {
+                                [string]$SEPPmailIP = $RawIP
+                            } elseif ($RawIP.Count -gt 1) {
+                                [string[]]$SEPPmailIP = $RawIP
+                            } elseif ($RawIP.Count -eq 0) {
+                                throw [System.Exception] "No IP Address found for $SEPPmailFQDN"
+                            }
+                            [string[]]$SEPPmailIpRange = Remove-IPv6Address -IPArray $SEPPmailIP
+
+                            Write-Verbose "$SEPPmailFQDN equals the IP(s): $SEPPmailIP"
+                        }
+                        catch {
+                            Write-Error "Could not resolve IP Address of $SEPPmailFQDN. Please check SEPPmailFQDN hostname and try again."
+                            break
+                        }
+                        #endregion resolve IP addresses                    
+
                         Write-Verbose "Collecting existing WhiteList"
                         $hcfp = Get-HostedConnectionFilterPolicy
                         [string[]]$existingAllowList = $hcfp.IPAllowList
@@ -446,7 +439,7 @@ function Remove-SM365Connectors
         $InboundConnector = Get-InboundConnector | Where-Object Identity -eq $($inbound.Name)
         if ($inboundConnector)
             {
-            Write-Verbose 'Collect Inbound Connector IP for later Whitelistremoval'
+            Write-Verbose 'Collect Inbound Connector IP for later WhiteListRemoval'
             
             [string]$InboundSEPPmailIP = $null
             if ($inboundConnector.SenderIPAddresses.count -le 1) {
