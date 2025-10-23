@@ -1,6 +1,6 @@
 # CHANGES in SEPPmail365 Module
 
-## Version 1.3.0 - Production scenarios only
+## Version 1.3.0 - Production scenarios only version
 
 Redesigned Connector-Creation (New-SC365connectors) for production usage only. 
 Removed the scenarios:
@@ -9,13 +9,15 @@ Removed the scenarios:
 - NoTLS
 - SelfSignedCertificates
 
+*** BREAKINNG CHANGE ***
+- Transport rules are now created by default as "disabled". To enable them during installation, use -Disabled:$false when creating
+
 ### Maintenance
 
 - CBCCertName was ignored when specified
 - Non-production scenarios removed
-- 
-
-
+- Added Rule 120 to handle PGP and Tag-Spoofing seperately
+- Removed -NoAntiSPAMWhitelisting parameter in New-SM365Connectors - makes no sense in production
 
 ## Version 1.2.9.1
 

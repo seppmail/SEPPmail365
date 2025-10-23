@@ -72,9 +72,6 @@ function Get-SM365Connectors
 .EXAMPLE
     New-SM365Connectors -SEPPmailFQDN 'securemail.contoso.com' -TLSCertName '*.contoso.com' -Disabled
     Use this option if you want to create the connectors, but just disable them on creation, use the -Disabled switch.
-.EXAMPLE 
-    New-SM365Connectors -SEPPmailFQDN 'securemail.contoso.com' -TLSCertName '*.contoso.com' -NoAntiSpamWhitelisting
-    To avoid adding the SEPPmail appliance to the ANTI-SPAM WhiteList of Microsoft Defender, use the -NoAntiSpamWhiteListing switch.
 #>
 function New-SM365Connectors
 {
@@ -102,11 +99,6 @@ function New-SM365Connectors
         )]
         [Alias('TLSCertName','CertName')]
         [String] $TLSCertificateName,
-
-        [Parameter(
-            HelpMessage = 'Do not Add SEPPmailIP to the HostedConnectionFilterPolicy'
-        )]
-        [switch]$NoAntiSpamWhiteListing,
 
         [Parameter(
             Mandatory = $false,
@@ -342,47 +334,6 @@ function New-SM365Connectors
                 if(!$?) {
                     throw $error[0]
                 } else {
-                    #region - Add SMFQDN IP to hosted Connection Filter Policy Whitelist
-                    if ($NoAntiSpamWhiteListing)
-                    {
-                        #region resolve IP addresses                    
-                        Write-verbose "Resolve IP addresses from $SEPPmailFQDN"
-                        try {
-                            Write-Verbose "Transform $SEPPmailFQDN to IP Address for IP based options"
-                            $RawIP = ([System.Net.Dns]::GetHostAddresses($SEPPmailFQDN).IPAddressToString)
-                            if ($RawIP.Count -eq 1) {
-                                [string]$SEPPmailIP = $RawIP
-                            } elseif ($RawIP.Count -gt 1) {
-                                [string[]]$SEPPmailIP = $RawIP
-                            } elseif ($RawIP.Count -eq 0) {
-                                throw [System.Exception] "No IP Address found for $SEPPmailFQDN"
-                            }
-                            [string[]]$SEPPmailIpRange = Remove-IPv6Address -IPArray $SEPPmailIP
-
-                            Write-Verbose "$SEPPmailFQDN equals the IP(s): $SEPPmailIP"
-                        }
-                        catch {
-                            Write-Error "Could not resolve IP Address of $SEPPmailFQDN. Please check SEPPmailFQDN hostname and try again."
-                            break
-                        }
-                        #endregion resolve IP addresses                    
-
-                        Write-Verbose "Collecting existing WhiteList"
-                        $hcfp = Get-HostedConnectionFilterPolicy
-                        [string[]]$existingAllowList = $hcfp.IPAllowList
-                        Write-verbose "Adding SEPPmail Appliance to Policy $($hcfp.Id)"
-                        if ($existingAllowList) {
-                            $FinalIPList = ($existingAllowList + $SEPPmailIP)|sort-object -Unique
-                        }
-                        else {
-                            $FinalIPList = Remove-IPv6Address -IPArray $SEPPmailIP
-                        }
-                        Write-verbose "Adding IPaddress list with content $finalIPList to Policy $($hcfp.Id)"
-                        if ($FinalIPList) {
-                            Set-HostedConnectionFilterPolicy -Identity $hcfp.Id -IPAllowList $finalIPList
-                        }
-                    }
-                    #endRegion - Hosted Connection Filter Policy WhiteList
                 }
             }
         }
