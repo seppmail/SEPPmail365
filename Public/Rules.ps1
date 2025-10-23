@@ -243,9 +243,13 @@ function New-SM365Rules
 						$Setting.HeaderContainsWords = "application/x-pkcs7-mime","application/pkcs7-mime","application/x-pkcs7-signature","application/pkcs7-signature","multipart/signed","application/pgp-signature","multipart/encrypted","application/pgp-encrypted","application/octet-stream"			
                     }
 
-                    if (($cryptoContentOnly) -and ($Setting.Name -eq '[SEPPmail] - 110 Route incoming tagged e-mails to SEPPmail')) {
+                    if (($cryptoContentOnly) -and ($Setting.Name -eq '[SEPPmail] - 110 Route incoming PGP e-mails to SEPPmail')) {
                         Write-Verbose "Setting HeaderContains* for crypto content only"
 						$setting.SubjectOrBodyContainsWords += '-----BEGIN PGP'
+                    }
+                    if (($cryptoContentOnly) -and ($Setting.Name -eq '[SEPPmail] - 120 Route incoming tagged e-mails to SEPPmail')) {
+                        Write-Verbose "Setting HeaderContains* for crypto content only"
+						$setting.SubjectOrBodyContainsWords += "[signed OK]","[secure]","[secured by HIN]","[signed invalid]","[not secured by HIN]"
                     }
 
                     if (($ExcludeEmailDomain.count -ne 0) -and ($Setting.Name -eq '[SEPPmail] - 200 Route outgoing e-mails to SEPPmail')) {
