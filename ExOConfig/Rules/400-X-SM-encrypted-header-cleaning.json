@@ -3,7 +3,7 @@
     {
         "Name"                  : "[SEPPmail] - 400 Clean outbound SEPPmail header encrypted",
         "Comments"              : "Removes encrypted SEPPmail x-headers from E-Mail.",
-        "SMPriority"            : 5,
+        "SMPriority"            : 6,
         "FromScope"             : "InOrganization",
         "SentToScope"           : "NotInOrganization",
         "RemoveHeader"          : "X-SM-encrypted",

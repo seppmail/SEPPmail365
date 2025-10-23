@@ -3,7 +3,7 @@
     {
         "Name"                  : "[SEPPmail] - 600 Clean outbound SEPPmail header smarthost",
         "Comments"              : "Removes outgoing SEPPmail x-headers from E-Mail.",
-        "SMPriority"            : 7,
+        "SMPriority"            : 8,
         "FromScope"             : "InOrganization",
         "SentToScope"           : "NotInOrganization",
         "RemoveHeader"          : "X-SM-smarthost",
