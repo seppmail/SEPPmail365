@@ -1,0 +1,15 @@
+{
+    "default":
+    {
+        "Name"                  : "[SEPPmail] - 300 Clean outbound SEPPmail header decrypted",
+        "Comments"              : "Removes decrypted SEPPmail x-headers from E-Mail.",
+        "SMPriority"            : 5,
+        "FromScope"             : "InOrganization",
+        "SentToScope"           : "NotInOrganization",
+        "RemoveHeader"          : "X-SM-decrypted",
+        "Priority"              : 0,
+        "SetAuditSeverity"      : "Low",
+        "Mode"                  : "Enforce",
+        "SenderAddressLocation" : "Header"
+    }
+}
