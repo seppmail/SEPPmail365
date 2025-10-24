@@ -350,7 +350,14 @@ function Remove-SM365Rules {
     catch 
     {
         throw [System.Exception] "Error: $($_.Exception.Message)"
-    }        
+    }
+    
+    Write-Verbose "Removing remaining SEPPmail Appliance rules"
+    try {
+        Get-Transportrule -Identity "[SEPPmail] - *" | remove-Transportrule -Confirm:$false       
+    } catch {
+        throw [System.Exception] "Error: $($_.Exception.Message)"
+    }
 }
 
 if (!(Get-Alias 'Set-SM365rules' -ErrorAction SilentlyContinue)) {
